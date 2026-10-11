@@ -1,6 +1,7 @@
 // Device-side data model: compressed columns, key decoders, global hash table, result buffers.
 #pragma once
 #include <cuda_runtime.h>
+#include <algorithm>
 #include <climits>
 #include <stdexcept>
 #include <string>
@@ -168,6 +169,15 @@ struct GTable {
   void alloc(u64 capacity, bool aos_layout = true);
   void release();
   size_t bytes() const { return aos ? cap * 64 : cap * 40; }
+  // A smaller table over the same memory (AoS only: slot s lives at base + 64 s for any capacity).
+  // Non-owning; used to merge partial results into a table sized by what arrived, not by the dictionary.
+  GTable view(u64 c) const {
+    GTable v = *this;
+    v.cap = std::min(c, cap);
+    v.t.shift = 64 - ilog2(v.cap);
+    v.t.mask = (u32)(v.cap - 1);
+    return v;
+  }
 };
 
 __device__ __forceinline__ u32 gt_slot(const GT& T, u64 key, u64 h) {

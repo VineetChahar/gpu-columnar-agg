@@ -392,6 +392,7 @@ static int run_mgpu(const Args& a) {
           std::vector<double> t_dev(G);
           std::vector<std::string> skip(G);
           double t_xfer = 0, t_merge = 0;
+          u64 merge_cap = 0;
           u64 n_partial = 0;
           // one complete query; returns false if a GPU skipped
           auto once = [&]() -> bool {
@@ -413,28 +414,34 @@ static int run_mgpu(const Args& a) {
             CK(cudaSetDevice(0));
             if (G == 1) return true;
             double t1 = now_ms();
-            table_init(dv[0].T, dv[0].st);
-            u64 n0 = dv[0].R.count();
-            table_merge_results(dv[0].T, dv[0].R, n0, dv[0].st);
+            // merge table sized by the partial groups that arrived (<= 2x their sum, load <= 0.5), as a
+            // view over GPU 0's table memory - clearing/scanning a dictionary-sized table would cost
+            // O(card) even when only a few thousand groups came back
+            std::vector<u64> ng(G);
+            u64 sum_ng = 0;
+            for (int g = 0; g < G; ++g) { CK(cudaSetDevice(g)); ng[g] = dv[g].R.count(); sum_ng += ng[g]; }
+            CK(cudaSetDevice(0));
+            GTable M = dv[0].T.view(table_capacity(std::max<u64>(1, std::min<u64>(p.card, sum_ng))));
+            merge_cap = M.cap;
+            table_init(M, dv[0].st);
+            u64 n0 = ng[0];
+            table_merge_results(M, dv[0].R, n0, dv[0].st);
             n_partial = n0;
             for (int g = 1; g < G; ++g) {
-              CK(cudaSetDevice(g));
-              u64 ng = dv[g].R.count();
-              CK(cudaSetDevice(0));
               double tx = now_ms();
               const ResV &src = dv[g].R.r, &dst = Rx.r;
-              CK(cudaMemcpyPeerAsync(dst.key, 0, src.key, g, ng * 8, dv[0].st));
-              CK(cudaMemcpyPeerAsync(dst.cnt, 0, src.cnt, g, ng * 8, dv[0].st));
-              CK(cudaMemcpyPeerAsync(dst.sum, 0, src.sum, g, ng * 8, dv[0].st));
-              CK(cudaMemcpyPeerAsync(dst.dsum, 0, src.dsum, g, ng * 8, dv[0].st));
-              CK(cudaMemcpyPeerAsync(dst.mn, 0, src.mn, g, ng * 4, dv[0].st));
-              CK(cudaMemcpyPeerAsync(dst.mx, 0, src.mx, g, ng * 4, dv[0].st));
+              CK(cudaMemcpyPeerAsync(dst.key, 0, src.key, g, ng[g] * 8, dv[0].st));
+              CK(cudaMemcpyPeerAsync(dst.cnt, 0, src.cnt, g, ng[g] * 8, dv[0].st));
+              CK(cudaMemcpyPeerAsync(dst.sum, 0, src.sum, g, ng[g] * 8, dv[0].st));
+              CK(cudaMemcpyPeerAsync(dst.dsum, 0, src.dsum, g, ng[g] * 8, dv[0].st));
+              CK(cudaMemcpyPeerAsync(dst.mn, 0, src.mn, g, ng[g] * 4, dv[0].st));
+              CK(cudaMemcpyPeerAsync(dst.mx, 0, src.mx, g, ng[g] * 4, dv[0].st));
               CK(cudaStreamSynchronize(dv[0].st));
               t_xfer += now_ms() - tx;
-              table_merge_results(dv[0].T, Rx, ng, dv[0].st);
-              n_partial += ng;
+              table_merge_results(M, Rx, ng[g], dv[0].st);
+              n_partial += ng[g];
             }
-            table_extract(dv[0].T, Rf, dv[0].st);
+            table_extract(M, Rf, dv[0].st);
             CK(cudaStreamSynchronize(dv[0].st));
             t_merge = now_ms() - t1 - t_xfer;
             return true;
@@ -447,7 +454,8 @@ static int run_mgpu(const Args& a) {
           } else {
             CheckResult r = check_results(G == 1 ? dv[0].R : Rf, dref, dv[0].st);
             j.b("correct", r.ok).n("groups", (double)r.groups).n("mismatches", (double)r.mismatches)
-                .n("max_rel_err_dsum", r.max_rel_dsum).n("partial_groups", (double)n_partial);
+                .n("max_rel_err_dsum", r.max_rel_dsum).n("partial_groups", (double)n_partial)
+                .n("merge_table_cap", (double)merge_cap);
             if (!r.ok) { ++fails; printf("  g=%d %-16s INCORRECT: %s (no timing recorded)\n", G, v->name.c_str(), r.msg.c_str()); }
             else {
               for (int i = 0; i < warm; ++i) once();

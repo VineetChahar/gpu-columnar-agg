@@ -96,6 +96,13 @@ bench-part5: build
 	$(BENCH) mgpu rows=100M,500M cards=4096,65536,1048576,16777216 skews=0,1.5 sels=1,100 gpus=2,1 variants=v1_vec,v3_warpagg,v4_radix_l2,v4_sort,v4_sort_chunked tag=mgpu
 	$(BENCH) sweep rows=500M cards=1048576,16777216 skews=0,1.5 sels=1,10,50,100 variants=main cap=est tag=capest cpu=0
 
+# multi-GPU re-run after sizing the merge table by the partial groups that arrive (was dictionary-sized);
+# correctness gate + memcheck first, then the same grid as bench-part5 (rows with the same key replace the old ones)
+bench-part5b: build
+	$(BENCH) mgpu rows=1000003,20000000 cards=16,65536,1048576 skews=0,1.5 sels=1,100 gpus=2 variants=v1_vec,v3_warpagg,v4_sort,v4_sort_chunked iters=2 warmup=1 tag=mgpu_verify2
+	$(SAN) --tool memcheck --error-exitcode 1 $(BENCH) mgpu rows=100000 cards=4096 skews=0 sels=50 gpus=2 variants=v3_warpagg,v4_sort_chunked iters=1 warmup=0 tag=mgpu_san2
+	$(BENCH) mgpu rows=100M,500M cards=4096,65536,1048576,16777216 skews=0,1.5 sels=1,100 gpus=2,1 variants=v1_vec,v3_warpagg,v4_radix_l2,v4_sort,v4_sort_chunked tag=mgpu
+
 bench: bench-part1 bench-part2 bench-part3
 
 # nsys is not on the Kaggle image but installs from NVIDIA's apt repo; trace one V5 pipeline

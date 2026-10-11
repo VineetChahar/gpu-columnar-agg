@@ -22,7 +22,7 @@ COLOR = {v: SLOT[i] for i, v in enumerate(MAIN)}
 COLOR.update({"v2_smem_aos512": SLOT[7], "v2_smem_soa512": SLOT[2], "v1_nocompact": SLOT[1], "v3_global": SLOT[3],
               "v4_radix_1pass": SLOT[4], "v3_warpagg256": SLOT[3], "v3_warpagg512": SLOT[3], "v2_smem_soa256": SLOT[2]})
 INK, INK2, GRID = "#0b0b0b", "#52514e", "#e4e3df"
-LABEL = {"v0_naive": "V0 naive global", "v1_vec": "V1 vector+compaction", "v2_smem_soa": "V2 smem table (SoA)",
+LABEL = {"v4_sort_chunked": "V4 sort, chunked (dashed)", "v0_naive": "V0 naive global", "v1_vec": "V1 vector+compaction", "v2_smem_soa": "V2 smem table (SoA)",
          "v3_warpagg": "V3 warp-aggregated", "v4_radix_smem": "V4 radix→smem", "v4_radix_l2": "V4 radix→L2",
          "v4_sort": "V4 sort+reduce", "cpu": "CPU engine (4 thr)", "cudf": "cuDF"}
 CARDS = [16, 256, 4096, 65536, 1048576, 16777216]
@@ -80,6 +80,8 @@ def mkey(r):
 
 R = load()
 sweep = [r for r in R if r.get("exp") in ("sweep", "sweep_big") and r.get("correct") and "median_ms" in r]
+chunked = [r for r in R if r.get("exp") == "chunked" and r.get("correct") and "median_ms" in r]
+mgpu = [r for r in R if r.get("exp") == "mgpu" and r.get("correct") and "median_ms" in r]
 cudf = [r for r in R if r.get("exp") == "cudf" and r.get("correct")]
 
 
@@ -222,6 +224,12 @@ if len({r["rows"] for r in sweep}) > 1:
                          and r["skew"] == 0 and not r.get("composite"))
             if pts:
                 ax.plot([p[0] for p in pts], [p[1] for p in pts], color=COLOR[v], lw=2, marker="o", ms=4, label=LABEL[v])
+        # chunked sort: same hue as V4 sort (same algorithm), dashed - it exists where v4_sort ran out of memory
+        pts = sorted((r["rows"], r["rows_per_s"] / 1e9) for r in chunked if r["variant"] == "v4_sort_chunked" and r["card"] == card
+                     and r["sel"] == 100 and r["skew"] == 0)
+        if pts:
+            ax.plot([p[0] for p in pts], [p[1] for p in pts], color=COLOR["v4_sort"], lw=2, ls="--", marker="s", ms=4,
+                    label=LABEL["v4_sort_chunked"])
         ax.set_xscale("log"); ax.set_title(f"card {CARD_LBL[card]}, uniform, sel 100%", fontsize=9)
         ax.set_xlabel("rows")
     axes[0].set_ylabel("throughput (G rows/s)")
@@ -390,6 +398,80 @@ if jn:
     for r in sorted(jn, key=lambda r: (r["D"], r["sel"], r["variant"])):
         md.append(f"| {r['D']:,} | {r['sel']} | {r['variant']} | {r['median_ms']:.2f} | {r.get('probed', 0):,.0f} | "
                   f"{r.get('bloom_fpr', float('nan')):.4f} | {r['cpu_ms']:.1f} | {r.get('speedup_vs_cpu', float('nan')):.1f} |")
+
+# ---------------- follow-up: chunked sort at 500M, cap=est at 500M, multi-GPU ----------------
+big = [r for r in sweep if r["rows"] == 500_000_000]
+if chunked:
+    md.append("\n## Chunked sort at 500M rows vs the best variant that fit before\n\n"
+              "| groups | skew | sel | best of main sweep | ms | v4_sort_chunked ms | chunks | speedup |\n|---|---|---|---|---|---|---|---|")
+    for r in sorted((r for r in chunked if r["rows"] == 500_000_000), key=lambda r: (r["card"], r["skew"], r["sel"])):
+        b = [x for x in big if x["card"] == r["card"] and x["skew"] == r["skew"] and x["sel"] == r["sel"] and not x.get("composite")]
+        if not b:
+            continue
+        b = min(b, key=lambda x: x["median_ms"])
+        ch = (r.get("info") or {}).get("chunks", float("nan"))
+        md.append(f"| {CARD_LBL[r['card']]} | {r['skew']} | {r['sel']}% | {b['variant']} | {b['median_ms']:.1f} | "
+                  f"{r['median_ms']:.1f} | {ch:.0f} | {b['median_ms'] / r['median_ms']:.2f}x |")
+    md.append("\n### Chunking overhead at 100M rows (same session: v4_sort vs chunked, auto plan and forced 16M-row chunks)\n\n"
+              "| groups | skew | sel | v4_sort | chunked (auto) | chunked (16M-row chunks) |\n|---|---|---|---|---|---|")
+    c16 = [r for r in R if r.get("exp") == "chunked16M" and r.get("correct") and "median_ms" in r]
+    for r in sorted((r for r in chunked if r["rows"] == 100_000_000 and r["variant"] == "v4_sort"), key=lambda r: (r["card"], r["skew"], r["sel"])):
+        a = [x for x in chunked if x["rows"] == r["rows"] and x["variant"] == "v4_sort_chunked" and x["card"] == r["card"]
+             and x["skew"] == r["skew"] and x["sel"] == r["sel"]]
+        f = [x for x in c16 if x["card"] == r["card"] and x["skew"] == r["skew"] and x["sel"] == r["sel"]]
+        md.append(f"| {CARD_LBL[r['card']]} | {r['skew']} | {r['sel']}% | {r['median_ms']:.1f} | "
+                  f"{a[0]['median_ms']:.1f} | " + (f"{f[0]['median_ms']:.1f} ({f[0]['info'].get('chunks', 0):.0f} chunks)" if f else "-") + " |"
+                  if a else f"| {CARD_LBL[r['card']]} | {r['skew']} | {r['sel']}% | {r['median_ms']:.1f} | - | - |")
+
+capbig = [r for r in R if r.get("exp") == "capest" and r.get("rows") == 500_000_000 and r.get("correct") and "median_ms" in r]
+if capbig:
+    md.append("\n## cap=est at 500M rows (hash variants; best per point)\n\n"
+              "| groups | skew | sel | cap=dict best | ms | cap=est best | ms | table cap dict -> est |\n|---|---|---|---|---|---|---|---|")
+    for key in sorted({(r["card"], r["skew"], r["sel"]) for r in capbig}):
+        e = min((r for r in capbig if (r["card"], r["skew"], r["sel"]) == key), key=lambda r: r["median_ms"])
+        d = [x for x in big if (x["card"], x["skew"], x["sel"]) == key and not x.get("composite")]
+        if not d:
+            continue
+        d = min(d, key=lambda r: r["median_ms"])
+        md.append(f"| {CARD_LBL[key[0]]} | {key[1]} | {key[2]}% | {d['variant']} | {d['median_ms']:.1f} | {e['variant']} | "
+                  f"{e['median_ms']:.1f} | {d['table_cap']:,.0f} -> {e['table_cap']:,.0f} |")
+
+if mgpu:
+    md.append("\n## Multi-GPU (2 x T4, rows split, partials merged on GPU 0)\n\n"
+              "| rows | groups | skew | sel | variant | 1 GPU ms | 2 GPU ms | speedup | slowest GPU | transfer | merge | partial groups |\n"
+              "|---|---|---|---|---|---|---|---|---|---|---|---|")
+    one = {(r["rows"], r["card"], r["skew"], r["sel"], r["variant"]): r for r in mgpu if r["gpus"] == 1}
+    for r in sorted((r for r in mgpu if r["gpus"] == 2), key=lambda r: (r["rows"], r["card"], r["skew"], r["sel"], r["median_ms"])):
+        o = one.get((r["rows"], r["card"], r["skew"], r["sel"], r["variant"]))
+        md.append(f"| {r['rows'] / 1e6:.0f}M | {CARD_LBL.get(r['card'], r['card'])} | {r['skew']} | {r['sel']}% | {r['variant']} | "
+                  + (f"{o['median_ms']:.1f}" if o else "OOM/skip") + f" | {r['median_ms']:.1f} | "
+                  + (f"{o['median_ms'] / r['median_ms']:.2f}x" if o else "-")
+                  + f" | {r['ms_slowest_gpu']:.1f} | {r['ms_transfer']:.1f} | {r['ms_merge']:.1f} | {r.get('partial_groups', 0):,.0f} |")
+    # plot: best 1-GPU vs best 2-GPU per cardinality at 500M / sel 100%, and the 2-GPU combine cost
+    rows_big = max(r["rows"] for r in mgpu)
+    fig, axes = plt.subplots(1, 2, figsize=(10, 3.4), sharey=True)
+    for ax, skew in zip(axes, (0.0, 1.5)):
+        for G, style in ((1, dict(color=INK2, ls="--", marker="o")), (2, dict(color=SLOT[0], ls="-", marker="o"))):
+            xs, ys = [], []
+            for c in CARDS:
+                m = [r for r in mgpu if r["gpus"] == G and r["rows"] == rows_big and r["card"] == c and r["skew"] == skew and r["sel"] == 100]
+                if m:
+                    xs.append(c); ys.append(min(r["median_ms"] for r in m))
+            if xs:
+                ax.plot(xs, ys, lw=2, ms=4, label=f"best variant, {G} GPU" + ("s" if G > 1 else ""), **style)
+        xs, ys = [], []
+        for c in CARDS:
+            m = [r for r in mgpu if r["gpus"] == 2 and r["rows"] == rows_big and r["card"] == c and r["skew"] == skew and r["sel"] == 100]
+            if m:
+                b = min(m, key=lambda r: r["median_ms"]); xs.append(c); ys.append(b["ms_transfer"] + b["ms_merge"])
+        if xs:
+            ax.plot(xs, ys, color=SLOT[1], lw=2, ls=":", marker="^", ms=4, label="2 GPUs: transfer + merge part")
+        ax.set_xscale("log"); ax.set_yscale("log"); fmt_card_axis(ax)
+        ax.set_title(f"{rows_big / 1e6:.0f}M rows, {'uniform' if skew == 0 else f'Zipf {skew}'}, sel 100%", fontsize=9)
+        ax.set_xlabel("groups")
+    axes[0].set_ylabel("time (ms, log)")
+    h, l = axes[0].get_legend_handles_labels(); fig.legend(h, l, loc="upper center", ncol=3, bbox_to_anchor=(0.5, 1.08))
+    fig.savefig(os.path.join(OUT, "mgpu.png")); plt.close(fig)
 
 # ---------------- TPC-H ----------------
 tp = [r for r in R if r.get("exp") == "tpch" and r.get("correct")]

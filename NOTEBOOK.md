@@ -185,3 +185,31 @@ inherit each other's 4–12 GB of partition/sort buffers.
 - Totals across sweep/ablation/capest/latemat: 3,432 timed points, all correct; FP SUM max rel err 1.7e-10,
   median 6e-13, none bit-identical. RESULTS correctness section updated.
 - plots regenerated from the merged results.json (43 files).
+
+## 2026-10-12 — follow-up: closing the four recorded gaps
+User asked to fix the gaps listed at the end of the run. Design decisions:
+- **v4_sort_chunked** (src/kernels/v4_sort.cu). Same compaction + cub sort + ReduceByKey, but over
+  row chunks. Partials fold into a dense per-code accumulator (card x 32 B). Codes are unique
+  within one chunk's ReduceByKey output, so the fold is conflict-free: a plain load-merge-store,
+  no atomics. Chosen over merging partials by a second sort or into a hash table: dictionary codes
+  are dense, so the accumulator is O(card) and needs no probing. Planner (cached per
+  dataset/selectivity, outside timed runs): if the exact selected count (RLE stats) fits 85% of
+  free memory at 16 B/row + cub temp, there is one chunk with buffers sized to the selected rows.
+  Otherwise the chunk size is halved until it fits. `chunk=` forces a size (verify uses 4096 rows to
+  exercise the multi-chunk path).
+- **Multi-GPU** (`bench mgpu`). Rows are split on TILE boundaries; each GPU holds its slice
+  (`DevData::upload_range`, runs rebased) plus the full dictionary. One persistent host thread per
+  GPU: variant scratch is now `thread_local`, and so are the per-device function-attribute flags
+  and the SM count. A thread per iteration would have leaked and reallocated scratch every run.
+  Partials (one row per group a GPU saw) go to GPU 0 by `cudaMemcpyPeerAsync` (P2P if available,
+  else staged via the host) and are merged with `table_merge_results` into GPU 0's table,
+  re-initialised. Generic over every variant. Cost is O(groups), not O(rows); at 16M groups that
+  is the price. Host-timed end to end, with phase split slowest-GPU / transfer / merge.
+- **Full TPC-H Q6**: discount + quantity exported as u8. Dedicated kernel with two forms:
+  - eager (load all columns);
+  - ordered/late (RLE date → disc+qty only if the date passes → price only if all pass), with no
+    per-lane `continue`, so every lane reaches the next warp_rle_find together.
+  Revenue is exact int64 (cents × percent). Checked against DuckDB's encoded-column answer, which
+  tpch_prep asserts equals the official Q6 SQL on DECIMAL columns; cuDF is asserted equal too.
+- **cap=est at 500M**: part5 sweep, cpu=0 (CPU numbers exist from part2b, same seed = same data).
+- Compile check (CPU session, -Werror) clean twice; parts 4 and 5 queued in parallel.

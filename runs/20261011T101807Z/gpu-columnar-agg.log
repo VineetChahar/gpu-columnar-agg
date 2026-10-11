@@ -1,0 +1,194 @@
+[{"stream_name":"stderr","time":1.308320331,"data":"/kaggle/src/script.py:9: DeprecationWarning: Python 3.14 will, by default, filter extracted tar archives and reject files or modify their metadata. Use the filter argument to control this behavior.\n"}
+,{"stream_name":"stderr","time":1.308358117,"data":"  tarfile.open(fileobj=io.BytesIO(base64.b64decode(PAYLOAD)), mode=\"r:gz\").extractall(repo)\n"}
+,{"stream_name":"stdout","time":1.3542459519999999,"data":"$ nvidia-smi; nvcc --version; nproc; free -g\n"}
+,{"stream_name":"stdout","time":1.385517216,"data":"Sun Oct 11 10:18:14 2026       \n"}
+,{"stream_name":"stdout","time":1.385547909,"data":"+-----------------------------------------------------------------------------------------+\n"}
+,{"stream_name":"stdout","time":1.385551381,"data":"| NVIDIA-SMI 580.178.04             Driver Version: 580.178.04     CUDA Version: 13.0     |\n"}
+,{"stream_name":"stdout","time":1.385553928,"data":"+-----------------------------------------+------------------------+----------------------+\n"}
+,{"stream_name":"stdout","time":1.385556427,"data":"| GPU  Name                 Persistence-M | Bus-Id          Disp.A | Volatile Uncorr. ECC |\n"}
+,{"stream_name":"stdout","time":1.385558697,"data":"| Fan  Temp   Perf          Pwr:Usage/Cap |           Memory-Usage | GPU-Util  Compute M. |\n"}
+,{"stream_name":"stdout","time":1.385560932,"data":"|                                         |                        |               MIG M. |\n"}
+,{"stream_name":"stdout","time":1.385563269,"data":"|=========================================+========================+======================|\n"}
+,{"stream_name":"stdout","time":1.416912108,"data":"|   0  Tesla T4                       Off |   00000000:00:04.0 Off |                    0 |\n"}
+,{"stream_name":"stdout","time":1.416935381,"data":"| N/A   39C    P8              9W /   70W |       0MiB /  15360MiB |      0%      Default |\n"}
+,{"stream_name":"stdout","time":1.416938955,"data":"|                                         |                        |                  N/A |\n"}
+,{"stream_name":"stdout","time":1.416941639,"data":"+-----------------------------------------+------------------------+----------------------+\n"}
+,{"stream_name":"stdout","time":1.416944212,"data":"|   1  Tesla T4                       Off |   00000000:00:05.0 Off |                    0 |\n"}
+,{"stream_name":"stdout","time":1.416946695,"data":"| N/A   41C    P8              9W /   70W |       0MiB /  15360MiB |      0%      Default |\n"}
+,{"stream_name":"stdout","time":1.4169490869999999,"data":"|                                         |                        |                  N/A |\n"}
+,{"stream_name":"stdout","time":1.416951556,"data":"+-----------------------------------------+------------------------+----------------------+\n"}
+,{"stream_name":"stdout","time":1.417630155,"data":"\n"}
+,{"stream_name":"stdout","time":1.417639946,"data":"+-----------------------------------------------------------------------------------------+\n"}
+,{"stream_name":"stdout","time":1.417643848,"data":"| Processes:                                                                              |\n"}
+,{"stream_name":"stdout","time":1.417647622,"data":"|  GPU   GI   CI              PID   Type   Process name                        GPU Memory |\n"}
+,{"stream_name":"stdout","time":1.417656821,"data":"|        ID   ID                                                               Usage      |\n"}
+,{"stream_name":"stdout","time":1.417660022,"data":"|=========================================================================================|\n"}
+,{"stream_name":"stdout","time":1.4191918700000001,"data":"|  No running processes found                                                             |\n"}
+,{"stream_name":"stdout","time":1.419217351,"data":"+-----------------------------------------------------------------------------------------+\n"}
+,{"stream_name":"stdout","time":1.8038305719999999,"data":"nvcc: NVIDIA (R) Cuda compiler driver\n"}
+,{"stream_name":"stdout","time":1.803871965,"data":"Copyright (c) 2005-2025 NVIDIA Corporation\n"}
+,{"stream_name":"stdout","time":1.803878324,"data":"Built on Fri_Feb_21_20:23:50_PST_2025\n"}
+,{"stream_name":"stdout","time":1.803882765,"data":"Cuda compilation tools, release 12.8, V12.8.93\n"}
+,{"stream_name":"stdout","time":1.803886784,"data":"Build cuda_12.8.r12.8/compiler.35583870_0\n"}
+,{"stream_name":"stdout","time":1.807766403,"data":"4\n"}
+,{"stream_name":"stdout","time":1.866959837,"data":"               total        used        free      shared  buff/cache   available\n"}
+,{"stream_name":"stdout","time":1.866981609,"data":"Mem:              31           1          25           0           4          30\n"}
+,{"stream_name":"stdout","time":1.8669874210000001,"data":"Swap:              0           0           0\n"}
+,{"stream_name":"stdout","time":1.870396875,"data":"$ make verify\n"}
+,{"stream_name":"stdout","time":1.880158411,"data":"cmake -S . -B build -DCMAKE_BUILD_TYPE=Release \u003e /dev/null\n"}
+,{"stream_name":"stdout","time":9.132816409,"data":"cmake --build build -j4\n"}
+,{"stream_name":"stdout","time":9.29863358,"data":"gmake[1]: Entering directory '/kaggle/repo/build'\n"}
+,{"stream_name":"stdout","time":9.308261801,"data":"gmake[2]: Entering directory '/kaggle/repo/build'\n"}
+,{"stream_name":"stdout","time":9.309833214,"data":"gmake[3]: Entering directory '/kaggle/repo/build'\n"}
+,{"stream_name":"stdout","time":9.314031024,"data":"gmake[3]: Leaving directory '/kaggle/repo/build'\n"}
+,{"stream_name":"stdout","time":9.315607425,"data":"gmake[3]: Entering directory '/kaggle/repo/build'\n"}
+,{"stream_name":"stdout","time":9.320645924,"data":"[  5%] Building CXX object CMakeFiles/cpu.dir/src/datagen.cpp.o\n"}
+,{"stream_name":"stdout","time":9.320660827,"data":"[ 10%] Building CXX object CMakeFiles/cpu.dir/src/cpu/reference.cpp.o\n"}
+,{"stream_name":"stdout","time":9.321219646,"data":"[ 15%] Building CXX object CMakeFiles/cpu.dir/src/cpu/engine.cpp.o\n"}
+,{"stream_name":"stdout","time":9.321916789,"data":"[ 21%] Building CXX object CMakeFiles/cpu.dir/src/cpu/join_cpu.cpp.o\n"}
+,{"stream_name":"stdout","time":12.436353092,"data":"[ 26%] Linking CXX static library libcpu.a\n"}
+,{"stream_name":"stdout","time":12.462038786,"data":"gmake[3]: Leaving directory '/kaggle/repo/build'\n"}
+,{"stream_name":"stdout","time":12.46597697,"data":"[ 26%] Built target cpu\n"}
+,{"stream_name":"stdout","time":12.468074549,"data":"gmake[3]: Entering directory '/kaggle/repo/build'\n"}
+,{"stream_name":"stdout","time":12.472381574,"data":"gmake[3]: Leaving directory '/kaggle/repo/build'\n"}
+,{"stream_name":"stdout","time":12.474308292,"data":"gmake[3]: Entering directory '/kaggle/repo/build'\n"}
+,{"stream_name":"stdout","time":12.479657155,"data":"[ 31%] Building CUDA object CMakeFiles/bench.dir/bench/bench.cu.o\n"}
+,{"stream_name":"stdout","time":12.47967148,"data":"[ 36%] Building CUDA object CMakeFiles/bench.dir/bench/micro.cu.o\n"}
+,{"stream_name":"stdout","time":12.479676105,"data":"[ 42%] Building CUDA object CMakeFiles/bench.dir/bench/stream.cu.o\n"}
+,{"stream_name":"stdout","time":12.479971992,"data":"[ 47%] Building CUDA object CMakeFiles/bench.dir/bench/join.cu.o\n"}
+,{"stream_name":"stdout","time":17.570413766,"data":"[ 52%] Building CUDA object CMakeFiles/bench.dir/bench/tpch.cu.o\n"}
+,{"stream_name":"stdout","time":17.622395398,"data":"[ 57%] Building CUDA object CMakeFiles/bench.dir/src/gpu/dev.cu.o\n"}
+,{"stream_name":"stdout","time":21.336230608,"data":"[ 63%] Building CUDA object CMakeFiles/bench.dir/src/kernels/v0_naive.cu.o\n"}
+,{"stream_name":"stdout","time":21.594314212,"data":"[ 68%] Building CUDA object CMakeFiles/bench.dir/src/kernels/v1_vec.cu.o\n"}
+,{"stream_name":"stdout","time":23.111194102,"data":"[ 73%] Building CUDA object CMakeFiles/bench.dir/src/kernels/v2_smem.cu.o\n"}
+,{"stream_name":"stdout","time":26.422804978,"data":"[ 78%] Building CUDA object CMakeFiles/bench.dir/src/kernels/v3_warpagg.cu.o\n"}
+,{"stream_name":"stdout","time":28.307342663,"data":"[ 84%] Building CUDA object CMakeFiles/bench.dir/src/kernels/v4_radix.cu.o\n"}
+,{"stream_name":"stdout","time":33.883297565,"data":"[ 89%] Building CUDA object CMakeFiles/bench.dir/src/kernels/v4_sort.cu.o\n"}
+,{"stream_name":"stdout","time":38.346805162,"data":"[ 94%] Building CUDA object CMakeFiles/bench.dir/src/kernels/variants.cu.o\n"}
+,{"stream_name":"stdout","time":56.324456286,"data":"[100%] Linking CXX executable bench\n"}
+,{"stream_name":"stdout","time":56.478158081,"data":"gmake[3]: Leaving directory '/kaggle/repo/build'\n"}
+,{"stream_name":"stdout","time":56.482846394,"data":"[100%] Built target bench\n"}
+,{"stream_name":"stdout","time":56.483454034,"data":"gmake[2]: Leaving directory '/kaggle/repo/build'\n"}
+,{"stream_name":"stdout","time":56.487485145,"data":"gmake[1]: Leaving directory '/kaggle/repo/build'\n"}
+,{"stream_name":"stdout","time":56.488662739,"data":"build/bench verify\n"}
+,{"stream_name":"stdout","time":56.930909852,"data":"device: Tesla T4, 40 SMs, L2 4 MB, smem/SM 64 KB\n"}
+,{"stream_name":"stdout","time":56.93094288,"data":"  generated rows=1 card=16 skew=0.0 comp=0 in 1 ms (runs=1, 0.0 MB compressed)\n"}
+,{"stream_name":"stdout","time":56.949552697,"data":"  generated rows=1 card=16 skew=0.0 comp=1 in 0 ms (runs=1, 0.0 MB compressed)\n"}
+,{"stream_name":"stdout","time":56.956858798,"data":"  generated rows=1 card=256 skew=0.0 comp=0 in 0 ms (runs=1, 0.0 MB compressed)\n"}
+,{"stream_name":"stdout","time":56.963095345,"data":"  generated rows=1 card=256 skew=0.0 comp=1 in 0 ms (runs=1, 0.0 MB compressed)\n"}
+,{"stream_name":"stdout","time":56.969512737,"data":"  generated rows=4099 card=16 skew=0.0 comp=0 in 0 ms (runs=144, 0.0 MB compressed)\n"}
+,{"stream_name":"stdout","time":56.995698856,"data":"  generated rows=4099 card=16 skew=0.0 comp=1 in 0 ms (runs=144, 0.0 MB compressed)\n"}
+,{"stream_name":"stdout","time":57.022414751,"data":"  generated rows=4099 card=16 skew=1.0 comp=0 in 0 ms (runs=144, 0.0 MB compressed)\n"}
+,{"stream_name":"stdout","time":57.050046956,"data":"  generated rows=4099 card=16 skew=1.0 comp=1 in 0 ms (runs=144, 0.0 MB compressed)\n"}
+,{"stream_name":"stdout","time":57.077847038,"data":"  generated rows=4099 card=16 skew=1.5 comp=0 in 0 ms (runs=144, 0.0 MB compressed)\n"}
+,{"stream_name":"stdout","time":57.107198609,"data":"  generated rows=4099 card=16 skew=1.5 comp=1 in 0 ms (runs=144, 0.0 MB compressed)\n"}
+,{"stream_name":"stdout","time":57.13710372,"data":"  generated rows=4099 card=256 skew=0.0 comp=0 in 0 ms (runs=144, 0.0 MB compressed)\n"}
+,{"stream_name":"stdout","time":57.17071208,"data":"  generated rows=4099 card=256 skew=0.0 comp=1 in 0 ms (runs=144, 0.0 MB compressed)\n"}
+,{"stream_name":"stdout","time":57.205377738,"data":"  generated rows=4099 card=256 skew=1.0 comp=0 in 0 ms (runs=144, 0.0 MB compressed)\n"}
+,{"stream_name":"stdout","time":57.224709063,"data":"  generated rows=4099 card=256 skew=1.0 comp=1 in 0 ms (runs=144, 0.0 MB compressed)\n"}
+,{"stream_name":"stdout","time":57.244553012,"data":"  generated rows=4099 card=256 skew=1.5 comp=0 in 0 ms (runs=144, 0.0 MB compressed)\n"}
+,{"stream_name":"stdout","time":57.26303885,"data":"  generated rows=4099 card=256 skew=1.5 comp=1 in 0 ms (runs=144, 0.0 MB compressed)\n"}
+,{"stream_name":"stdout","time":57.281716739,"data":"  generated rows=4099 card=4096 skew=0.0 comp=0 in 0 ms (runs=144, 0.0 MB compressed)\n"}
+,{"stream_name":"stdout","time":57.314540707,"data":"  generated rows=4099 card=4096 skew=0.0 comp=1 in 0 ms (runs=144, 0.0 MB compressed)\n"}
+,{"stream_name":"stdout","time":57.343333957,"data":"  generated rows=4099 card=4096 skew=1.0 comp=0 in 0 ms (runs=144, 0.0 MB compressed)\n"}
+,{"stream_name":"stdout","time":57.368295232,"data":"  generated rows=4099 card=4096 skew=1.0 comp=1 in 0 ms (runs=144, 0.0 MB compressed)\n"}
+,{"stream_name":"stdout","time":57.392506012,"data":"  generated rows=4099 card=4096 skew=1.5 comp=0 in 0 ms (runs=144, 0.0 MB compressed)\n"}
+,{"stream_name":"stdout","time":57.411303215,"data":"  generated rows=4099 card=4096 skew=1.5 comp=1 in 0 ms (runs=144, 0.0 MB compressed)\n"}
+,{"stream_name":"stdout","time":57.429364937,"data":"  generated rows=4099 card=65536 skew=0.0 comp=0 in 0 ms (runs=144, 0.0 MB compressed)\n"}
+,{"stream_name":"stdout","time":57.513705845,"data":"  generated rows=4099 card=65536 skew=0.0 comp=1 in 0 ms (runs=144, 0.0 MB compressed)\n"}
+,{"stream_name":"stdout","time":57.593863475,"data":"  generated rows=4099 card=65536 skew=1.0 comp=0 in 3 ms (runs=144, 0.0 MB compressed)\n"}
+,{"stream_name":"stdout","time":57.671048217,"data":"  generated rows=4099 card=65536 skew=1.0 comp=1 in 2 ms (runs=144, 0.0 MB compressed)\n"}
+,{"stream_name":"stdout","time":57.751118573,"data":"  generated rows=4099 card=65536 skew=1.5 comp=0 in 2 ms (runs=144, 0.0 MB compressed)\n"}
+,{"stream_name":"stdout","time":57.826787866,"data":"  generated rows=4099 card=65536 skew=1.5 comp=1 in 3 ms (runs=144, 0.0 MB compressed)\n"}
+,{"stream_name":"stdout","time":57.911635476,"data":"  generated rows=4099 card=1048576 skew=0.0 comp=0 in 11 ms (runs=144, 0.0 MB compressed)\n"}
+,{"stream_name":"stdout","time":58.072564337,"data":"  generated rows=4099 card=1048576 skew=0.0 comp=1 in 5 ms (runs=144, 0.0 MB compressed)\n"}
+,{"stream_name":"stdout","time":58.273628029,"data":"  generated rows=4099 card=1048576 skew=1.0 comp=0 in 53 ms (runs=144, 0.0 MB compressed)\n"}
+,{"stream_name":"stdout","time":58.470531691,"data":"  generated rows=4099 card=1048576 skew=1.0 comp=1 in 44 ms (runs=144, 0.0 MB compressed)\n"}
+,{"stream_name":"stdout","time":58.647502658,"data":"  generated rows=4099 card=1048576 skew=1.5 comp=0 in 54 ms (runs=144, 0.0 MB compressed)\n"}
+,{"stream_name":"stdout","time":58.836246159,"data":"  generated rows=4099 card=1048576 skew=1.5 comp=1 in 45 ms (runs=144, 0.0 MB compressed)\n"}
+,{"stream_name":"stdout","time":59.18132111,"data":"  generated rows=4099 card=16777216 skew=0.0 comp=0 in 207 ms (runs=144, 0.0 MB compressed)\n"}
+,{"stream_name":"stdout","time":61.425091167,"data":"  generated rows=4099 card=16777216 skew=0.0 comp=1 in 93 ms (runs=144, 0.0 MB compressed)\n"}
+,{"stream_name":"stdout","time":64.544961622,"data":"  generated rows=4099 card=16777216 skew=1.0 comp=0 in 995 ms (runs=144, 0.0 MB compressed)\n"}
+,{"stream_name":"stdout","time":67.53593775,"data":"  generated rows=4099 card=16777216 skew=1.0 comp=1 in 818 ms (runs=144, 0.0 MB compressed)\n"}
+,{"stream_name":"stdout","time":70.604044331,"data":"  generated rows=4099 card=16777216 skew=1.5 comp=0 in 955 ms (runs=144, 0.0 MB compressed)\n"}
+,{"stream_name":"stdout","time":73.609629209,"data":"  generated rows=4099 card=16777216 skew=1.5 comp=1 in 824 ms (runs=144, 0.0 MB compressed)\n"}
+,{"stream_name":"stdout","time":75.703331108,"data":"  generated rows=1000003 card=16 skew=0.0 comp=0 in 7 ms (runs=31304, 5.2 MB compressed)\n"}
+,{"stream_name":"stdout","time":75.759118642,"data":"  generated rows=1000003 card=16 skew=0.0 comp=1 in 7 ms (runs=31304, 8.2 MB compressed)\n"}
+,{"stream_name":"stdout","time":75.811866167,"data":"  generated rows=1000003 card=16 skew=1.0 comp=0 in 6 ms (runs=31304, 5.2 MB compressed)\n"}
+,{"stream_name":"stdout","time":75.866499023,"data":"  generated rows=1000003 card=16 skew=1.0 comp=1 in 7 ms (runs=31304, 8.2 MB compressed)\n"}
+,{"stream_name":"stdout","time":75.921169791,"data":"  generated rows=1000003 card=16 skew=1.5 comp=0 in 6 ms (runs=31304, 5.2 MB compressed)\n"}
+,{"stream_name":"stdout","time":75.979382728,"data":"  generated rows=1000003 card=16 skew=1.5 comp=1 in 7 ms (runs=31304, 8.2 MB compressed)\n"}
+,{"stream_name":"stdout","time":76.037559105,"data":"  generated rows=1000003 card=256 skew=0.0 comp=0 in 4 ms (runs=31304, 5.2 MB compressed)\n"}
+,{"stream_name":"stdout","time":76.087978848,"data":"  generated rows=1000003 card=256 skew=0.0 comp=1 in 5 ms (runs=31304, 8.2 MB compressed)\n"}
+,{"stream_name":"stdout","time":76.144092145,"data":"  generated rows=1000003 card=256 skew=1.0 comp=0 in 6 ms (runs=31304, 5.2 MB compressed)\n"}
+,{"stream_name":"stdout","time":76.196823232,"data":"  generated rows=1000003 card=256 skew=1.0 comp=1 in 6 ms (runs=31304, 8.2 MB compressed)\n"}
+,{"stream_name":"stdout","time":76.250052623,"data":"  generated rows=1000003 card=256 skew=1.5 comp=0 in 5 ms (runs=31304, 5.2 MB compressed)\n"}
+,{"stream_name":"stdout","time":76.305846761,"data":"  generated rows=1000003 card=256 skew=1.5 comp=1 in 6 ms (runs=31304, 8.2 MB compressed)\n"}
+,{"stream_name":"stdout","time":76.362363512,"data":"  generated rows=1000003 card=4096 skew=0.0 comp=0 in 4 ms (runs=31304, 6.2 MB compressed)\n"}
+,{"stream_name":"stdout","time":76.43509766,"data":"  generated rows=1000003 card=4096 skew=0.0 comp=1 in 5 ms (runs=31304, 8.2 MB compressed)\n"}
+,{"stream_name":"stdout","time":76.511476782,"data":"  generated rows=1000003 card=4096 skew=1.0 comp=0 in 6 ms (runs=31304, 6.2 MB compressed)\n"}
+,{"stream_name":"stdout","time":76.576496438,"data":"  generated rows=1000003 card=4096 skew=1.0 comp=1 in 6 ms (runs=31304, 8.2 MB compressed)\n"}
+,{"stream_name":"stdout","time":76.642199671,"data":"  generated rows=1000003 card=4096 skew=1.5 comp=0 in 4 ms (runs=31304, 6.2 MB compressed)\n"}
+,{"stream_name":"stdout","time":76.706604439,"data":"  generated rows=1000003 card=4096 skew=1.5 comp=1 in 6 ms (runs=31304, 8.2 MB compressed)\n"}
+,{"stream_name":"stdout","time":76.777463702,"data":"  generated rows=1000003 card=65536 skew=0.0 comp=0 in 5 ms (runs=31304, 6.2 MB compressed)\n"}
+,{"stream_name":"stdout","time":76.985378549,"data":"  generated rows=1000003 card=65536 skew=0.0 comp=1 in 6 ms (runs=31304, 8.2 MB compressed)\n"}
+,{"stream_name":"stdout","time":77.174026419,"data":"  generated rows=1000003 card=65536 skew=1.0 comp=0 in 10 ms (runs=31304, 6.2 MB compressed)\n"}
+,{"stream_name":"stdout","time":77.314861152,"data":"  generated rows=1000003 card=65536 skew=1.0 comp=1 in 10 ms (runs=31304, 8.2 MB compressed)\n"}
+,{"stream_name":"stdout","time":77.451354418,"data":"  generated rows=1000003 card=65536 skew=1.5 comp=0 in 8 ms (runs=31304, 6.2 MB compressed)\n"}
+,{"stream_name":"stdout","time":77.537042844,"data":"  generated rows=1000003 card=65536 skew=1.5 comp=1 in 7 ms (runs=31304, 8.2 MB compressed)\n"}
+,{"stream_name":"stdout","time":77.625337324,"data":"  generated rows=1000003 card=1048576 skew=0.0 comp=0 in 7 ms (runs=31304, 8.2 MB compressed)\n"}
+,{"stream_name":"stdout","time":78.577424199,"data":"  generated rows=1000003 card=1048576 skew=0.0 comp=1 in 7 ms (runs=31304, 8.2 MB compressed)\n"}
+,{"stream_name":"stdout","time":79.449695478,"data":"  generated rows=1000003 card=1048576 skew=1.0 comp=0 in 58 ms (runs=31304, 8.2 MB compressed)\n"}
+,{"stream_name":"stdout","time":79.907995418,"data":"  generated rows=1000003 card=1048576 skew=1.0 comp=1 in 57 ms (runs=31304, 8.2 MB compressed)\n"}
+,{"stream_name":"stdout","time":80.360243685,"data":"  generated rows=1000003 card=1048576 skew=1.5 comp=0 in 69 ms (runs=31304, 8.2 MB compressed)\n"}
+,{"stream_name":"stdout","time":80.548407616,"data":"  generated rows=1000003 card=1048576 skew=1.5 comp=1 in 48 ms (runs=31304, 8.2 MB compressed)\n"}
+,{"stream_name":"stdout","time":80.92217223,"data":"  generated rows=1000003 card=16777216 skew=0.0 comp=0 in 236 ms (runs=31304, 8.2 MB compressed)\n"}
+,{"stream_name":"stdout","time":84.349300007,"data":"  generated rows=1000003 card=16777216 skew=0.0 comp=1 in 99 ms (runs=31304, 8.2 MB compressed)\n"}
+,{"stream_name":"stdout","time":88.495688106,"data":"  generated rows=1000003 card=16777216 skew=1.0 comp=0 in 970 ms (runs=31304, 8.2 MB compressed)\n"}
+,{"stream_name":"stdout","time":91.963098846,"data":"  generated rows=1000003 card=16777216 skew=1.0 comp=1 in 842 ms (runs=31304, 8.2 MB compressed)\n"}
+,{"stream_name":"stdout","time":95.537006232,"data":"  generated rows=1000003 card=16777216 skew=1.5 comp=0 in 975 ms (runs=31304, 8.2 MB compressed)\n"}
+,{"stream_name":"stdout","time":98.648632837,"data":"  generated rows=1000003 card=16777216 skew=1.5 comp=1 in 857 ms (runs=31304, 8.2 MB compressed)\n"}
+,{"stream_name":"stdout","time":100.898732843,"data":"verify: 4864 checks, 0 failures\n"}
+,{"stream_name":"stdout","time":101.053254288,"data":"compute-sanitizer --tool memcheck --error-exitcode 1 --leak-check full build/bench verify tiny=1\n"}
+,{"stream_name":"stdout","time":101.175645606,"data":"========= COMPUTE-SANITIZER\n"}
+,{"stream_name":"stdout","time":101.941655509,"data":"device: Tesla T4, 40 SMs, L2 4 MB, smem/SM 64 KB\n"}
+,{"stream_name":"stdout","time":101.941686204,"data":"  generated rows=20011 card=16 skew=0.0 comp=0 in 0 ms (runs=649, 0.1 MB compressed)\n"}
+,{"stream_name":"stdout","time":102.206347501,"data":"  generated rows=20011 card=16 skew=0.0 comp=1 in 0 ms (runs=649, 0.2 MB compressed)\n"}
+,{"stream_name":"stdout","time":102.450486239,"data":"  generated rows=20011 card=16 skew=1.5 comp=0 in 0 ms (runs=649, 0.1 MB compressed)\n"}
+,{"stream_name":"stdout","time":102.73946986199999,"data":"  generated rows=20011 card=16 skew=1.5 comp=1 in 0 ms (runs=649, 0.2 MB compressed)\n"}
+,{"stream_name":"stdout","time":103.041891301,"data":"  generated rows=20011 card=4096 skew=0.0 comp=0 in 0 ms (runs=649, 0.1 MB compressed)\n"}
+,{"stream_name":"stdout","time":103.644990124,"data":"  generated rows=20011 card=4096 skew=0.0 comp=1 in 0 ms (runs=649, 0.2 MB compressed)\n"}
+,{"stream_name":"stdout","time":104.248719528,"data":"  generated rows=20011 card=4096 skew=1.5 comp=0 in 1 ms (runs=649, 0.1 MB compressed)\n"}
+,{"stream_name":"stdout","time":104.573451282,"data":"  generated rows=20011 card=4096 skew=1.5 comp=1 in 1 ms (runs=649, 0.2 MB compressed)\n"}
+,{"stream_name":"stdout","time":104.925445778,"data":"  generated rows=20011 card=1048576 skew=0.0 comp=0 in 14 ms (runs=649, 0.2 MB compressed)\n"}
+,{"stream_name":"stdout","time":106.148032563,"data":"  generated rows=20011 card=1048576 skew=0.0 comp=1 in 6 ms (runs=649, 0.2 MB compressed)\n"}
+,{"stream_name":"stdout","time":107.416996878,"data":"  generated rows=20011 card=1048576 skew=1.5 comp=0 in 59 ms (runs=649, 0.2 MB compressed)\n"}
+,{"stream_name":"stdout","time":108.388091965,"data":"  generated rows=20011 card=1048576 skew=1.5 comp=1 in 46 ms (runs=649, 0.2 MB compressed)\n"}
+,{"stream_name":"stdout","time":109.328799881,"data":"verify: 384 checks, 0 failures\n"}
+,{"stream_name":"stdout","time":109.531414668,"data":"========= LEAK SUMMARY: 0 bytes leaked in 0 allocations\n"}
+,{"stream_name":"stdout","time":109.531442819,"data":"========= ERROR SUMMARY: 0 errors\n"}
+,{"stream_name":"stdout","time":109.558912046,"data":"compute-sanitizer --tool racecheck --error-exitcode 1 --racecheck-report all build/bench verify tiny=1\n"}
+,{"stream_name":"stdout","time":109.565622585,"data":"========= COMPUTE-SANITIZER\n"}
+,{"stream_name":"stdout","time":110.013472827,"data":"device: Tesla T4, 40 SMs, L2 4 MB, smem/SM 64 KB\n"}
+,{"stream_name":"stdout","time":110.013504182,"data":"  generated rows=20011 card=16 skew=0.0 comp=0 in 1 ms (runs=649, 0.1 MB compressed)\n"}
+,{"stream_name":"stdout","time":129.045554048,"data":"  generated rows=20011 card=16 skew=0.0 comp=1 in 0 ms (runs=649, 0.2 MB compressed)\n"}
+,{"stream_name":"stdout","time":147.370445179,"data":"  generated rows=20011 card=16 skew=1.5 comp=0 in 0 ms (runs=649, 0.1 MB compressed)\n"}
+,{"stream_name":"stdout","time":168.337228014,"data":"  generated rows=20011 card=16 skew=1.5 comp=1 in 0 ms (runs=649, 0.2 MB compressed)\n"}
+,{"stream_name":"stdout","time":189.273724617,"data":"  generated rows=20011 card=4096 skew=0.0 comp=0 in 0 ms (runs=649, 0.1 MB compressed)\n"}
+,{"stream_name":"stdout","time":217.752608722,"data":"  generated rows=20011 card=4096 skew=0.0 comp=1 in 0 ms (runs=649, 0.2 MB compressed)\n"}
+,{"stream_name":"stdout","time":245.69467567,"data":"  generated rows=20011 card=4096 skew=1.5 comp=0 in 1 ms (runs=649, 0.1 MB compressed)\n"}
+,{"stream_name":"stdout","time":267.479272132,"data":"  generated rows=20011 card=4096 skew=1.5 comp=1 in 1 ms (runs=649, 0.2 MB compressed)\n"}
+,{"stream_name":"stdout","time":289.201235941,"data":"  generated rows=20011 card=1048576 skew=0.0 comp=0 in 14 ms (runs=649, 0.2 MB compressed)\n"}
+,{"stream_name":"stdout","time":329.860468295,"data":"  generated rows=20011 card=1048576 skew=0.0 comp=1 in 7 ms (runs=649, 0.2 MB compressed)\n"}
+,{"stream_name":"stdout","time":370.17913929,"data":"  generated rows=20011 card=1048576 skew=1.5 comp=0 in 59 ms (runs=649, 0.2 MB compressed)\n"}
+,{"stream_name":"stdout","time":392.815169802,"data":"  generated rows=20011 card=1048576 skew=1.5 comp=1 in 48 ms (runs=649, 0.2 MB compressed)\n"}
+,{"stream_name":"stdout","time":415.411049728,"data":"verify: 384 checks, 0 failures\n"}
+,{"stream_name":"stdout","time":415.64089131,"data":"========= RACECHECK SUMMARY: 0 hazards displayed (0 errors, 0 warnings)\n"}
+,{"stream_name":"stdout","time":415.642988063,"data":"EXIT_CODE=0\n"}
+,{"stream_name":"stderr","time":418.785156666,"data":"/usr/local/lib/python3.13/dist-packages/mistune.py:435: SyntaxWarning: invalid escape sequence '\\|'\n"}
+,{"stream_name":"stderr","time":418.785200226,"data":"  cells[i][c] = re.sub('\\\\\\\\\\|', '|', cell)\n"}
+,{"stream_name":"stderr","time":419.450231061,"data":"/usr/local/lib/python3.13/dist-packages/nbconvert/filters/filter_links.py:36: SyntaxWarning: invalid escape sequence '\\_'\n"}
+,{"stream_name":"stderr","time":419.450257736,"data":"  text = re.sub(r'_', '\\_', text) # Escape underscores in display text\n"}
+,{"stream_name":"stderr","time":422.454604936,"data":"[NbConvertApp] Converting notebook __script__.ipynb to html\n"}
+,{"stream_name":"stderr","time":423.934108016,"data":"[NbConvertApp] Writing 326424 bytes to __results__.html\n"}
+]

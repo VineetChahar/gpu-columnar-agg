@@ -1,0 +1,1 @@
+{"ref": "vineetkumar0210/gpu-columnar-agg", "cmd": "make smoke", "accel": "NvidiaTeslaT4Highmem", "utc": "20261011T095418Z"}

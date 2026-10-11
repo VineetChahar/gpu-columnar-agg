@@ -1,0 +1,51 @@
+[{"stream_name":"stderr","time":0.692968744,"data":"/kaggle/src/script.py:9: DeprecationWarning: Python 3.14 will, by default, filter extracted tar archives and reject files or modify their metadata. Use the filter argument to control this behavior.\n"}
+,{"stream_name":"stderr","time":0.693041269,"data":"  tarfile.open(fileobj=io.BytesIO(base64.b64decode(PAYLOAD)), mode=\"r:gz\").extractall(repo)\n"}
+,{"stream_name":"stdout","time":0.723599073,"data":"$ nvidia-smi; nvcc --version; nproc; free -g\n"}
+,{"stream_name":"stdout","time":0.761247576,"data":"Sun Oct 11 10:15:45 2026       \n"}
+,{"stream_name":"stdout","time":0.761279866,"data":"+-----------------------------------------------------------------------------------------+\n"}
+,{"stream_name":"stdout","time":0.761283555,"data":"| NVIDIA-SMI 580.178.04             Driver Version: 580.178.04     CUDA Version: 13.0     |\n"}
+,{"stream_name":"stdout","time":0.76128635,"data":"+-----------------------------------------+------------------------+----------------------+\n"}
+,{"stream_name":"stdout","time":0.761289129,"data":"| GPU  Name                 Persistence-M | Bus-Id          Disp.A | Volatile Uncorr. ECC |\n"}
+,{"stream_name":"stdout","time":0.761291741,"data":"| Fan  Temp   Perf          Pwr:Usage/Cap |           Memory-Usage | GPU-Util  Compute M. |\n"}
+,{"stream_name":"stdout","time":0.761294403,"data":"|                                         |                        |               MIG M. |\n"}
+,{"stream_name":"stdout","time":0.761297466,"data":"|=========================================+========================+======================|\n"}
+,{"stream_name":"stdout","time":0.793537833,"data":"|   0  Tesla T4                       Off |   00000000:00:04.0 Off |                    0 |\n"}
+,{"stream_name":"stdout","time":0.793583103,"data":"| N/A   52C    P8             10W /   70W |       0MiB /  15360MiB |      0%      Default |\n"}
+,{"stream_name":"stdout","time":0.79358873,"data":"|                                         |                        |                  N/A |\n"}
+,{"stream_name":"stdout","time":0.793593793,"data":"+-----------------------------------------+------------------------+----------------------+\n"}
+,{"stream_name":"stdout","time":0.793598263,"data":"|   1  Tesla T4                       Off |   00000000:00:05.0 Off |                    0 |\n"}
+,{"stream_name":"stdout","time":0.793602687,"data":"| N/A   53C    P8             10W /   70W |       0MiB /  15360MiB |      0%      Default |\n"}
+,{"stream_name":"stdout","time":0.793606673,"data":"|                                         |                        |                  N/A |\n"}
+,{"stream_name":"stdout","time":0.793611017,"data":"+-----------------------------------------+------------------------+----------------------+\n"}
+,{"stream_name":"stdout","time":0.794123281,"data":"\n"}
+,{"stream_name":"stdout","time":0.794135434,"data":"+-----------------------------------------------------------------------------------------+\n"}
+,{"stream_name":"stdout","time":0.794139341,"data":"| Processes:                                                                              |\n"}
+,{"stream_name":"stdout","time":0.794143032,"data":"|  GPU   GI   CI              PID   Type   Process name                        GPU Memory |\n"}
+,{"stream_name":"stdout","time":0.794146902,"data":"|        ID   ID                                                               Usage      |\n"}
+,{"stream_name":"stdout","time":0.794156954,"data":"|=========================================================================================|\n"}
+,{"stream_name":"stdout","time":0.795819735,"data":"|  No running processes found                                                             |\n"}
+,{"stream_name":"stdout","time":0.795853314,"data":"+-----------------------------------------------------------------------------------------+\n"}
+,{"stream_name":"stdout","time":1.135460477,"data":"nvcc: NVIDIA (R) Cuda compiler driver\n"}
+,{"stream_name":"stdout","time":1.135489524,"data":"Copyright (c) 2005-2025 NVIDIA Corporation\n"}
+,{"stream_name":"stdout","time":1.135493802,"data":"Built on Fri_Feb_21_20:23:50_PST_2025\n"}
+,{"stream_name":"stdout","time":1.135498606,"data":"Cuda compilation tools, release 12.8, V12.8.93\n"}
+,{"stream_name":"stdout","time":1.13550279,"data":"Build cuda_12.8.r12.8/compiler.35583870_0\n"}
+,{"stream_name":"stdout","time":1.1379152399999999,"data":"4\n"}
+,{"stream_name":"stdout","time":1.162713998,"data":"               total        used        free      shared  buff/cache   available\n"}
+,{"stream_name":"stdout","time":1.162760449,"data":"Mem:              31           1          25           0           4          30\n"}
+,{"stream_name":"stdout","time":1.16276441,"data":"Swap:              0           0           0\n"}
+,{"stream_name":"stdout","time":1.164424714,"data":"$ make verify\n"}
+,{"stream_name":"stdout","time":1.1713347,"data":"cmake -S . -B build -DCMAKE_BUILD_TYPE=Release \u003e /dev/null\n"}
+,{"stream_name":"stdout","time":6.396119786,"data":"CMake Error at CMakeLists.txt:25 (find_library):\n"}
+,{"stream_name":"stdout","time":6.396153985,"data":"  Could not find NVML_LIB using the following names: nvidia-ml\n"}
+,{"stream_name":"stdout","time":6.396159031,"data":"\n"}
+,{"stream_name":"stdout","time":6.396161633,"data":"\n"}
+,{"stream_name":"stdout","time":6.406300601,"data":"make: *** [Makefile:9: build] Error 1\n"}
+,{"stream_name":"stdout","time":6.406871621,"data":"EXIT_CODE=2\n"}
+,{"stream_name":"stderr","time":8.813749985,"data":"/usr/local/lib/python3.13/dist-packages/mistune.py:435: SyntaxWarning: invalid escape sequence '\\|'\n"}
+,{"stream_name":"stderr","time":8.813785908,"data":"  cells[i][c] = re.sub('\\\\\\\\\\|', '|', cell)\n"}
+,{"stream_name":"stderr","time":9.165652097,"data":"/usr/local/lib/python3.13/dist-packages/nbconvert/filters/filter_links.py:36: SyntaxWarning: invalid escape sequence '\\_'\n"}
+,{"stream_name":"stderr","time":9.165681147,"data":"  text = re.sub(r'_', '\\_', text) # Escape underscores in display text\n"}
+,{"stream_name":"stderr","time":10.627582050000001,"data":"[NbConvertApp] Converting notebook __script__.ipynb to html\n"}
+,{"stream_name":"stderr","time":11.686006432,"data":"[NbConvertApp] Writing 326408 bytes to __results__.html\n"}
+]

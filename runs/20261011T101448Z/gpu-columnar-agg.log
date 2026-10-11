@@ -1,0 +1,61 @@
+[{"stream_name":"stderr","time":0.706399194,"data":"/kaggle/src/script.py:9: DeprecationWarning: Python 3.14 will, by default, filter extracted tar archives and reject files or modify their metadata. Use the filter argument to control this behavior.\n"}
+,{"stream_name":"stderr","time":0.706437362,"data":"  tarfile.open(fileobj=io.BytesIO(base64.b64decode(PAYLOAD)), mode=\"r:gz\").extractall(repo)\n"}
+,{"stream_name":"stdout","time":0.774335774,"data":"$ nvidia-smi; nvcc --version; nproc; free -g\n"}
+,{"stream_name":"stdout","time":0.838175411,"data":"Sun Oct 11 10:14:53 2026       \n"}
+,{"stream_name":"stdout","time":0.838217365,"data":"+-----------------------------------------------------------------------------------------+\n"}
+,{"stream_name":"stdout","time":0.838222977,"data":"| NVIDIA-SMI 580.178.04             Driver Version: 580.178.04     CUDA Version: 13.0     |\n"}
+,{"stream_name":"stdout","time":0.838284068,"data":"+-----------------------------------------+------------------------+----------------------+\n"}
+,{"stream_name":"stdout","time":0.83829829,"data":"| GPU  Name                 Persistence-M | Bus-Id          Disp.A | Volatile Uncorr. ECC |\n"}
+,{"stream_name":"stdout","time":0.838323976,"data":"| Fan  Temp   Perf          Pwr:Usage/Cap |           Memory-Usage | GPU-Util  Compute M. |\n"}
+,{"stream_name":"stdout","time":0.83835879,"data":"|                                         |                        |               MIG M. |\n"}
+,{"stream_name":"stdout","time":0.838433616,"data":"|=========================================+========================+======================|\n"}
+,{"stream_name":"stdout","time":0.883321852,"data":"|   0  Tesla T4                       Off |   00000000:00:04.0 Off |                    0 |\n"}
+,{"stream_name":"stdout","time":0.883341966,"data":"| N/A   55C    P8             10W /   70W |       0MiB /  15360MiB |      0%      Default |\n"}
+,{"stream_name":"stdout","time":0.883346536,"data":"|                                         |                        |                  N/A |\n"}
+,{"stream_name":"stdout","time":0.883350621,"data":"+-----------------------------------------+------------------------+----------------------+\n"}
+,{"stream_name":"stdout","time":0.883354534,"data":"|   1  Tesla T4                       Off |   00000000:00:05.0 Off |                    0 |\n"}
+,{"stream_name":"stdout","time":0.883358456,"data":"| N/A   54C    P8             10W /   70W |       0MiB /  15360MiB |      0%      Default |\n"}
+,{"stream_name":"stdout","time":0.883383064,"data":"|                                         |                        |                  N/A |\n"}
+,{"stream_name":"stdout","time":0.883387274,"data":"+-----------------------------------------+------------------------+----------------------+\n"}
+,{"stream_name":"stdout","time":0.88454579,"data":"\n"}
+,{"stream_name":"stdout","time":0.884564027,"data":"+-----------------------------------------------------------------------------------------+\n"}
+,{"stream_name":"stdout","time":0.884570106,"data":"| Processes:                                                                              |\n"}
+,{"stream_name":"stdout","time":0.884575664,"data":"|  GPU   GI   CI              PID   Type   Process name                        GPU Memory |\n"}
+,{"stream_name":"stdout","time":0.884581254,"data":"|        ID   ID                                                               Usage      |\n"}
+,{"stream_name":"stdout","time":0.884586862,"data":"|=========================================================================================|\n"}
+,{"stream_name":"stdout","time":0.892705715,"data":"|  No running processes found                                                             |\n"}
+,{"stream_name":"stdout","time":0.892736768,"data":"+-----------------------------------------------------------------------------------------+\n"}
+,{"stream_name":"stdout","time":1.247098166,"data":"nvcc: NVIDIA (R) Cuda compiler driver\n"}
+,{"stream_name":"stdout","time":1.247125751,"data":"Copyright (c) 2005-2025 NVIDIA Corporation\n"}
+,{"stream_name":"stdout","time":1.247131017,"data":"Built on Fri_Feb_21_20:23:50_PST_2025\n"}
+,{"stream_name":"stdout","time":1.247135096,"data":"Cuda compilation tools, release 12.8, V12.8.93\n"}
+,{"stream_name":"stdout","time":1.247139564,"data":"Build cuda_12.8.r12.8/compiler.35583870_0\n"}
+,{"stream_name":"stdout","time":1.249743276,"data":"4\n"}
+,{"stream_name":"stdout","time":1.280654118,"data":"               total        used        free      shared  buff/cache   available\n"}
+,{"stream_name":"stdout","time":1.280667925,"data":"Mem:              31           1          25           0           4          30\n"}
+,{"stream_name":"stdout","time":1.280671836,"data":"Swap:              0           0           0\n"}
+,{"stream_name":"stdout","time":1.2824351680000001,"data":"$ make verify\n"}
+,{"stream_name":"stdout","time":1.288532611,"data":"cmake -S . -B build -DCMAKE_BUILD_TYPE=Release \u003e /dev/null\n"}
+,{"stream_name":"stdout","time":6.395912334,"data":"CMake Error at CMakeLists.txt:25 (target_link_libraries):\n"}
+,{"stream_name":"stdout","time":6.395940939,"data":"  Target \"bench\" links to:\n"}
+,{"stream_name":"stdout","time":6.39594731,"data":"\n"}
+,{"stream_name":"stdout","time":6.395954177,"data":"    CUDA::nvml\n"}
+,{"stream_name":"stdout","time":6.395958415,"data":"\n"}
+,{"stream_name":"stdout","time":6.395962897,"data":"  but the target was not found.  Possible reasons include:\n"}
+,{"stream_name":"stdout","time":6.395967589,"data":"\n"}
+,{"stream_name":"stdout","time":6.395971234,"data":"    * There is a typo in the target name.\n"}
+,{"stream_name":"stdout","time":6.395975171,"data":"    * A find_package call is missing for an IMPORTED target.\n"}
+,{"stream_name":"stdout","time":6.395979119,"data":"    * An ALIAS target is missing.\n"}
+,{"stream_name":"stdout","time":6.395983011,"data":"\n"}
+,{"stream_name":"stdout","time":6.3959870070000004,"data":"\n"}
+,{"stream_name":"stdout","time":6.395990858,"data":"\n"}
+,{"stream_name":"stdout","time":6.396890471,"data":"CMake Generate step failed.  Build files cannot be regenerated correctly.\n"}
+,{"stream_name":"stdout","time":6.40498701,"data":"make: *** [Makefile:9: build] Error 1\n"}
+,{"stream_name":"stdout","time":6.405439676,"data":"EXIT_CODE=2\n"}
+,{"stream_name":"stderr","time":8.64846647,"data":"/usr/local/lib/python3.13/dist-packages/mistune.py:435: SyntaxWarning: invalid escape sequence '\\|'\n"}
+,{"stream_name":"stderr","time":8.648506229,"data":"  cells[i][c] = re.sub('\\\\\\\\\\|', '|', cell)\n"}
+,{"stream_name":"stderr","time":8.972900953,"data":"/usr/local/lib/python3.13/dist-packages/nbconvert/filters/filter_links.py:36: SyntaxWarning: invalid escape sequence '\\_'\n"}
+,{"stream_name":"stderr","time":8.972924982,"data":"  text = re.sub(r'_', '\\_', text) # Escape underscores in display text\n"}
+,{"stream_name":"stderr","time":10.413200343,"data":"[NbConvertApp] Converting notebook __script__.ipynb to html\n"}
+,{"stream_name":"stderr","time":11.451267874,"data":"[NbConvertApp] Writing 326252 bytes to __results__.html\n"}
+]

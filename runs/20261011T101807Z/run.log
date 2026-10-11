@@ -1,0 +1,185 @@
+$ nvidia-smi; nvcc --version; nproc; free -g
+Sun Oct 11 10:18:14 2026       
++-----------------------------------------------------------------------------------------+
+| NVIDIA-SMI 580.178.04             Driver Version: 580.178.04     CUDA Version: 13.0     |
++-----------------------------------------+------------------------+----------------------+
+| GPU  Name                 Persistence-M | Bus-Id          Disp.A | Volatile Uncorr. ECC |
+| Fan  Temp   Perf          Pwr:Usage/Cap |           Memory-Usage | GPU-Util  Compute M. |
+|                                         |                        |               MIG M. |
+|=========================================+========================+======================|
+|   0  Tesla T4                       Off |   00000000:00:04.0 Off |                    0 |
+| N/A   39C    P8              9W /   70W |       0MiB /  15360MiB |      0%      Default |
+|                                         |                        |                  N/A |
++-----------------------------------------+------------------------+----------------------+
+|   1  Tesla T4                       Off |   00000000:00:05.0 Off |                    0 |
+| N/A   41C    P8              9W /   70W |       0MiB /  15360MiB |      0%      Default |
+|                                         |                        |                  N/A |
++-----------------------------------------+------------------------+----------------------+
+
++-----------------------------------------------------------------------------------------+
+| Processes:                                                                              |
+|  GPU   GI   CI              PID   Type   Process name                        GPU Memory |
+|        ID   ID                                                               Usage      |
+|=========================================================================================|
+|  No running processes found                                                             |
++-----------------------------------------------------------------------------------------+
+nvcc: NVIDIA (R) Cuda compiler driver
+Copyright (c) 2005-2025 NVIDIA Corporation
+Built on Fri_Feb_21_20:23:50_PST_2025
+Cuda compilation tools, release 12.8, V12.8.93
+Build cuda_12.8.r12.8/compiler.35583870_0
+4
+               total        used        free      shared  buff/cache   available
+Mem:              31           1          25           0           4          30
+Swap:              0           0           0
+$ make verify
+cmake -S . -B build -DCMAKE_BUILD_TYPE=Release > /dev/null
+cmake --build build -j4
+gmake[1]: Entering directory '/kaggle/repo/build'
+gmake[2]: Entering directory '/kaggle/repo/build'
+gmake[3]: Entering directory '/kaggle/repo/build'
+gmake[3]: Leaving directory '/kaggle/repo/build'
+gmake[3]: Entering directory '/kaggle/repo/build'
+[  5%] Building CXX object CMakeFiles/cpu.dir/src/datagen.cpp.o
+[ 10%] Building CXX object CMakeFiles/cpu.dir/src/cpu/reference.cpp.o
+[ 15%] Building CXX object CMakeFiles/cpu.dir/src/cpu/engine.cpp.o
+[ 21%] Building CXX object CMakeFiles/cpu.dir/src/cpu/join_cpu.cpp.o
+[ 26%] Linking CXX static library libcpu.a
+gmake[3]: Leaving directory '/kaggle/repo/build'
+[ 26%] Built target cpu
+gmake[3]: Entering directory '/kaggle/repo/build'
+gmake[3]: Leaving directory '/kaggle/repo/build'
+gmake[3]: Entering directory '/kaggle/repo/build'
+[ 31%] Building CUDA object CMakeFiles/bench.dir/bench/bench.cu.o
+[ 36%] Building CUDA object CMakeFiles/bench.dir/bench/micro.cu.o
+[ 42%] Building CUDA object CMakeFiles/bench.dir/bench/stream.cu.o
+[ 47%] Building CUDA object CMakeFiles/bench.dir/bench/join.cu.o
+[ 52%] Building CUDA object CMakeFiles/bench.dir/bench/tpch.cu.o
+[ 57%] Building CUDA object CMakeFiles/bench.dir/src/gpu/dev.cu.o
+[ 63%] Building CUDA object CMakeFiles/bench.dir/src/kernels/v0_naive.cu.o
+[ 68%] Building CUDA object CMakeFiles/bench.dir/src/kernels/v1_vec.cu.o
+[ 73%] Building CUDA object CMakeFiles/bench.dir/src/kernels/v2_smem.cu.o
+[ 78%] Building CUDA object CMakeFiles/bench.dir/src/kernels/v3_warpagg.cu.o
+[ 84%] Building CUDA object CMakeFiles/bench.dir/src/kernels/v4_radix.cu.o
+[ 89%] Building CUDA object CMakeFiles/bench.dir/src/kernels/v4_sort.cu.o
+[ 94%] Building CUDA object CMakeFiles/bench.dir/src/kernels/variants.cu.o
+[100%] Linking CXX executable bench
+gmake[3]: Leaving directory '/kaggle/repo/build'
+[100%] Built target bench
+gmake[2]: Leaving directory '/kaggle/repo/build'
+gmake[1]: Leaving directory '/kaggle/repo/build'
+build/bench verify
+device: Tesla T4, 40 SMs, L2 4 MB, smem/SM 64 KB
+  generated rows=1 card=16 skew=0.0 comp=0 in 1 ms (runs=1, 0.0 MB compressed)
+  generated rows=1 card=16 skew=0.0 comp=1 in 0 ms (runs=1, 0.0 MB compressed)
+  generated rows=1 card=256 skew=0.0 comp=0 in 0 ms (runs=1, 0.0 MB compressed)
+  generated rows=1 card=256 skew=0.0 comp=1 in 0 ms (runs=1, 0.0 MB compressed)
+  generated rows=4099 card=16 skew=0.0 comp=0 in 0 ms (runs=144, 0.0 MB compressed)
+  generated rows=4099 card=16 skew=0.0 comp=1 in 0 ms (runs=144, 0.0 MB compressed)
+  generated rows=4099 card=16 skew=1.0 comp=0 in 0 ms (runs=144, 0.0 MB compressed)
+  generated rows=4099 card=16 skew=1.0 comp=1 in 0 ms (runs=144, 0.0 MB compressed)
+  generated rows=4099 card=16 skew=1.5 comp=0 in 0 ms (runs=144, 0.0 MB compressed)
+  generated rows=4099 card=16 skew=1.5 comp=1 in 0 ms (runs=144, 0.0 MB compressed)
+  generated rows=4099 card=256 skew=0.0 comp=0 in 0 ms (runs=144, 0.0 MB compressed)
+  generated rows=4099 card=256 skew=0.0 comp=1 in 0 ms (runs=144, 0.0 MB compressed)
+  generated rows=4099 card=256 skew=1.0 comp=0 in 0 ms (runs=144, 0.0 MB compressed)
+  generated rows=4099 card=256 skew=1.0 comp=1 in 0 ms (runs=144, 0.0 MB compressed)
+  generated rows=4099 card=256 skew=1.5 comp=0 in 0 ms (runs=144, 0.0 MB compressed)
+  generated rows=4099 card=256 skew=1.5 comp=1 in 0 ms (runs=144, 0.0 MB compressed)
+  generated rows=4099 card=4096 skew=0.0 comp=0 in 0 ms (runs=144, 0.0 MB compressed)
+  generated rows=4099 card=4096 skew=0.0 comp=1 in 0 ms (runs=144, 0.0 MB compressed)
+  generated rows=4099 card=4096 skew=1.0 comp=0 in 0 ms (runs=144, 0.0 MB compressed)
+  generated rows=4099 card=4096 skew=1.0 comp=1 in 0 ms (runs=144, 0.0 MB compressed)
+  generated rows=4099 card=4096 skew=1.5 comp=0 in 0 ms (runs=144, 0.0 MB compressed)
+  generated rows=4099 card=4096 skew=1.5 comp=1 in 0 ms (runs=144, 0.0 MB compressed)
+  generated rows=4099 card=65536 skew=0.0 comp=0 in 0 ms (runs=144, 0.0 MB compressed)
+  generated rows=4099 card=65536 skew=0.0 comp=1 in 0 ms (runs=144, 0.0 MB compressed)
+  generated rows=4099 card=65536 skew=1.0 comp=0 in 3 ms (runs=144, 0.0 MB compressed)
+  generated rows=4099 card=65536 skew=1.0 comp=1 in 2 ms (runs=144, 0.0 MB compressed)
+  generated rows=4099 card=65536 skew=1.5 comp=0 in 2 ms (runs=144, 0.0 MB compressed)
+  generated rows=4099 card=65536 skew=1.5 comp=1 in 3 ms (runs=144, 0.0 MB compressed)
+  generated rows=4099 card=1048576 skew=0.0 comp=0 in 11 ms (runs=144, 0.0 MB compressed)
+  generated rows=4099 card=1048576 skew=0.0 comp=1 in 5 ms (runs=144, 0.0 MB compressed)
+  generated rows=4099 card=1048576 skew=1.0 comp=0 in 53 ms (runs=144, 0.0 MB compressed)
+  generated rows=4099 card=1048576 skew=1.0 comp=1 in 44 ms (runs=144, 0.0 MB compressed)
+  generated rows=4099 card=1048576 skew=1.5 comp=0 in 54 ms (runs=144, 0.0 MB compressed)
+  generated rows=4099 card=1048576 skew=1.5 comp=1 in 45 ms (runs=144, 0.0 MB compressed)
+  generated rows=4099 card=16777216 skew=0.0 comp=0 in 207 ms (runs=144, 0.0 MB compressed)
+  generated rows=4099 card=16777216 skew=0.0 comp=1 in 93 ms (runs=144, 0.0 MB compressed)
+  generated rows=4099 card=16777216 skew=1.0 comp=0 in 995 ms (runs=144, 0.0 MB compressed)
+  generated rows=4099 card=16777216 skew=1.0 comp=1 in 818 ms (runs=144, 0.0 MB compressed)
+  generated rows=4099 card=16777216 skew=1.5 comp=0 in 955 ms (runs=144, 0.0 MB compressed)
+  generated rows=4099 card=16777216 skew=1.5 comp=1 in 824 ms (runs=144, 0.0 MB compressed)
+  generated rows=1000003 card=16 skew=0.0 comp=0 in 7 ms (runs=31304, 5.2 MB compressed)
+  generated rows=1000003 card=16 skew=0.0 comp=1 in 7 ms (runs=31304, 8.2 MB compressed)
+  generated rows=1000003 card=16 skew=1.0 comp=0 in 6 ms (runs=31304, 5.2 MB compressed)
+  generated rows=1000003 card=16 skew=1.0 comp=1 in 7 ms (runs=31304, 8.2 MB compressed)
+  generated rows=1000003 card=16 skew=1.5 comp=0 in 6 ms (runs=31304, 5.2 MB compressed)
+  generated rows=1000003 card=16 skew=1.5 comp=1 in 7 ms (runs=31304, 8.2 MB compressed)
+  generated rows=1000003 card=256 skew=0.0 comp=0 in 4 ms (runs=31304, 5.2 MB compressed)
+  generated rows=1000003 card=256 skew=0.0 comp=1 in 5 ms (runs=31304, 8.2 MB compressed)
+  generated rows=1000003 card=256 skew=1.0 comp=0 in 6 ms (runs=31304, 5.2 MB compressed)
+  generated rows=1000003 card=256 skew=1.0 comp=1 in 6 ms (runs=31304, 8.2 MB compressed)
+  generated rows=1000003 card=256 skew=1.5 comp=0 in 5 ms (runs=31304, 5.2 MB compressed)
+  generated rows=1000003 card=256 skew=1.5 comp=1 in 6 ms (runs=31304, 8.2 MB compressed)
+  generated rows=1000003 card=4096 skew=0.0 comp=0 in 4 ms (runs=31304, 6.2 MB compressed)
+  generated rows=1000003 card=4096 skew=0.0 comp=1 in 5 ms (runs=31304, 8.2 MB compressed)
+  generated rows=1000003 card=4096 skew=1.0 comp=0 in 6 ms (runs=31304, 6.2 MB compressed)
+  generated rows=1000003 card=4096 skew=1.0 comp=1 in 6 ms (runs=31304, 8.2 MB compressed)
+  generated rows=1000003 card=4096 skew=1.5 comp=0 in 4 ms (runs=31304, 6.2 MB compressed)
+  generated rows=1000003 card=4096 skew=1.5 comp=1 in 6 ms (runs=31304, 8.2 MB compressed)
+  generated rows=1000003 card=65536 skew=0.0 comp=0 in 5 ms (runs=31304, 6.2 MB compressed)
+  generated rows=1000003 card=65536 skew=0.0 comp=1 in 6 ms (runs=31304, 8.2 MB compressed)
+  generated rows=1000003 card=65536 skew=1.0 comp=0 in 10 ms (runs=31304, 6.2 MB compressed)
+  generated rows=1000003 card=65536 skew=1.0 comp=1 in 10 ms (runs=31304, 8.2 MB compressed)
+  generated rows=1000003 card=65536 skew=1.5 comp=0 in 8 ms (runs=31304, 6.2 MB compressed)
+  generated rows=1000003 card=65536 skew=1.5 comp=1 in 7 ms (runs=31304, 8.2 MB compressed)
+  generated rows=1000003 card=1048576 skew=0.0 comp=0 in 7 ms (runs=31304, 8.2 MB compressed)
+  generated rows=1000003 card=1048576 skew=0.0 comp=1 in 7 ms (runs=31304, 8.2 MB compressed)
+  generated rows=1000003 card=1048576 skew=1.0 comp=0 in 58 ms (runs=31304, 8.2 MB compressed)
+  generated rows=1000003 card=1048576 skew=1.0 comp=1 in 57 ms (runs=31304, 8.2 MB compressed)
+  generated rows=1000003 card=1048576 skew=1.5 comp=0 in 69 ms (runs=31304, 8.2 MB compressed)
+  generated rows=1000003 card=1048576 skew=1.5 comp=1 in 48 ms (runs=31304, 8.2 MB compressed)
+  generated rows=1000003 card=16777216 skew=0.0 comp=0 in 236 ms (runs=31304, 8.2 MB compressed)
+  generated rows=1000003 card=16777216 skew=0.0 comp=1 in 99 ms (runs=31304, 8.2 MB compressed)
+  generated rows=1000003 card=16777216 skew=1.0 comp=0 in 970 ms (runs=31304, 8.2 MB compressed)
+  generated rows=1000003 card=16777216 skew=1.0 comp=1 in 842 ms (runs=31304, 8.2 MB compressed)
+  generated rows=1000003 card=16777216 skew=1.5 comp=0 in 975 ms (runs=31304, 8.2 MB compressed)
+  generated rows=1000003 card=16777216 skew=1.5 comp=1 in 857 ms (runs=31304, 8.2 MB compressed)
+verify: 4864 checks, 0 failures
+compute-sanitizer --tool memcheck --error-exitcode 1 --leak-check full build/bench verify tiny=1
+========= COMPUTE-SANITIZER
+device: Tesla T4, 40 SMs, L2 4 MB, smem/SM 64 KB
+  generated rows=20011 card=16 skew=0.0 comp=0 in 0 ms (runs=649, 0.1 MB compressed)
+  generated rows=20011 card=16 skew=0.0 comp=1 in 0 ms (runs=649, 0.2 MB compressed)
+  generated rows=20011 card=16 skew=1.5 comp=0 in 0 ms (runs=649, 0.1 MB compressed)
+  generated rows=20011 card=16 skew=1.5 comp=1 in 0 ms (runs=649, 0.2 MB compressed)
+  generated rows=20011 card=4096 skew=0.0 comp=0 in 0 ms (runs=649, 0.1 MB compressed)
+  generated rows=20011 card=4096 skew=0.0 comp=1 in 0 ms (runs=649, 0.2 MB compressed)
+  generated rows=20011 card=4096 skew=1.5 comp=0 in 1 ms (runs=649, 0.1 MB compressed)
+  generated rows=20011 card=4096 skew=1.5 comp=1 in 1 ms (runs=649, 0.2 MB compressed)
+  generated rows=20011 card=1048576 skew=0.0 comp=0 in 14 ms (runs=649, 0.2 MB compressed)
+  generated rows=20011 card=1048576 skew=0.0 comp=1 in 6 ms (runs=649, 0.2 MB compressed)
+  generated rows=20011 card=1048576 skew=1.5 comp=0 in 59 ms (runs=649, 0.2 MB compressed)
+  generated rows=20011 card=1048576 skew=1.5 comp=1 in 46 ms (runs=649, 0.2 MB compressed)
+verify: 384 checks, 0 failures
+========= LEAK SUMMARY: 0 bytes leaked in 0 allocations
+========= ERROR SUMMARY: 0 errors
+compute-sanitizer --tool racecheck --error-exitcode 1 --racecheck-report all build/bench verify tiny=1
+========= COMPUTE-SANITIZER
+device: Tesla T4, 40 SMs, L2 4 MB, smem/SM 64 KB
+  generated rows=20011 card=16 skew=0.0 comp=0 in 1 ms (runs=649, 0.1 MB compressed)
+  generated rows=20011 card=16 skew=0.0 comp=1 in 0 ms (runs=649, 0.2 MB compressed)
+  generated rows=20011 card=16 skew=1.5 comp=0 in 0 ms (runs=649, 0.1 MB compressed)
+  generated rows=20011 card=16 skew=1.5 comp=1 in 0 ms (runs=649, 0.2 MB compressed)
+  generated rows=20011 card=4096 skew=0.0 comp=0 in 0 ms (runs=649, 0.1 MB compressed)
+  generated rows=20011 card=4096 skew=0.0 comp=1 in 0 ms (runs=649, 0.2 MB compressed)
+  generated rows=20011 card=4096 skew=1.5 comp=0 in 1 ms (runs=649, 0.1 MB compressed)
+  generated rows=20011 card=4096 skew=1.5 comp=1 in 1 ms (runs=649, 0.2 MB compressed)
+  generated rows=20011 card=1048576 skew=0.0 comp=0 in 14 ms (runs=649, 0.2 MB compressed)
+  generated rows=20011 card=1048576 skew=0.0 comp=1 in 7 ms (runs=649, 0.2 MB compressed)
+  generated rows=20011 card=1048576 skew=1.5 comp=0 in 59 ms (runs=649, 0.2 MB compressed)
+  generated rows=20011 card=1048576 skew=1.5 comp=1 in 48 ms (runs=649, 0.2 MB compressed)
+verify: 384 checks, 0 failures
+========= RACECHECK SUMMARY: 0 hazards displayed (0 errors, 0 warnings)
+EXIT_CODE=0

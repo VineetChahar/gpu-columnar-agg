@@ -1,0 +1,533 @@
+$ nvidia-smi; nvcc --version; nproc; free -g
+Sun Oct 11 21:33:12 2026       
++-----------------------------------------------------------------------------------------+
+| NVIDIA-SMI 580.178.04             Driver Version: 580.178.04     CUDA Version: 13.0     |
++-----------------------------------------+------------------------+----------------------+
+| GPU  Name                 Persistence-M | Bus-Id          Disp.A | Volatile Uncorr. ECC |
+| Fan  Temp   Perf          Pwr:Usage/Cap |           Memory-Usage | GPU-Util  Compute M. |
+|                                         |                        |               MIG M. |
+|=========================================+========================+======================|
+|   0  Tesla T4                       Off |   00000000:00:04.0 Off |                    0 |
+| N/A   46C    P8             11W /   70W |       0MiB /  15360MiB |      0%      Default |
+|                                         |                        |                  N/A |
++-----------------------------------------+------------------------+----------------------+
+|   1  Tesla T4                       Off |   00000000:00:05.0 Off |                    0 |
+| N/A   52C    P8             10W /   70W |       0MiB /  15360MiB |      0%      Default |
+|                                         |                        |                  N/A |
++-----------------------------------------+------------------------+----------------------+
+
++-----------------------------------------------------------------------------------------+
+| Processes:                                                                              |
+|  GPU   GI   CI              PID   Type   Process name                        GPU Memory |
+|        ID   ID                                                               Usage      |
+|=========================================================================================|
+|  No running processes found                                                             |
++-----------------------------------------------------------------------------------------+
+nvcc: NVIDIA (R) Cuda compiler driver
+Copyright (c) 2005-2025 NVIDIA Corporation
+Built on Fri_Feb_21_20:23:50_PST_2025
+Cuda compilation tools, release 12.8, V12.8.93
+Build cuda_12.8.r12.8/compiler.35583870_0
+4
+               total        used        free      shared  buff/cache   available
+Mem:              31           1          25           0           4          30
+Swap:              0           0           0
+$ make bench-part5b
+cmake -S . -B build -DCMAKE_BUILD_TYPE=Release > /dev/null
+cmake --build build -j4
+gmake[1]: Entering directory '/kaggle/repo/build'
+gmake[2]: Entering directory '/kaggle/repo/build'
+gmake[3]: Entering directory '/kaggle/repo/build'
+gmake[3]: Leaving directory '/kaggle/repo/build'
+gmake[3]: Entering directory '/kaggle/repo/build'
+[  5%] Building CXX object CMakeFiles/cpu.dir/src/datagen.cpp.o
+[ 15%] Building CXX object CMakeFiles/cpu.dir/src/cpu/reference.cpp.o
+[ 15%] Building CXX object CMakeFiles/cpu.dir/src/cpu/engine.cpp.o
+[ 20%] Building CXX object CMakeFiles/cpu.dir/src/cpu/join_cpu.cpp.o
+[ 25%] Linking CXX static library libcpu.a
+gmake[3]: Leaving directory '/kaggle/repo/build'
+[ 25%] Built target cpu
+gmake[3]: Entering directory '/kaggle/repo/build'
+gmake[3]: Leaving directory '/kaggle/repo/build'
+gmake[3]: Entering directory '/kaggle/repo/build'
+[ 35%] Building CUDA object CMakeFiles/bench.dir/bench/bench.cu.o
+[ 35%] Building CUDA object CMakeFiles/bench.dir/bench/micro.cu.o
+[ 40%] Building CUDA object CMakeFiles/bench.dir/bench/join.cu.o
+[ 45%] Building CUDA object CMakeFiles/bench.dir/bench/stream.cu.o
+[ 50%] Building CUDA object CMakeFiles/bench.dir/bench/tpch.cu.o
+[ 55%] Building CUDA object CMakeFiles/bench.dir/src/gpu/dev.cu.o
+[ 60%] Building CUDA object CMakeFiles/bench.dir/src/kernels/v0_naive.cu.o
+[ 65%] Building CUDA object CMakeFiles/bench.dir/src/kernels/v1_vec.cu.o
+[ 70%] Building CUDA object CMakeFiles/bench.dir/src/kernels/v2_smem.cu.o
+[ 75%] Building CUDA object CMakeFiles/bench.dir/src/kernels/v3_warpagg.cu.o
+[ 80%] Building CUDA object CMakeFiles/bench.dir/src/kernels/v4_radix.cu.o
+[ 85%] Building CUDA object CMakeFiles/bench.dir/src/kernels/v4_sort.cu.o
+[ 90%] Building CUDA object CMakeFiles/bench.dir/src/kernels/v6_join.cu.o
+[ 95%] Building CUDA object CMakeFiles/bench.dir/src/kernels/variants.cu.o
+[100%] Linking CXX executable bench
+gmake[3]: Leaving directory '/kaggle/repo/build'
+[100%] Built target bench
+gmake[2]: Leaving directory '/kaggle/repo/build'
+gmake[1]: Leaving directory '/kaggle/repo/build'
+build/bench mgpu rows=1000003,20000000 cards=16,65536,1048576 skews=0,1.5 sels=1,100 gpus=2 variants=v1_vec,v3_warpagg,v4_sort,v4_sort_chunked iters=2 warmup=1 tag=mgpu_verify2
+device: Tesla T4, 40 SMs, L2 4 MB, smem/SM 64 KB
+mgpu: 2 devices, peer access 0<-1: 1
+  generated rows=1000003 card=16 skew=0.0 comp=0 in 7 ms (runs=31234, 5.2 MB compressed)
+  g=2 v1_vec                0.34 ms  (gpu 0.20, xfer 0.04, merge 0.07)  groups=16 partial=32
+  g=2 v3_warpagg            0.33 ms  (gpu 0.21, xfer 0.05, merge 0.06)  groups=16 partial=32
+  g=2 v4_sort               0.43 ms  (gpu 0.29, xfer 0.05, merge 0.07)  groups=16 partial=32
+  g=2 v4_sort_chunked       0.42 ms  (gpu 0.30, xfer 0.04, merge 0.06)  groups=16 partial=32
+  g=2 v1_vec                1.34 ms  (gpu 1.21, xfer 0.04, merge 0.06)  groups=16 partial=32
+  g=2 v3_warpagg            0.79 ms  (gpu 0.66, xfer 0.04, merge 0.06)  groups=16 partial=32
+  g=2 v4_sort               0.79 ms  (gpu 0.66, xfer 0.04, merge 0.06)  groups=16 partial=32
+  g=2 v4_sort_chunked       0.80 ms  (gpu 0.66, xfer 0.03, merge 0.07)  groups=16 partial=32
+  generated rows=1000003 card=16 skew=1.5 comp=0 in 9 ms (runs=31234, 5.2 MB compressed)
+  g=2 v1_vec                0.35 ms  (gpu 0.24, xfer 0.04, merge 0.06)  groups=16 partial=32
+  g=2 v3_warpagg            0.33 ms  (gpu 0.21, xfer 0.04, merge 0.06)  groups=16 partial=32
+  g=2 v4_sort               0.43 ms  (gpu 0.31, xfer 0.04, merge 0.07)  groups=16 partial=32
+  g=2 v4_sort_chunked       0.42 ms  (gpu 0.30, xfer 0.04, merge 0.07)  groups=16 partial=32
+  g=2 v1_vec                2.60 ms  (gpu 2.47, xfer 0.04, merge 0.06)  groups=16 partial=32
+  g=2 v3_warpagg            0.82 ms  (gpu 0.69, xfer 0.04, merge 0.06)  groups=16 partial=32
+  g=2 v4_sort               0.80 ms  (gpu 0.66, xfer 0.04, merge 0.06)  groups=16 partial=32
+  g=2 v4_sort_chunked       0.81 ms  (gpu 0.66, xfer 0.05, merge 0.06)  groups=16 partial=32
+  generated rows=1000003 card=65536 skew=0.0 comp=0 in 5 ms (runs=31234, 6.2 MB compressed)
+  g=2 v1_vec                0.59 ms  (gpu 0.38, xfer 0.10, merge 0.09)  groups=9683 partial=10102
+  g=2 v3_warpagg            0.66 ms  (gpu 0.44, xfer 0.11, merge 0.08)  groups=9683 partial=10102
+  g=2 v4_sort               0.59 ms  (gpu 0.37, xfer 0.10, merge 0.09)  groups=9683 partial=10102
+  g=2 v4_sort_chunked       0.62 ms  (gpu 0.41, xfer 0.10, merge 0.09)  groups=9683 partial=10102
+  g=2 v1_vec                2.80 ms  (gpu 1.95, xfer 0.62, merge 0.20)  groups=65536 partial=131011
+  g=2 v3_warpagg            4.09 ms  (gpu 3.23, xfer 0.61, merge 0.22)  groups=65536 partial=131011
+  g=2 v4_sort               1.76 ms  (gpu 0.86, xfer 0.65, merge 0.24)  groups=65536 partial=131011
+  g=2 v4_sort_chunked       1.86 ms  (gpu 0.93, xfer 0.65, merge 0.26)  groups=65536 partial=131011
+  generated rows=1000003 card=65536 skew=1.5 comp=0 in 10 ms (runs=31234, 6.2 MB compressed)
+  g=2 v1_vec                0.54 ms  (gpu 0.39, xfer 0.05, merge 0.08)  groups=643 partial=822
+  g=2 v3_warpagg            0.52 ms  (gpu 0.39, xfer 0.05, merge 0.08)  groups=643 partial=822
+  g=2 v4_sort               0.50 ms  (gpu 0.36, xfer 0.05, merge 0.07)  groups=643 partial=822
+  g=2 v4_sort_chunked       0.57 ms  (gpu 0.43, xfer 0.05, merge 0.07)  groups=643 partial=822
+  g=2 v1_vec                2.43 ms  (gpu 2.20, xfer 0.12, merge 0.08)  groups=11133 partial=14816
+  g=2 v3_warpagg            1.63 ms  (gpu 1.41, xfer 0.11, merge 0.08)  groups=11133 partial=14816
+  g=2 v4_sort               1.06 ms  (gpu 0.84, xfer 0.11, merge 0.09)  groups=11133 partial=14816
+  g=2 v4_sort_chunked       1.13 ms  (gpu 0.90, xfer 0.11, merge 0.09)  groups=11133 partial=14816
+  generated rows=1000003 card=1048576 skew=0.0 comp=0 in 22 ms (runs=31234, 8.2 MB compressed)
+  g=2 v1_vec                2.60 ms  (gpu 2.38, xfer 0.10, merge 0.09)  groups=10469 partial=10509
+  g=2 v3_warpagg            2.65 ms  (gpu 2.43, xfer 0.10, merge 0.09)  groups=10469 partial=10509
+  g=2 v4_sort               0.65 ms  (gpu 0.43, xfer 0.10, merge 0.09)  groups=10469 partial=10509
+  g=2 v4_sort_chunked       1.24 ms  (gpu 1.02, xfer 0.10, merge 0.09)  groups=10469 partial=10509
+  g=2 v1_vec               10.48 ms  (gpu 4.14, xfer 4.66, merge 1.65)  groups=644460 partial=795019
+  g=2 v3_warpagg           11.75 ms  (gpu 5.42, xfer 4.65, merge 1.66)  groups=644460 partial=795019
+  g=2 v4_sort               8.14 ms  (gpu 1.27, xfer 5.01, merge 1.83)  groups=644460 partial=795019
+  g=2 v4_sort_chunked       8.91 ms  (gpu 2.02, xfer 5.00, merge 1.85)  groups=644460 partial=795019
+  generated rows=1000003 card=1048576 skew=1.5 comp=0 in 55 ms (runs=31234, 8.2 MB compressed)
+  g=2 v1_vec                2.52 ms  (gpu 2.39, xfer 0.04, merge 0.07)  groups=708 partial=886
+  g=2 v3_warpagg            2.53 ms  (gpu 2.40, xfer 0.04, merge 0.06)  groups=708 partial=886
+  g=2 v4_sort               0.56 ms  (gpu 0.44, xfer 0.03, merge 0.06)  groups=708 partial=886
+  g=2 v4_sort_chunked       1.13 ms  (gpu 1.01, xfer 0.04, merge 0.06)  groups=708 partial=886
+  g=2 v1_vec                4.41 ms  (gpu 4.19, xfer 0.11, merge 0.08)  groups=13407 partial=17096
+  g=2 v3_warpagg            3.69 ms  (gpu 3.47, xfer 0.11, merge 0.08)  groups=13407 partial=17096
+  g=2 v4_sort               1.18 ms  (gpu 0.96, xfer 0.12, merge 0.08)  groups=13407 partial=17096
+  g=2 v4_sort_chunked       1.77 ms  (gpu 1.54, xfer 0.11, merge 0.10)  groups=13407 partial=17096
+  generated rows=20000000 card=16 skew=0.0 comp=0 in 141 ms (runs=624478, 103.7 MB compressed)
+  g=2 v1_vec                0.66 ms  (gpu 0.54, xfer 0.03, merge 0.08)  groups=16 partial=32
+  g=2 v3_warpagg            0.86 ms  (gpu 0.76, xfer 0.03, merge 0.05)  groups=16 partial=32
+  g=2 v4_sort               0.80 ms  (gpu 0.68, xfer 0.03, merge 0.06)  groups=16 partial=32
+  g=2 v4_sort_chunked       0.80 ms  (gpu 0.68, xfer 0.03, merge 0.06)  groups=16 partial=32
+  g=2 v1_vec               11.20 ms  (gpu 11.05, xfer 0.03, merge 0.08)  groups=16 partial=32
+  g=2 v3_warpagg            3.13 ms  (gpu 3.00, xfer 0.03, merge 0.07)  groups=16 partial=32
+  g=2 v4_sort               6.35 ms  (gpu 6.19, xfer 0.03, merge 0.09)  groups=16 partial=32
+  g=2 v4_sort_chunked       6.32 ms  (gpu 6.16, xfer 0.03, merge 0.09)  groups=16 partial=32
+  generated rows=20000000 card=16 skew=1.5 comp=0 in 166 ms (runs=624478, 103.7 MB compressed)
+  g=2 v1_vec                0.63 ms  (gpu 0.51, xfer 0.03, merge 0.07)  groups=16 partial=32
+  g=2 v3_warpagg            0.66 ms  (gpu 0.54, xfer 0.04, merge 0.06)  groups=16 partial=32
+  g=2 v4_sort               0.64 ms  (gpu 0.52, xfer 0.04, merge 0.06)  groups=16 partial=32
+  g=2 v4_sort_chunked       0.64 ms  (gpu 0.51, xfer 0.04, merge 0.06)  groups=16 partial=32
+  g=2 v1_vec               38.17 ms  (gpu 37.96, xfer 0.03, merge 0.12)  groups=16 partial=32
+  g=2 v3_warpagg            2.15 ms  (gpu 2.01, xfer 0.04, merge 0.07)  groups=16 partial=32
+  g=2 v4_sort               5.11 ms  (gpu 4.97, xfer 0.03, merge 0.08)  groups=16 partial=32
+  g=2 v4_sort_chunked       5.12 ms  (gpu 4.97, xfer 0.03, merge 0.08)  groups=16 partial=32
+  generated rows=20000000 card=65536 skew=0.0 comp=0 in 143 ms (runs=624478, 123.7 MB compressed)
+  g=2 v1_vec                1.32 ms  (gpu 0.64, xfer 0.48, merge 0.18)  groups=62584 partial=103043
+  g=2 v3_warpagg            1.46 ms  (gpu 0.77, xfer 0.48, merge 0.18)  groups=62584 partial=103043
+  g=2 v4_sort               1.24 ms  (gpu 0.50, xfer 0.50, merge 0.20)  groups=62584 partial=103043
+  g=2 v4_sort_chunked       1.27 ms  (gpu 0.55, xfer 0.50, merge 0.20)  groups=62584 partial=103043
+  g=2 v1_vec                8.97 ms  (gpu 8.16, xfer 0.56, merge 0.19)  groups=65536 partial=131072
+  g=2 v3_warpagg           10.15 ms  (gpu 9.34, xfer 0.56, merge 0.20)  groups=65536 partial=131072
+  g=2 v4_sort               6.05 ms  (gpu 5.17, xfer 0.61, merge 0.22)  groups=65536 partial=131072
+  g=2 v4_sort_chunked       6.06 ms  (gpu 5.20, xfer 0.61, merge 0.22)  groups=65536 partial=131072
+  generated rows=20000000 card=65536 skew=1.5 comp=0 in 163 ms (runs=624478, 123.7 MB compressed)
+  g=2 v1_vec                0.65 ms  (gpu 0.51, xfer 0.05, merge 0.07)  groups=4268 partial=5555
+  g=2 v3_warpagg            0.65 ms  (gpu 0.52, xfer 0.05, merge 0.07)  groups=4268 partial=5555
+  g=2 v4_sort               0.63 ms  (gpu 0.48, xfer 0.05, merge 0.06)  groups=4268 partial=5555
+  g=2 v4_sort_chunked       0.65 ms  (gpu 0.51, xfer 0.05, merge 0.06)  groups=4268 partial=5555
+  g=2 v1_vec               25.11 ms  (gpu 24.54, xfer 0.37, merge 0.19)  groups=47291 partial=72766
+  g=2 v3_warpagg            2.87 ms  (gpu 2.32, xfer 0.37, merge 0.16)  groups=47291 partial=72766
+  g=2 v4_sort               5.64 ms  (gpu 5.06, xfer 0.38, merge 0.17)  groups=47291 partial=72766
+  g=2 v4_sort_chunked       5.55 ms  (gpu 4.98, xfer 0.38, merge 0.17)  groups=47291 partial=72766
+  generated rows=20000000 card=1048576 skew=0.0 comp=0 in 172 ms (runs=624478, 163.7 MB compressed)
+  g=2 v1_vec                4.14 ms  (gpu 2.56, xfer 1.10, merge 0.44)  groups=184089 partial=192955
+  g=2 v3_warpagg            4.22 ms  (gpu 2.65, xfer 1.09, merge 0.44)  groups=184089 partial=192955
+  g=2 v4_sort               2.30 ms  (gpu 0.63, xfer 1.17, merge 0.47)  groups=184089 partial=192955
+  g=2 v4_sort_chunked       2.87 ms  (gpu 1.21, xfer 1.15, merge 0.48)  groups=184089 partial=192955
+  g=2 v1_vec               38.15 ms  (gpu 24.37, xfer 10.35, merge 3.37)  groups=1048576 partial=2097011
+  g=2 v3_warpagg           36.83 ms  (gpu 23.12, xfer 10.35, merge 3.30)  groups=1048576 partial=2097011
+  g=2 v4_sort              21.47 ms  (gpu 7.28, xfer 10.61, merge 3.55)  groups=1048576 partial=2097011
+  g=2 v4_sort_chunked      22.26 ms  (gpu 8.03, xfer 10.63, merge 3.55)  groups=1048576 partial=2097011
+  generated rows=20000000 card=1048576 skew=1.5 comp=0 in 319 ms (runs=624478, 163.7 MB compressed)
+  g=2 v1_vec                2.49 ms  (gpu 2.35, xfer 0.05, merge 0.07)  groups=4696 partial=5952
+  g=2 v3_warpagg            2.50 ms  (gpu 2.35, xfer 0.05, merge 0.07)  groups=4696 partial=5952
+  g=2 v4_sort               0.76 ms  (gpu 0.62, xfer 0.05, merge 0.07)  groups=4696 partial=5952
+  g=2 v4_sort_chunked       1.29 ms  (gpu 1.13, xfer 0.06, merge 0.06)  groups=4696 partial=5952
+  g=2 v1_vec               25.46 ms  (gpu 24.45, xfer 0.63, merge 0.34)  groups=88643 partial=115516
+  g=2 v3_warpagg            5.60 ms  (gpu 4.66, xfer 0.63, merge 0.28)  groups=88643 partial=115516
+  g=2 v4_sort               7.27 ms  (gpu 6.27, xfer 0.68, merge 0.28)  groups=88643 partial=115516
+  g=2 v4_sort_chunked       7.70 ms  (gpu 6.73, xfer 0.66, merge 0.28)  groups=88643 partial=115516
+mgpu: 0 incorrect
+compute-sanitizer --tool memcheck --error-exitcode 1 build/bench mgpu rows=100000 cards=4096 skews=0 sels=50 gpus=2 variants=v3_warpagg,v4_sort_chunked iters=1 warmup=0 tag=mgpu_san2
+========= COMPUTE-SANITIZER
+device: Tesla T4, 40 SMs, L2 4 MB, smem/SM 64 KB
+mgpu: 2 devices, peer access 0<-1: 1
+  generated rows=100000 card=4096 skew=0.0 comp=0 in 1 ms (runs=3117, 0.6 MB compressed)
+  g=2 v3_warpagg           18.57 ms  (gpu 16.96, xfer 0.43, merge 1.05)  groups=4096 partial=8176
+  g=2 v4_sort_chunked       8.81 ms  (gpu 7.49, xfer 0.42, merge 0.84)  groups=4096 partial=8176
+mgpu: 0 incorrect
+========= ERROR SUMMARY: 0 errors
+build/bench mgpu rows=100M,500M cards=4096,65536,1048576,16777216 skews=0,1.5 sels=1,100 gpus=2,1 variants=v1_vec,v3_warpagg,v4_radix_l2,v4_sort,v4_sort_chunked tag=mgpu
+device: Tesla T4, 40 SMs, L2 4 MB, smem/SM 64 KB
+mgpu: 2 devices, peer access 0<-1: 1
+  generated rows=100000000 card=4096 skew=0.0 comp=0 in 800 ms (runs=3123385, 618.7 MB compressed)
+  g=2 v1_vec                2.53 ms  (gpu 2.34, xfer 0.08, merge 0.08)  groups=4096 partial=8192
+  g=2 v3_warpagg            4.25 ms  (gpu 4.05, xfer 0.08, merge 0.09)  groups=4096 partial=8192
+  g=2 v4_radix_l2           4.27 ms  (gpu 4.06, xfer 0.08, merge 0.09)  groups=4096 partial=8192
+  g=2 v4_sort               2.85 ms  (gpu 2.67, xfer 0.07, merge 0.08)  groups=4096 partial=8192
+  g=2 v4_sort_chunked       2.90 ms  (gpu 2.72, xfer 0.07, merge 0.08)  groups=4096 partial=8192
+  g=2 v1_vec               17.63 ms  (gpu 17.43, xfer 0.06, merge 0.11)  groups=4096 partial=8192
+  g=2 v3_warpagg           27.34 ms  (gpu 27.13, xfer 0.06, merge 0.11)  groups=4096 partial=8192
+  g=2 v4_radix_l2          26.85 ms  (gpu 26.65, xfer 0.06, merge 0.10)  groups=4096 partial=8192
+  g=2 v4_sort              25.46 ms  (gpu 25.28, xfer 0.06, merge 0.10)  groups=4096 partial=8192
+  g=2 v4_sort_chunked      25.50 ms  (gpu 25.31, xfer 0.06, merge 0.11)  groups=4096 partial=8192
+  g=1 v1_vec                3.26 ms  (gpu 3.21, xfer 0.00, merge 0.00)  groups=4096 partial=0
+  g=1 v3_warpagg            4.49 ms  (gpu 4.46, xfer 0.00, merge 0.00)  groups=4096 partial=0
+  g=1 v4_radix_l2           4.15 ms  (gpu 4.11, xfer 0.00, merge 0.00)  groups=4096 partial=0
+  g=1 v4_sort               3.68 ms  (gpu 3.65, xfer 0.00, merge 0.00)  groups=4096 partial=0
+  g=1 v4_sort_chunked       4.13 ms  (gpu 4.10, xfer 0.00, merge 0.00)  groups=4096 partial=0
+  g=1 v1_vec               34.50 ms  (gpu 34.45, xfer 0.00, merge 0.00)  groups=4096 partial=0
+  g=1 v3_warpagg           52.82 ms  (gpu 52.75, xfer 0.00, merge 0.00)  groups=4096 partial=0
+  g=1 v4_radix_l2          52.60 ms  (gpu 52.56, xfer 0.00, merge 0.00)  groups=4096 partial=0
+  g=1 v4_sort              50.39 ms  (gpu 50.33, xfer 0.00, merge 0.00)  groups=4096 partial=0
+  g=1 v4_sort_chunked      50.34 ms  (gpu 50.28, xfer 0.00, merge 0.00)  groups=4096 partial=0
+  generated rows=100000000 card=4096 skew=1.5 comp=0 in 831 ms (runs=3123385, 618.7 MB compressed)
+  g=2 v1_vec                2.41 ms  (gpu 2.25, xfer 0.05, merge 0.07)  groups=3891 partial=6877
+  g=2 v3_warpagg            3.71 ms  (gpu 3.56, xfer 0.05, merge 0.06)  groups=3891 partial=6877
+  g=2 v4_radix_l2           3.71 ms  (gpu 3.55, xfer 0.05, merge 0.07)  groups=3891 partial=6877
+  g=2 v4_sort               2.35 ms  (gpu 2.19, xfer 0.05, merge 0.07)  groups=3891 partial=6877
+  g=2 v4_sort_chunked       2.54 ms  (gpu 2.40, xfer 0.05, merge 0.06)  groups=3891 partial=6877
+  g=2 v1_vec               92.37 ms  (gpu 92.15, xfer 0.05, merge 0.12)  groups=4096 partial=8192
+  g=2 v3_warpagg           12.37 ms  (gpu 12.16, xfer 0.06, merge 0.10)  groups=4096 partial=8192
+  g=2 v4_radix_l2          12.29 ms  (gpu 12.08, xfer 0.06, merge 0.09)  groups=4096 partial=8192
+  g=2 v4_sort              25.51 ms  (gpu 25.31, xfer 0.06, merge 0.11)  groups=4096 partial=8192
+  g=2 v4_sort_chunked      25.46 ms  (gpu 25.27, xfer 0.06, merge 0.10)  groups=4096 partial=8192
+  g=1 v1_vec                3.04 ms  (gpu 3.00, xfer 0.00, merge 0.00)  groups=3891 partial=0
+  g=1 v3_warpagg            3.90 ms  (gpu 3.79, xfer 0.00, merge 0.00)  groups=3891 partial=0
+  g=1 v4_radix_l2           3.82 ms  (gpu 3.72, xfer 0.00, merge 0.00)  groups=3891 partial=0
+  g=1 v4_sort               3.70 ms  (gpu 3.67, xfer 0.00, merge 0.00)  groups=3891 partial=0
+  g=1 v4_sort_chunked       4.13 ms  (gpu 4.10, xfer 0.00, merge 0.00)  groups=3891 partial=0
+  g=1 v1_vec              184.21 ms  (gpu 184.15, xfer 0.00, merge 0.00)  groups=4096 partial=0
+  g=1 v3_warpagg           23.83 ms  (gpu 23.79, xfer 0.00, merge 0.00)  groups=4096 partial=0
+  g=1 v4_radix_l2          24.10 ms  (gpu 24.05, xfer 0.00, merge 0.00)  groups=4096 partial=0
+  g=1 v4_sort              50.61 ms  (gpu 50.53, xfer 0.00, merge 0.00)  groups=4096 partial=0
+  g=1 v4_sort_chunked      50.63 ms  (gpu 50.57, xfer 0.00, merge 0.00)  groups=4096 partial=0
+  generated rows=100000000 card=65536 skew=0.0 comp=0 in 743 ms (runs=3123385, 618.7 MB compressed)
+  g=2 v1_vec                3.60 ms  (gpu 2.83, xfer 0.56, merge 0.18)  groups=65536 partial=131011
+  g=2 v3_warpagg            5.21 ms  (gpu 4.43, xfer 0.56, merge 0.19)  groups=65536 partial=131011
+  g=2 v4_radix_l2           7.54 ms  (gpu 6.75, xfer 0.56, merge 0.19)  groups=65536 partial=131011
+  g=2 v4_sort               2.86 ms  (gpu 2.00, xfer 0.61, merge 0.21)  groups=65536 partial=131011
+  g=2 v4_sort_chunked       2.91 ms  (gpu 2.05, xfer 0.61, merge 0.22)  groups=65536 partial=131011
+  g=2 v1_vec               40.35 ms  (gpu 39.52, xfer 0.57, merge 0.23)  groups=65536 partial=131072
+  g=2 v3_warpagg           48.39 ms  (gpu 47.55, xfer 0.56, merge 0.23)  groups=65536 partial=131072
+  g=2 v4_radix_l2          28.50 ms  (gpu 27.69, xfer 0.57, merge 0.22)  groups=65536 partial=131072
+  g=2 v4_sort              26.72 ms  (gpu 25.84, xfer 0.61, merge 0.24)  groups=65536 partial=131072
+  g=2 v4_sort_chunked      26.69 ms  (gpu 25.82, xfer 0.61, merge 0.23)  groups=65536 partial=131072
+  g=1 v1_vec                4.63 ms  (gpu 4.60, xfer 0.00, merge 0.00)  groups=65536 partial=0
+  g=1 v3_warpagg            5.39 ms  (gpu 5.37, xfer 0.00, merge 0.00)  groups=65536 partial=0
+  g=1 v4_radix_l2           7.96 ms  (gpu 7.93, xfer 0.00, merge 0.00)  groups=65536 partial=0
+  g=1 v4_sort               3.81 ms  (gpu 3.76, xfer 0.00, merge 0.00)  groups=65536 partial=0
+  g=1 v4_sort_chunked       4.18 ms  (gpu 4.14, xfer 0.00, merge 0.00)  groups=65536 partial=0
+  g=1 v1_vec               79.17 ms  (gpu 79.13, xfer 0.00, merge 0.00)  groups=65536 partial=0
+  g=1 v3_warpagg           95.11 ms  (gpu 95.06, xfer 0.00, merge 0.00)  groups=65536 partial=0
+  g=1 v4_radix_l2          55.64 ms  (gpu 55.59, xfer 0.00, merge 0.00)  groups=65536 partial=0
+  g=1 v4_sort              51.84 ms  (gpu 51.79, xfer 0.00, merge 0.00)  groups=65536 partial=0
+  g=1 v4_sort_chunked      51.95 ms  (gpu 51.91, xfer 0.00, merge 0.00)  groups=65536 partial=0
+  generated rows=100000000 card=65536 skew=1.5 comp=0 in 856 ms (runs=3123385, 618.7 MB compressed)
+  g=2 v1_vec                2.56 ms  (gpu 2.37, xfer 0.08, merge 0.07)  groups=11211 partial=14855
+  g=2 v3_warpagg            3.86 ms  (gpu 3.68, xfer 0.08, merge 0.07)  groups=11211 partial=14855
+  g=2 v4_radix_l2           6.55 ms  (gpu 6.37, xfer 0.08, merge 0.07)  groups=11211 partial=14855
+  g=2 v4_sort               2.21 ms  (gpu 2.01, xfer 0.09, merge 0.07)  groups=11211 partial=14855
+  g=2 v4_sort_chunked       2.20 ms  (gpu 2.01, xfer 0.08, merge 0.07)  groups=11211 partial=14855
+  g=2 v1_vec               93.40 ms  (gpu 92.58, xfer 0.52, merge 0.23)  groups=64272 partial=119279
+  g=2 v3_warpagg           13.93 ms  (gpu 13.19, xfer 0.53, merge 0.19)  groups=64272 partial=119279
+  g=2 v4_radix_l2          22.50 ms  (gpu 21.75, xfer 0.52, merge 0.20)  groups=64272 partial=119279
+  g=2 v4_sort              26.43 ms  (gpu 25.57, xfer 0.56, merge 0.24)  groups=64272 partial=119279
+  g=2 v4_sort_chunked      26.48 ms  (gpu 25.63, xfer 0.56, merge 0.24)  groups=64272 partial=119279
+  g=1 v1_vec                3.41 ms  (gpu 3.37, xfer 0.00, merge 0.00)  groups=11211 partial=0
+  g=1 v3_warpagg            4.05 ms  (gpu 4.02, xfer 0.00, merge 0.00)  groups=11211 partial=0
+  g=1 v4_radix_l2           7.25 ms  (gpu 7.21, xfer 0.00, merge 0.00)  groups=11211 partial=0
+  g=1 v4_sort               3.75 ms  (gpu 3.72, xfer 0.00, merge 0.00)  groups=11211 partial=0
+  g=1 v4_sort_chunked       4.15 ms  (gpu 4.12, xfer 0.00, merge 0.00)  groups=11211 partial=0
+  g=1 v1_vec              247.70 ms  (gpu 247.64, xfer 0.00, merge 0.00)  groups=64272 partial=0
+  g=1 v3_warpagg           27.03 ms  (gpu 26.98, xfer 0.00, merge 0.00)  groups=64272 partial=0
+  g=1 v4_radix_l2          44.82 ms  (gpu 44.76, xfer 0.00, merge 0.00)  groups=64272 partial=0
+  g=1 v4_sort              51.29 ms  (gpu 51.24, xfer 0.00, merge 0.00)  groups=64272 partial=0
+  g=1 v4_sort_chunked      51.72 ms  (gpu 51.67, xfer 0.00, merge 0.00)  groups=64272 partial=0
+  generated rows=100000000 card=1048576 skew=0.0 comp=0 in 886 ms (runs=3123385, 818.7 MB compressed)
+  g=2 v1_vec               11.57 ms  (gpu 5.50, xfer 4.44, merge 1.58)  groups=647869 partial=800421
+  g=2 v3_warpagg           12.74 ms  (gpu 6.68, xfer 4.45, merge 1.58)  groups=647869 partial=800421
+  g=2 v4_radix_l2          15.39 ms  (gpu 9.33, xfer 4.44, merge 1.57)  groups=647869 partial=800421
+  g=2 v4_sort               9.30 ms  (gpu 2.71, xfer 4.80, merge 1.75)  groups=647869 partial=800421
+  g=2 v4_sort_chunked       9.85 ms  (gpu 3.27, xfer 4.79, merge 1.76)  groups=647869 partial=800421
+  g=2 v1_vec              120.62 ms  (gpu 106.98, xfer 10.32, merge 3.27)  groups=1048576 partial=2097152
+  g=2 v3_warpagg          119.53 ms  (gpu 105.88, xfer 10.31, merge 3.30)  groups=1048576 partial=2097152
+  g=2 v4_radix_l2          75.76 ms  (gpu 62.05, xfer 10.35, merge 3.32)  groups=1048576 partial=2097152
+  g=2 v4_sort              46.13 ms  (gpu 31.89, xfer 10.63, merge 3.55)  groups=1048576 partial=2097152
+  g=2 v4_sort_chunked      46.60 ms  (gpu 32.51, xfer 10.61, merge 3.45)  groups=1048576 partial=2097152
+  g=1 v1_vec                7.68 ms  (gpu 7.64, xfer 0.00, merge 0.00)  groups=647869 partial=0
+  g=1 v3_warpagg            8.20 ms  (gpu 8.16, xfer 0.00, merge 0.00)  groups=647869 partial=0
+  g=1 v4_radix_l2          13.68 ms  (gpu 13.65, xfer 0.00, merge 0.00)  groups=647869 partial=0
+  g=1 v4_sort               4.87 ms  (gpu 4.83, xfer 0.00, merge 0.00)  groups=647869 partial=0
+  g=1 v4_sort_chunked       5.69 ms  (gpu 5.65, xfer 0.00, merge 0.00)  groups=647869 partial=0
+  g=1 v1_vec              212.38 ms  (gpu 212.33, xfer 0.00, merge 0.00)  groups=1048576 partial=0
+  g=1 v3_warpagg          208.68 ms  (gpu 208.63, xfer 0.00, merge 0.00)  groups=1048576 partial=0
+  g=1 v4_radix_l2         126.13 ms  (gpu 126.09, xfer 0.00, merge 0.00)  groups=1048576 partial=0
+  g=1 v4_sort              65.49 ms  (gpu 65.44, xfer 0.00, merge 0.00)  groups=1048576 partial=0
+  g=1 v4_sort_chunked      66.19 ms  (gpu 66.14, xfer 0.00, merge 0.00)  groups=1048576 partial=0
+  generated rows=100000000 card=1048576 skew=1.5 comp=0 in 1488 ms (runs=3123385, 818.7 MB compressed)
+  g=2 v1_vec                4.74 ms  (gpu 4.47, xfer 0.14, merge 0.10)  groups=13625 partial=17322
+  g=2 v3_warpagg            6.01 ms  (gpu 5.73, xfer 0.14, merge 0.10)  groups=13625 partial=17322
+  g=2 v4_radix_l2           8.10 ms  (gpu 7.83, xfer 0.12, merge 0.10)  groups=13625 partial=17322
+  g=2 v4_sort               2.82 ms  (gpu 2.58, xfer 0.11, merge 0.08)  groups=13625 partial=17322
+  g=2 v4_sort_chunked       3.00 ms  (gpu 2.77, xfer 0.11, merge 0.08)  groups=13625 partial=17322
+  g=2 v1_vec               95.83 ms  (gpu 93.15, xfer 1.89, merge 0.73)  groups=229248 partial=308119
+  g=2 v3_warpagg           18.23 ms  (gpu 15.58, xfer 1.88, merge 0.70)  groups=229248 partial=308119
+  g=2 v4_radix_l2          28.90 ms  (gpu 26.24, xfer 1.88, merge 0.71)  groups=229248 partial=308119
+  g=2 v4_sort              33.05 ms  (gpu 30.20, xfer 2.01, merge 0.79)  groups=229248 partial=308119
+  g=2 v4_sort_chunked      33.60 ms  (gpu 30.75, xfer 2.00, merge 0.79)  groups=229248 partial=308119
+  g=1 v1_vec                5.68 ms  (gpu 5.64, xfer 0.00, merge 0.00)  groups=13625 partial=0
+  g=1 v3_warpagg            6.14 ms  (gpu 6.12, xfer 0.00, merge 0.00)  groups=13625 partial=0
+  g=1 v4_radix_l2          10.70 ms  (gpu 10.65, xfer 0.00, merge 0.00)  groups=13625 partial=0
+  g=1 v4_sort               4.53 ms  (gpu 4.48, xfer 0.00, merge 0.00)  groups=13625 partial=0
+  g=1 v4_sort_chunked       5.46 ms  (gpu 5.42, xfer 0.00, merge 0.00)  groups=13625 partial=0
+  g=1 v1_vec              184.19 ms  (gpu 184.13, xfer 0.00, merge 0.00)  groups=229248 partial=0
+  g=1 v3_warpagg           30.46 ms  (gpu 30.42, xfer 0.00, merge 0.00)  groups=229248 partial=0
+  g=1 v4_radix_l2          52.49 ms  (gpu 52.45, xfer 0.00, merge 0.00)  groups=229248 partial=0
+  g=1 v4_sort              61.51 ms  (gpu 61.46, xfer 0.00, merge 0.00)  groups=229248 partial=0
+  g=1 v4_sort_chunked      61.88 ms  (gpu 61.84, xfer 0.00, merge 0.00)  groups=229248 partial=0
+  generated rows=100000000 card=16777216 skew=0.0 comp=0 in 1103 ms (runs=3123385, 818.7 MB compressed)
+  g=2 v1_vec               40.49 ms  (gpu 32.98, xfer 5.24, merge 2.20)  groups=978571 partial=993478
+  g=2 v3_warpagg           41.01 ms  (gpu 33.52, xfer 5.25, merge 2.20)  groups=978571 partial=993478
+  g=2 v4_radix_l2          43.22 ms  (gpu 35.75, xfer 5.25, merge 2.18)  groups=978571 partial=993478
+  g=2 v4_sort              10.63 ms  (gpu 2.69, xfer 5.60, merge 2.32)  groups=978571 partial=993478
+  g=2 v4_sort_chunked      18.54 ms  (gpu 10.62, xfer 5.58, merge 2.31)  groups=978571 partial=993478
+  g=2 v1_vec              432.61 ms  (gpu 152.86, xfer 193.79, merge 85.90)  groups=16733965 partial=31849025
+  g=2 v3_warpagg          423.94 ms  (gpu 143.93, xfer 193.98, merge 85.92)  groups=16733965 partial=31849025
+  g=2 v4_radix_l2         470.63 ms  (gpu 190.54, xfer 194.15, merge 85.92)  groups=16733965 partial=31849025
+  g=2 v4_sort             316.03 ms  (gpu 50.90, xfer 184.86, merge 80.27)  groups=16733965 partial=31849025
+  g=2 v4_sort_chunked     336.22 ms  (gpu 68.12, xfer 184.94, merge 83.00)  groups=16733965 partial=31849025
+  g=1 v1_vec               35.54 ms  (gpu 35.49, xfer 0.00, merge 0.00)  groups=978571 partial=0
+  g=1 v3_warpagg           36.04 ms  (gpu 35.99, xfer 0.00, merge 0.00)  groups=978571 partial=0
+  g=1 v4_radix_l2          41.29 ms  (gpu 41.25, xfer 0.00, merge 0.00)  groups=978571 partial=0
+  g=1 v4_sort               5.64 ms  (gpu 5.59, xfer 0.00, merge 0.00)  groups=978571 partial=0
+  g=1 v4_sort_chunked      14.02 ms  (gpu 13.97, xfer 0.00, merge 0.00)  groups=978571 partial=0
+  g=1 v1_vec              268.54 ms  (gpu 268.48, xfer 0.00, merge 0.00)  groups=16733965 partial=0
+  g=1 v3_warpagg          257.40 ms  (gpu 257.34, xfer 0.00, merge 0.00)  groups=16733965 partial=0
+  g=1 v4_radix_l2         328.26 ms  (gpu 328.21, xfer 0.00, merge 0.00)  groups=16733965 partial=0
+  g=1 v4_sort              80.23 ms  (gpu 80.18, xfer 0.00, merge 0.00)  groups=16733965 partial=0
+  g=1 v4_sort_chunked      91.40 ms  (gpu 91.32, xfer 0.00, merge 0.00)  groups=16733965 partial=0
+  generated rows=100000000 card=16777216 skew=1.5 comp=0 in 3679 ms (runs=3123385, 818.7 MB compressed)
+  g=2 v1_vec               31.72 ms  (gpu 31.41, xfer 0.11, merge 0.13)  groups=14017 partial=17709
+  g=2 v3_warpagg           32.15 ms  (gpu 31.85, xfer 0.11, merge 0.12)  groups=14017 partial=17709
+  g=2 v4_radix_l2          34.13 ms  (gpu 33.87, xfer 0.11, merge 0.12)  groups=14017 partial=17709
+  g=2 v4_sort               2.48 ms  (gpu 2.25, xfer 0.11, merge 0.08)  groups=14017 partial=17709
+  g=2 v4_sort_chunked       9.51 ms  (gpu 9.28, xfer 0.11, merge 0.08)  groups=14017 partial=17709
+  g=2 v1_vec              133.21 ms  (gpu 130.20, xfer 2.14, merge 0.81)  groups=285239 partial=364200
+  g=2 v3_warpagg           47.09 ms  (gpu 44.10, xfer 2.13, merge 0.81)  groups=285239 partial=364200
+  g=2 v4_radix_l2          62.66 ms  (gpu 59.66, xfer 2.14, merge 0.83)  groups=285239 partial=364200
+  g=2 v4_sort              35.41 ms  (gpu 32.22, xfer 2.24, merge 0.89)  groups=285239 partial=364200
+  g=2 v4_sort_chunked      42.35 ms  (gpu 39.19, xfer 2.23, merge 0.87)  groups=285239 partial=364200
+  g=1 v1_vec               33.01 ms  (gpu 32.97, xfer 0.00, merge 0.00)  groups=14017 partial=0
+  g=1 v3_warpagg           33.69 ms  (gpu 33.64, xfer 0.00, merge 0.00)  groups=14017 partial=0
+  g=1 v4_radix_l2          37.97 ms  (gpu 37.92, xfer 0.00, merge 0.00)  groups=14017 partial=0
+  g=1 v4_sort               5.17 ms  (gpu 5.14, xfer 0.00, merge 0.00)  groups=14017 partial=0
+  g=1 v4_sort_chunked      11.68 ms  (gpu 11.65, xfer 0.00, merge 0.00)  groups=14017 partial=0
+  g=1 v1_vec              226.89 ms  (gpu 226.83, xfer 0.00, merge 0.00)  groups=285239 partial=0
+  g=1 v3_warpagg           60.77 ms  (gpu 60.70, xfer 0.00, merge 0.00)  groups=285239 partial=0
+  g=1 v4_radix_l2          93.45 ms  (gpu 93.39, xfer 0.00, merge 0.00)  groups=285239 partial=0
+  g=1 v4_sort              64.31 ms  (gpu 64.25, xfer 0.00, merge 0.00)  groups=285239 partial=0
+  g=1 v4_sort_chunked      71.35 ms  (gpu 71.30, xfer 0.00, merge 0.00)  groups=285239 partial=0
+  generated rows=500000000 card=4096 skew=0.0 comp=0 in 3802 ms (runs=15623430, 3093.7 MB compressed)
+  g=2 v1_vec               11.64 ms  (gpu 11.39, xfer 0.08, merge 0.11)  groups=4096 partial=8192
+  g=2 v3_warpagg           13.03 ms  (gpu 12.81, xfer 0.06, merge 0.11)  groups=4096 partial=8192
+  g=2 v4_radix_l2          13.58 ms  (gpu 13.38, xfer 0.07, merge 0.11)  groups=4096 partial=8192
+  g=2 v4_sort              11.70 ms  (gpu 11.49, xfer 0.08, merge 0.09)  groups=4096 partial=8192
+  g=2 v4_sort_chunked      11.59 ms  (gpu 11.17, xfer 0.12, merge 0.10)  groups=4096 partial=8192
+  g=2 v1_vec               99.67 ms  (gpu 99.45, xfer 0.06, merge 0.12)  groups=4096 partial=8192
+  g=2 v3_warpagg          153.67 ms  (gpu 153.46, xfer 0.06, merge 0.12)  groups=4096 partial=8192
+  g=2 v4_radix_l2         149.96 ms  (gpu 149.74, xfer 0.06, merge 0.12)  groups=4096 partial=8192
+  g=2 v4_sort             136.54 ms  (gpu 136.31, xfer 0.06, merge 0.12)  groups=4096 partial=8192
+  g=2 v4_sort_chunked     137.32 ms  (gpu 137.10, xfer 0.06, merge 0.13)  groups=4096 partial=8192
+  g=1 v1_vec               24.64 ms  (gpu 24.60, xfer 0.00, merge 0.00)  groups=4096 partial=0
+  g=1 v3_warpagg           27.28 ms  (gpu 27.23, xfer 0.00, merge 0.00)  groups=4096 partial=0
+  g=1 v4_radix_l2          27.17 ms  (gpu 27.11, xfer 0.00, merge 0.00)  groups=4096 partial=0
+  g=1 v4_sort              23.38 ms  (gpu 23.32, xfer 0.00, merge 0.00)  groups=4096 partial=0
+  g=1 v4_sort_chunked      22.75 ms  (gpu 22.70, xfer 0.00, merge 0.00)  groups=4096 partial=0
+  g=1 v1_vec              200.96 ms  (gpu 200.91, xfer 0.00, merge 0.00)  groups=4096 partial=0
+  g=1 v3_warpagg          319.01 ms  (gpu 318.96, xfer 0.00, merge 0.00)  groups=4096 partial=0
+  g=1 v4_radix_l2         313.93 ms  (gpu 313.88, xfer 0.00, merge 0.00)  groups=4096 partial=0
+  g=1 v4_sort             276.32 ms  (gpu 276.20, xfer 0.00, merge 0.00)  groups=4096 partial=0
+  g=1 v4_sort_chunked     276.90 ms  (gpu 276.85, xfer 0.00, merge 0.00)  groups=4096 partial=0
+  generated rows=500000000 card=4096 skew=1.5 comp=0 in 4107 ms (runs=15623430, 3093.7 MB compressed)
+  g=2 v1_vec               11.24 ms  (gpu 11.02, xfer 0.08, merge 0.11)  groups=4096 partial=8171
+  g=2 v3_warpagg           11.55 ms  (gpu 11.35, xfer 0.07, merge 0.07)  groups=4096 partial=8171
+  g=2 v4_radix_l2          12.41 ms  (gpu 12.22, xfer 0.07, merge 0.08)  groups=4096 partial=8171
+  g=2 v4_sort              10.96 ms  (gpu 10.74, xfer 0.08, merge 0.08)  groups=4096 partial=8171
+  g=2 v4_sort_chunked      10.54 ms  (gpu 10.33, xfer 0.08, merge 0.09)  groups=4096 partial=8171
+  g=2 v1_vec              460.21 ms  (gpu 460.00, xfer 0.05, merge 0.11)  groups=4096 partial=8192
+  g=2 v3_warpagg           67.03 ms  (gpu 66.78, xfer 0.06, merge 0.12)  groups=4096 partial=8192
+  g=2 v4_radix_l2          66.81 ms  (gpu 66.57, xfer 0.06, merge 0.11)  groups=4096 partial=8192
+  g=2 v4_sort             136.65 ms  (gpu 136.41, xfer 0.06, merge 0.12)  groups=4096 partial=8192
+  g=2 v4_sort_chunked     137.38 ms  (gpu 137.14, xfer 0.06, merge 0.12)  groups=4096 partial=8192
+  g=1 v1_vec               22.41 ms  (gpu 22.37, xfer 0.00, merge 0.00)  groups=4096 partial=0
+  g=1 v3_warpagg           24.53 ms  (gpu 24.49, xfer 0.00, merge 0.00)  groups=4096 partial=0
+  g=1 v4_radix_l2          24.60 ms  (gpu 24.56, xfer 0.00, merge 0.00)  groups=4096 partial=0
+  g=1 v4_sort              23.07 ms  (gpu 23.04, xfer 0.00, merge 0.00)  groups=4096 partial=0
+  g=1 v4_sort_chunked      22.64 ms  (gpu 22.60, xfer 0.00, merge 0.00)  groups=4096 partial=0
+  g=1 v1_vec              919.91 ms  (gpu 919.85, xfer 0.00, merge 0.00)  groups=4096 partial=0
+  g=1 v3_warpagg          138.96 ms  (gpu 138.91, xfer 0.00, merge 0.00)  groups=4096 partial=0
+  g=1 v4_radix_l2         138.55 ms  (gpu 138.50, xfer 0.00, merge 0.00)  groups=4096 partial=0
+  g=1 v4_sort             275.69 ms  (gpu 275.64, xfer 0.00, merge 0.00)  groups=4096 partial=0
+  g=1 v4_sort_chunked     273.80 ms  (gpu 273.76, xfer 0.00, merge 0.00)  groups=4096 partial=0
+  generated rows=500000000 card=65536 skew=0.0 comp=0 in 3714 ms (runs=15623430, 3093.7 MB compressed)
+  g=2 v1_vec               13.81 ms  (gpu 12.92, xfer 0.62, merge 0.23)  groups=65536 partial=131072
+  g=2 v3_warpagg           15.33 ms  (gpu 14.50, xfer 0.56, merge 0.22)  groups=65536 partial=131072
+  g=2 v4_radix_l2          22.92 ms  (gpu 22.08, xfer 0.58, merge 0.21)  groups=65536 partial=131072
+  g=2 v4_sort              11.77 ms  (gpu 10.86, xfer 0.63, merge 0.24)  groups=65536 partial=131072
+  g=2 v4_sort_chunked      11.80 ms  (gpu 10.49, xfer 0.63, merge 0.25)  groups=65536 partial=131072
+  g=2 v1_vec              208.97 ms  (gpu 208.06, xfer 0.57, merge 0.25)  groups=65536 partial=131072
+  g=2 v3_warpagg          259.81 ms  (gpu 258.96, xfer 0.56, merge 0.24)  groups=65536 partial=131072
+  g=2 v4_radix_l2         155.28 ms  (gpu 154.44, xfer 0.57, merge 0.23)  groups=65536 partial=131072
+  g=2 v4_sort             139.81 ms  (gpu 138.88, xfer 0.61, merge 0.27)  groups=65536 partial=131072
+  g=2 v4_sort_chunked     140.40 ms  (gpu 139.49, xfer 0.61, merge 0.27)  groups=65536 partial=131072
+  g=1 v1_vec               27.80 ms  (gpu 27.76, xfer 0.00, merge 0.00)  groups=65536 partial=0
+  g=1 v3_warpagg           30.66 ms  (gpu 30.63, xfer 0.00, merge 0.00)  groups=65536 partial=0
+  g=1 v4_radix_l2          47.05 ms  (gpu 47.00, xfer 0.00, merge 0.00)  groups=65536 partial=0
+  g=1 v4_sort              24.31 ms  (gpu 24.28, xfer 0.00, merge 0.00)  groups=65536 partial=0
+  g=1 v4_sort_chunked      24.88 ms  (gpu 24.84, xfer 0.00, merge 0.00)  groups=65536 partial=0
+  g=1 v1_vec              428.83 ms  (gpu 428.75, xfer 0.00, merge 0.00)  groups=65536 partial=0
+  g=1 v3_warpagg          569.71 ms  (gpu 569.65, xfer 0.00, merge 0.00)  groups=65536 partial=0
+  g=1 v4_radix_l2         348.39 ms  (gpu 348.33, xfer 0.00, merge 0.00)  groups=65536 partial=0
+  g=1 v4_sort             292.67 ms  (gpu 292.62, xfer 0.00, merge 0.00)  groups=65536 partial=0
+  g=1 v4_sort_chunked     291.37 ms  (gpu 291.33, xfer 0.00, merge 0.00)  groups=65536 partial=0
+  generated rows=500000000 card=65536 skew=1.5 comp=0 in 4224 ms (runs=15623430, 3093.7 MB compressed)
+  g=2 v1_vec               11.59 ms  (gpu 11.16, xfer 0.27, merge 0.14)  groups=26759 partial=37516
+  g=2 v3_warpagg           12.06 ms  (gpu 11.64, xfer 0.22, merge 0.15)  groups=26759 partial=37516
+  g=2 v4_radix_l2          21.51 ms  (gpu 21.10, xfer 0.23, merge 0.14)  groups=26759 partial=37516
+  g=2 v4_sort              11.37 ms  (gpu 10.93, xfer 0.25, merge 0.14)  groups=26759 partial=37516
+  g=2 v4_sort_chunked      10.58 ms  (gpu 10.10, xfer 0.24, merge 0.14)  groups=26759 partial=37516
+  g=2 v1_vec              464.00 ms  (gpu 463.16, xfer 0.56, merge 0.23)  groups=65536 partial=131027
+  g=2 v3_warpagg           74.40 ms  (gpu 73.57, xfer 0.56, merge 0.24)  groups=65536 partial=131027
+  g=2 v4_radix_l2         127.14 ms  (gpu 126.31, xfer 0.56, merge 0.24)  groups=65536 partial=131027
+  g=2 v4_sort             137.61 ms  (gpu 136.70, xfer 0.61, merge 0.27)  groups=65536 partial=131027
+  g=2 v4_sort_chunked     138.00 ms  (gpu 137.05, xfer 0.60, merge 0.29)  groups=65536 partial=131027
+  g=1 v1_vec               23.77 ms  (gpu 23.72, xfer 0.00, merge 0.00)  groups=26759 partial=0
+  g=1 v3_warpagg           24.21 ms  (gpu 24.17, xfer 0.00, merge 0.00)  groups=26759 partial=0
+  g=1 v4_radix_l2          41.11 ms  (gpu 41.06, xfer 0.00, merge 0.00)  groups=26759 partial=0
+  g=1 v4_sort              23.05 ms  (gpu 23.01, xfer 0.00, merge 0.00)  groups=26759 partial=0
+  g=1 v4_sort_chunked      22.57 ms  (gpu 22.53, xfer 0.00, merge 0.00)  groups=26759 partial=0
+  g=1 v1_vec             1239.38 ms  (gpu 1239.33, xfer 0.00, merge 0.00)  groups=65536 partial=0
+  g=1 v3_warpagg          147.16 ms  (gpu 147.11, xfer 0.00, merge 0.00)  groups=65536 partial=0
+  g=1 v4_radix_l2         254.24 ms  (gpu 254.18, xfer 0.00, merge 0.00)  groups=65536 partial=0
+  g=1 v4_sort             277.02 ms  (gpu 276.96, xfer 0.00, merge 0.00)  groups=65536 partial=0
+  g=1 v4_sort_chunked     274.37 ms  (gpu 274.30, xfer 0.00, merge 0.00)  groups=65536 partial=0
+  generated rows=500000000 card=1048576 skew=0.0 comp=0 in 4406 ms (runs=15623430, 4093.7 MB compressed)
+  g=2 v1_vec               29.58 ms  (gpu 17.09, xfer 9.31, merge 3.14)  groups=1039706 partial=1904086
+  g=2 v3_warpagg           29.84 ms  (gpu 17.38, xfer 9.27, merge 3.12)  groups=1039706 partial=1904086
+  g=2 v4_radix_l2          43.19 ms  (gpu 30.73, xfer 9.31, merge 3.12)  groups=1039706 partial=1904086
+  g=2 v4_sort              24.79 ms  (gpu 11.68, xfer 9.66, merge 3.42)  groups=1039706 partial=1904086
+  g=2 v4_sort_chunked      25.51 ms  (gpu 12.38, xfer 9.65, merge 3.42)  groups=1039706 partial=1904086
+  g=2 v1_vec              548.28 ms  (gpu 534.55, xfer 10.32, merge 3.34)  groups=1048576 partial=2097152
+  g=2 v3_warpagg          550.91 ms  (gpu 537.26, xfer 10.29, merge 3.31)  groups=1048576 partial=2097152
+  g=2 v4_radix_l2         366.30 ms  (gpu 352.49, xfer 10.36, merge 3.38)  groups=1048576 partial=2097152
+  g=2 v4_sort             185.30 ms  (gpu 171.05, xfer 10.63, merge 3.56)  groups=1048576 partial=2097152
+  g=2 v4_sort_chunked     187.59 ms  (gpu 173.40, xfer 10.64, merge 3.50)  groups=1048576 partial=2097152
+  g=1 v1_vec               35.56 ms  (gpu 35.49, xfer 0.00, merge 0.00)  groups=1039706 partial=0
+  g=1 v3_warpagg           39.00 ms  (gpu 38.96, xfer 0.00, merge 0.00)  groups=1039706 partial=0
+  g=1 v4_radix_l2          71.12 ms  (gpu 71.07, xfer 0.00, merge 0.00)  groups=1039706 partial=0
+  g=1 v4_sort          skipped: oom:sort tmp
+  g=1 v4_sort_chunked      30.29 ms  (gpu 30.25, xfer 0.00, merge 0.00)  groups=1039706 partial=0
+  g=1 v1_vec             1072.76 ms  (gpu 1072.70, xfer 0.00, merge 0.00)  groups=1048576 partial=0
+  g=1 v3_warpagg         1081.32 ms  (gpu 1081.26, xfer 0.00, merge 0.00)  groups=1048576 partial=0
+  g=1 v4_radix_l2         872.14 ms  (gpu 872.10, xfer 0.00, merge 0.00)  groups=1048576 partial=0
+  g=1 v4_sort          skipped: oom:sort tmp
+  g=1 v4_sort_chunked     345.83 ms  (gpu 345.78, xfer 0.00, merge 0.00)  groups=1048576 partial=0
+  generated rows=500000000 card=1048576 skew=1.5 comp=0 in 7045 ms (runs=15623430, 4093.7 MB compressed)
+  g=2 v1_vec               13.92 ms  (gpu 13.40, xfer 0.30, merge 0.17)  groups=37723 partial=48442
+  g=2 v3_warpagg           13.91 ms  (gpu 13.43, xfer 0.27, merge 0.16)  groups=37723 partial=48442
+  g=2 v4_radix_l2          25.70 ms  (gpu 25.24, xfer 0.27, merge 0.16)  groups=37723 partial=48442
+  g=2 v4_sort              12.34 ms  (gpu 11.89, xfer 0.27, merge 0.15)  groups=37723 partial=48442
+  g=2 v4_sort_chunked      12.71 ms  (gpu 12.26, xfer 0.27, merge 0.15)  groups=37723 partial=48442
+  g=2 v1_vec              463.74 ms  (gpu 457.94, xfer 4.26, merge 1.47)  groups=522788 partial=749905
+  g=2 v3_warpagg           81.84 ms  (gpu 76.05, xfer 4.24, merge 1.50)  groups=522788 partial=749905
+  g=2 v4_radix_l2         141.75 ms  (gpu 135.98, xfer 4.24, merge 1.49)  groups=522788 partial=749905
+  g=2 v4_sort             163.92 ms  (gpu 157.60, xfer 4.57, merge 1.65)  groups=522788 partial=749905
+  g=2 v4_sort_chunked     164.93 ms  (gpu 158.64, xfer 4.57, merge 1.66)  groups=522788 partial=749905
+  g=1 v1_vec               25.41 ms  (gpu 25.36, xfer 0.00, merge 0.00)  groups=37723 partial=0
+  g=1 v3_warpagg           27.36 ms  (gpu 27.32, xfer 0.00, merge 0.00)  groups=37723 partial=0
+  g=1 v4_radix_l2          50.81 ms  (gpu 50.76, xfer 0.00, merge 0.00)  groups=37723 partial=0
+  g=1 v4_sort          skipped: oom:sort tmp
+  g=1 v4_sort_chunked      25.69 ms  (gpu 25.66, xfer 0.00, merge 0.00)  groups=37723 partial=0
+  g=1 v1_vec              957.25 ms  (gpu 957.20, xfer 0.00, merge 0.00)  groups=522788 partial=0
+  g=1 v3_warpagg          155.53 ms  (gpu 155.48, xfer 0.00, merge 0.00)  groups=522788 partial=0
+  g=1 v4_radix_l2         283.63 ms  (gpu 283.59, xfer 0.00, merge 0.00)  groups=522788 partial=0
+  g=1 v4_sort          skipped: oom:sort tmp
+  g=1 v4_sort_chunked     320.27 ms  (gpu 320.22, xfer 0.00, merge 0.00)  groups=522788 partial=0
+  generated rows=500000000 card=16777216 skew=0.0 comp=0 in 4544 ms (runs=15623430, 4093.7 MB compressed)
+  g=2 v1_vec               89.01 ms  (gpu 44.78, xfer 29.97, merge 14.18)  groups=4328391 partial=4650926
+  g=2 v3_warpagg           89.94 ms  (gpu 45.79, xfer 29.96, merge 14.16)  groups=4328391 partial=4650926
+  g=2 v4_radix_l2         102.91 ms  (gpu 58.67, xfer 29.96, merge 14.26)  groups=4328391 partial=4650926
+  g=2 v4_sort              57.75 ms  (gpu 12.21, xfer 31.22, merge 14.27)  groups=4328391 partial=4650926
+  g=2 v4_sort_chunked      67.51 ms  (gpu 22.11, xfer 31.14, merge 14.26)  groups=4328391 partial=4650926
+  g=2 v1_vec              904.42 ms  (gpu 610.74, xfer 204.26, merge 89.48)  groups=16777216 partial=33554422
+  g=2 v3_warpagg          896.45 ms  (gpu 601.27, xfer 205.47, merge 89.76)  groups=16777216 partial=33554422
+  g=2 v4_radix_l2        1016.88 ms  (gpu 714.40, xfer 211.17, merge 89.77)  groups=16777216 partial=33554422
+  g=2 v4_sort             460.62 ms  (gpu 190.55, xfer 195.28, merge 74.75)  groups=16777216 partial=33554422
+  g=2 v4_sort_chunked     475.70 ms  (gpu 198.70, xfer 195.08, merge 81.86)  groups=16777216 partial=33554422
+  g=1 v1_vec               58.51 ms  (gpu 58.45, xfer 0.00, merge 0.00)  groups=4328391 partial=0
+  g=1 v3_warpagg           61.89 ms  (gpu 61.83, xfer 0.00, merge 0.00)  groups=4328391 partial=0
+  g=1 v4_radix_l2      skipped: oom:v4 pass-2 buffer
+  g=1 v4_sort          skipped: oom:sort buffers
+  g=1 v4_sort_chunked      37.28 ms  (gpu 37.23, xfer 0.00, merge 0.00)  groups=4328391 partial=0
+  g=1 v1_vec             1180.94 ms  (gpu 1180.87, xfer 0.00, merge 0.00)  groups=16777216 partial=0
+  g=1 v3_warpagg         1175.45 ms  (gpu 1175.40, xfer 0.00, merge 0.00)  groups=16777216 partial=0
+  g=1 v4_radix_l2      skipped: oom:v4 pass-2 buffer
+  g=1 v4_sort          skipped: oom:sort buffers
+  g=1 v4_sort_chunked     413.49 ms  (gpu 413.45, xfer 0.00, merge 0.00)  groups=16777216 partial=0
+  generated rows=500000000 card=16777216 skew=1.5 comp=0 in 13910 ms (runs=15623430, 4093.7 MB compressed)
+  g=2 v1_vec               39.36 ms  (gpu 38.83, xfer 0.28, merge 0.19)  groups=40460 partial=51170
+  g=2 v3_warpagg           40.19 ms  (gpu 39.68, xfer 0.28, merge 0.18)  groups=40460 partial=51170
+  g=2 v4_radix_l2          50.88 ms  (gpu 50.39, xfer 0.28, merge 0.17)  groups=40460 partial=51170
+  g=2 v4_sort              12.52 ms  (gpu 12.03, xfer 0.29, merge 0.17)  groups=40460 partial=51170
+  g=2 v4_sort_chunked      18.92 ms  (gpu 18.43, xfer 0.28, merge 0.18)  groups=40460 partial=51170
+  g=2 v1_vec              501.17 ms  (gpu 493.73, xfer 5.39, merge 1.97)  groups=795238 partial=1025849
+  g=2 v3_warpagg          114.87 ms  (gpu 107.44, xfer 5.39, merge 1.98)  groups=795238 partial=1025849
+  g=2 v4_radix_l2         197.65 ms  (gpu 190.22, xfer 5.39, merge 2.00)  groups=795238 partial=1025849
+  g=2 v4_sort             168.05 ms  (gpu 160.14, xfer 5.74, merge 2.12)  groups=795238 partial=1025849
+  g=2 v4_sort_chunked     176.07 ms  (gpu 168.16, xfer 5.74, merge 2.11)  groups=795238 partial=1025849
+  g=1 v1_vec               48.89 ms  (gpu 48.86, xfer 0.00, merge 0.00)  groups=40460 partial=0
+  g=1 v3_warpagg           52.37 ms  (gpu 52.31, xfer 0.00, merge 0.00)  groups=40460 partial=0
+  g=1 v4_radix_l2      skipped: oom:v4 pass-2 buffer
+  g=1 v4_sort          skipped: oom:sort buffers
+  g=1 v4_sort_chunked      31.95 ms  (gpu 31.91, xfer 0.00, merge 0.00)  groups=40460 partial=0
+  g=1 v1_vec              951.74 ms  (gpu 951.69, xfer 0.00, merge 0.00)  groups=795238 partial=0
+  g=1 v3_warpagg          188.78 ms  (gpu 188.71, xfer 0.00, merge 0.00)  groups=795238 partial=0
+  g=1 v4_radix_l2      skipped: oom:v4 pass-2 buffer
+  g=1 v4_sort          skipped: oom:sort buffers
+  g=1 v4_sort_chunked     326.42 ms  (gpu 326.38, xfer 0.00, merge 0.00)  groups=795238 partial=0
+mgpu: 0 incorrect
+EXIT_CODE=0

@@ -421,6 +421,58 @@ faster in both cells.
 **In a planner: size from the selectivity estimate. Correctness does not depend on it (open addressing
 with an exact count bound), and it can only shrink the table.**
 
+## Multi-GPU (2 × T4, row split)
+
+![mgpu](plots/mgpu.png)
+
+`bench mgpu` splits the rows evenly across both T4s; each holds only its slice plus the whole
+dictionary. Every GPU runs the same variant on its slice from its own host thread. GPU 1's partial
+result (one row per group it saw, 40 B) goes to GPU 0 by `cudaMemcpyPeerAsync`, and GPU 0 merges both
+partials into a table sized by the partial groups that arrived. The merge works for every variant.
+It is host-timed end to end, compared with the same variant on one GPU in the same session, and
+correctness-gated like everything else (all timed points correct, memcheck clean).
+
+| best variant per point | 1 GPU | 2 GPUs | speedup | transfer + merge |
+|---|---|---|---|---|
+| 500M, 4K groups, uniform, 100% | v1_vec 201.0 ms | 99.7 | **2.02×** | 0.2 |
+| 500M, 64K, uniform, 100% | v4_sort_chunked 291.4 | 139.8 | **2.08×** | 0.9 |
+| 500M, 1M, uniform, 100% | v4_sort_chunked 345.8 | 185.3 | **1.87×** | 14.2 |
+| 500M, 16M, Zipf 1.5, 1% | v4_sort_chunked 32.0 | 12.5 | **2.55×** | 0.5 |
+| 500M, 16M, Zipf 1.5, 100% | v3_warpagg 188.8 | 114.9 | 1.64× | 7.4 |
+| 500M, 16M, uniform, 100% | **v4_sort_chunked 413.5** | 460.6 | 0.90× | 270.1 |
+| 500M, 16M, uniform, 1% | **v4_sort_chunked 37.3** | 57.8 | 0.65× | 45.5 |
+| 100M, 1M / 16M, uniform, 1% | **v4_sort 4.9 / 5.6** | 9.3 / 10.6 | 0.52× / 0.53× | 6.6 / 7.9 |
+
+- **Linear speedup wherever the partial results are small.** At ≤ 64K groups the partials are
+  ≤ 131K groups and the combine step costs < 1 ms, so two GPUs give 1.96–2.13× at 500M. Under Zipf 1.5
+  the partials stay ≤ 1.03M groups even at 16M, the combine is ≤ 7.4 ms, and two GPUs give 1.64–2.55×.
+  Each GPU runs its half at the same rate as one GPU on all of it. Splitting rows also halves the
+  memory per GPU, so unchunked `v4_sort` fits again at 500M.
+- **Superlinear (2.55×)** at 16M groups / Zipf 1.5 / 1%. Each GPU's half selects fewer rows, so the
+  single-GPU chunked plan's fixed 512 MB accumulator cost turns into a small sort plus a 131K-slot merge.
+- **It stops winning when every GPU sees most of the groups.** At 16M uniform groups each GPU returns
+  ~16.7M partial groups (670 MB). Shipping them costs 195 ms and merging 75 ms, which is more than the
+  ~220 ms the split saves (the slowest GPU takes 190.5 ms vs 413.5 ms for one GPU), giving 0.90×. At
+  1% selectivity the two halves still return 0.8–4.7M partial groups in total, and the combine step
+  (6.6–45.5 ms) exceeds the whole single-GPU query. Here the combine is a group
+  shuffle, and its cost scales with groups, not rows. That is the same cliff as the PCIe wall in V5,
+  one level up.
+- **Transfer rate.** The two T4s reported peer access in this session (they did not in an earlier
+  one). Even so, the effective copy rate of the partials was only 3.4–4 GB/s (16M uniform: 670 MB in
+  195 ms), well below the 12.4 GB/s host↔device rate measured in V5. We did not determine why (no
+  counters, PCIe topology not visible), so treat it as a measured property of this Kaggle machine. A
+  faster interconnect would move the crossover, but at 16M uniform even a free copy leaves the
+  75 ms merge.
+- **The merge-table fix mattered.** The first version merged into GPU 0's dictionary-sized table
+  (32M slots, 2 GB). It cost 30–39 ms to clear and scan even when only 51K groups arrived, and two
+  GPUs lost at every 16M / 1% point (0.14–0.72×). Sizing the merge table by the partials that arrived
+  turned the best two-GPU result at 16M / Zipf 1.5 / 1% from 0.73× into 2.55×. It is the cap=est lesson again, applied to the merge.
+
+**Planner rule:** split across GPUs when the groups each GPU will return are small relative to its rows.
+Here that means ≤ 64K groups always, 1M groups at 500M rows, and 16M groups only under heavy skew;
+otherwise run on one GPU, or partition by key instead of by row so
+that no merge is needed (not built).
+
 ## Roofline
 
 ![roofline](plots/roofline.png)
@@ -452,6 +504,9 @@ the bytes (8.4 GB) and streams them at ~39% of the roof, which is why it wins.
   `compute-sanitizer` memcheck (0 errors, 0 leaks) and racecheck (0 hazards). `v3_latemat` was added
   later and has its own pass (`make verify-latemat-san`, selectivity 1/10/100% so the skipped-load path
   runs): 76 checks, memcheck 0 errors, racecheck 0 hazards.
+  The follow-up code has the same gates: `v4_sort_chunked` (916 checks, plus 612 with forced 4,096-row
+  chunks, memcheck + racecheck clean) and the multi-GPU split + merge (432 small-input checks over 7
+  variants and 1–2 GPUs, memcheck clean).
 - **MIN/MAX** are integer and order-independent, so they are deterministic.
 - **The floating-point SUM (`SUM(v*0.01)` in double) is not deterministic** on the GPU. Atomic and
   warp-shuffle reduction order varies from run to run, and sort-based aggregation reduces in an order

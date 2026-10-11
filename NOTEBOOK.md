@@ -224,3 +224,16 @@ User asked to fix the gaps listed at the end of the run. Design decisions:
   <=2% up to 1M groups; +7-11 ms at 16M (512 MB accumulator init + scan).
 - Full Q6: 1,139,264 rows, revenue 1,230,113,636.0101 == DuckDB == official SQL == cuDF. eager 1.49 ms
   (87% BW), ordered/late 1.06 ms, CPU 16.9, DuckDB 26.1, cuDF 35.9.
+
+## gca-part5 / part5b landed — follow-up complete
+- part5 (runs/20261011T202347Z): cap=est at 500M (104 timed, all correct) only changes 16M/1% (32M -> 16M
+  slots): 1.34x / 1.42x; chunked sort still faster there. mgpu first pass: correct, but merge used GPU 0's
+  dictionary-sized table -> 30-39 ms fixed cost, 2 GPUs lost at every 16M/1% point.
+- Fix: GTable::view(cap) - merge into a table sized by the partials that arrived (same memory, AoS
+  stride independent of cap). part5b (runs/20261011T213304Z): verify2 96/0, memcheck clean, 308 timed
+  all correct. 2 GPUs: 1.96-2.13x at <=64K groups (500M), 2.55x at 16M/Zipf1.5/1%, 1.87x at 1M uniform;
+  lose at 16M uniform (partials ~16.7M/GPU: 195 ms transfer at ~3.4 GB/s + 75 ms merge). Peer access
+  reported 1 in parts 5/5b, 0 in part 4 (different machines).
+- Recheck: audit agent compared every number in RESULTS/FAILURES/README with results.json; 15
+  discrepancies (stale dev-run radix numbers, drifted ranges, older TPC-H external timings, roofline
+  generated at 500M instead of 100M) all fixed. 5,695 timed rows, 0 incorrect.

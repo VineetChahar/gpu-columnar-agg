@@ -36,6 +36,7 @@ FROM fact f JOIN dim d ON f.fk = d.key WHERE d.p < sel GROUP BY d.cat
 | `v4_sort` | `cub::DeviceRadixSort` on dictionary codes + `ReduceByKey` |
 | `v4_sort_chunked` | the same over memory-sized row chunks, partials folded into a dense per-code accumulator (fits 500M rows) |
 | V5 (`bench stream`) | chunked H2D / kernel / D2H pipeline over ≥ 3 streams, PCIe-wall experiment |
+| multi-GPU (`bench mgpu`) | rows split over 2 GPUs, partial results merged on GPU 0 |
 | V6 (`bench join`) | non-partitioned / partitioned hash join, ± Bloom prefilter, dictionary-translated join |
 
 ## Layout
@@ -58,7 +59,7 @@ runs/<UTC>/                             raw outputs of every GPU run (run.log, r
 ```bash
 make build    # CMake, -O3, -arch=sm_75, warnings as errors (CPU code: -O3 -march=native)
 make verify   # every variant vs the CPU reference + compute-sanitizer memcheck & racecheck
-make bench    # full sweep + micro + stream + join + TPC-H + cuDF -> results.jsonl
+make bench    # everything: sweeps, micro, stream, join, TPC-H, cuDF, follow-ups (chunked, multi-GPU) -> results.jsonl
 python3 scripts/plot_all.py   # plots/*.png + plots/tables.md from results.json
 ```
 
@@ -75,6 +76,7 @@ python3 -m venv .venv && .venv/bin/pip install kaggle numpy matplotlib
 .venv/bin/python scripts/kaggle_run.py --slug gca-part3  --cmd "make bench-part3"
 .venv/bin/python scripts/kaggle_run.py --slug gca-part4  --cmd "make bench-part4"
 .venv/bin/python scripts/kaggle_run.py --slug gca-part5  --cmd "make bench-part5"
+.venv/bin/python scripts/kaggle_run.py --slug gca-part5b --cmd "make bench-part5b"
 .venv/bin/python scripts/plot_all.py      # merges runs/*/results.json -> results.json, plots/, plots/tables.md
 ```
 
@@ -87,6 +89,7 @@ python3 -m venv .venv && .venv/bin/pip install kaggle numpy matplotlib
 | `bench-part3` | capacity-policy experiment, late materialisation | 0.5 h |
 | `bench-part4` | follow-up: verify + sanitizers for chunked sort and multi-GPU, chunked sort at 500M, full TPC-H Q6 | 1 h |
 | `bench-part5` | follow-up: multi-GPU (2 x T4) row split, cap=est at 500M | 2 h |
+| `bench-part5b` | multi-GPU re-run with the merge table sized by the partial groups (supersedes part 5's mgpu rows) | 1 h |
 
 `kaggle_run.py` packs the source into a private GPU script kernel (T4 x2), queues if the account's
 two GPU sessions are busy, polls every 30–60 s, downloads the outputs into `runs/<UTC timestamp>/`,
@@ -101,7 +104,7 @@ them in sequence on a local CUDA machine.
 - **Q6** in the generic engine is date-predicate-only, because the engine has one RLE predicate column.
   The **full Q6** (date + discount + quantity) runs in a dedicated kernel (`bench/tpch.cu`) and matches
   DuckDB's official Q6 SQL exactly. Q1's composite key and date predicate are exact.
-- **Multi-GPU stretch** not attempted: GPU-session availability (2 concurrent sessions shared with
-  another project) was the binding constraint, and the brief says to cut the stretch first.
+- **Multi-GPU stretch**: done as a row split over the Kaggle T4 × 2 with a merge of partial results
+  (`bench mgpu`; RESULTS.md, Multi-GPU). A key-partitioned split (no merge) was not built.
 - **ncu** is blocked on Kaggle (`ERR_NVGPUCTRPERM`). Occupancy comes from the occupancy API, bytes are
   analytic, bandwidth is from our own microbenchmark. **nsys** is installed at run time from NVIDIA's apt repo.

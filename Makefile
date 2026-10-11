@@ -103,7 +103,7 @@ bench-part5b: build
 	$(SAN) --tool memcheck --error-exitcode 1 $(BENCH) mgpu rows=100000 cards=4096 skews=0 sels=50 gpus=2 variants=v3_warpagg,v4_sort_chunked iters=1 warmup=0 tag=mgpu_san2
 	$(BENCH) mgpu rows=100M,500M cards=4096,65536,1048576,16777216 skews=0,1.5 sels=1,100 gpus=2,1 variants=v1_vec,v3_warpagg,v4_radix_l2,v4_sort,v4_sort_chunked tag=mgpu
 
-bench: bench-part1 bench-part2 bench-part3
+bench: bench-part1 bench-part2 bench-part3 bench-part4 bench-part5 bench-part5b
 
 # nsys is not on the Kaggle image but installs from NVIDIA's apt repo; trace one V5 pipeline
 nsys: build

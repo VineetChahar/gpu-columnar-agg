@@ -400,8 +400,22 @@ Everywhere the capacity did not change (342 of the 432 points), the cap=est sess
 faster (p95 1.22×). That is session-to-session clock and power-cap drift (the T4 was power-capped in
 96% of points), and it is the noise floor for comparing different Kaggle sessions. All cross-session
 ratios here should be read against it; same-session comparisons such as the latemat table are not
-affected. Not measured: cap=est at 500M rows. That is where it would matter most, because there
-`v4_sort` runs out of memory at ≥ 1M groups and the hash variants are the only option ([Scale](#scale-10m--100m--500m-rows)).
+affected.
+
+**At 500M rows** (follow-up session; 1M and 16M groups, uniform and Zipf 1.5, all 104 timed points
+correct). This is where it was expected to matter most, because unchunked `v4_sort` runs out of memory
+there. It matters less than expected. At 500M rows even 1% selectivity leaves 5M selected rows, so the
+estimate-sized table only halves (32M → 16M slots), and only in the 16M-group / 1% cells:
+
+| 500M rows, 16M groups, sel 1% | cap=dict best | cap=est best | v4_sort_chunked |
+|---|---|---|---|
+| uniform | v1_vec 58.8 ms | v1_vec **43.9** (1.34×) | 38.9 |
+| Zipf 1.5 | v1_vec 48.0 | v1_vec **33.8** (1.42×) | 29.8 |
+
+Every other cell keeps the same capacity, and the best time moves by ≤ 4% (within session noise). The
+dictionary-sized table is a fixed cost that shrinks relative to the scan as rows grow. At 100M it was 4–6×
+of a hash variant's time, at 500M it is 1.3–1.4×, and the chunked sort, which has no table, is still
+faster in both cells.
 **In a planner: size from the selectivity estimate. Correctness does not depend on it (open addressing
 with an exact count bound), and it can only shrink the table.**
 

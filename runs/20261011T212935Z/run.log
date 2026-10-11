@@ -1,0 +1,11 @@
+$ nvidia-smi; nvcc --version; nproc; free -g
+/bin/sh: 1: nvidia-smi: not found
+/bin/sh: 1: nvcc: not found
+4
+               total        used        free      shared  buff/cache   available
+Mem:              31           0          26           0           4          30
+Swap:              0           0           0
+$ bash scripts/compile_check.sh
+Build cuda_12.8.r12.8/compiler.35583870_0
+compile_check rc=0
+EXIT_CODE=0

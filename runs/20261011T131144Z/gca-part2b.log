@@ -1,0 +1,576 @@
+[{"stream_name":"stderr","time":0.816078582,"data":"/kaggle/src/script.py:9: DeprecationWarning: Python 3.14 will, by default, filter extracted tar archives and reject files or modify their metadata. Use the filter argument to control this behavior.\n"}
+,{"stream_name":"stderr","time":0.816120136,"data":"  tarfile.open(fileobj=io.BytesIO(base64.b64decode(PAYLOAD)), mode=\"r:gz\").extractall(repo)\n"}
+,{"stream_name":"stdout","time":0.869994934,"data":"$ nvidia-smi; nvcc --version; nproc; free -g\n"}
+,{"stream_name":"stdout","time":0.931517836,"data":"Sun Oct 11 15:34:52 2026       \n"}
+,{"stream_name":"stdout","time":0.931591111,"data":"+-----------------------------------------------------------------------------------------+\n"}
+,{"stream_name":"stdout","time":0.9315991,"data":"| NVIDIA-SMI 580.178.04             Driver Version: 580.178.04     CUDA Version: 13.0     |\n"}
+,{"stream_name":"stdout","time":0.931604267,"data":"+-----------------------------------------+------------------------+----------------------+\n"}
+,{"stream_name":"stdout","time":0.931608889,"data":"| GPU  Name                 Persistence-M | Bus-Id          Disp.A | Volatile Uncorr. ECC |\n"}
+,{"stream_name":"stdout","time":0.93161374,"data":"| Fan  Temp   Perf          Pwr:Usage/Cap |           Memory-Usage | GPU-Util  Compute M. |\n"}
+,{"stream_name":"stdout","time":0.93161884,"data":"|                                         |                        |               MIG M. |\n"}
+,{"stream_name":"stdout","time":0.931623947,"data":"|=========================================+========================+======================|\n"}
+,{"stream_name":"stdout","time":0.990301373,"data":"|   0  Tesla T4                       Off |   00000000:00:04.0 Off |                    0 |\n"}
+,{"stream_name":"stdout","time":0.990326306,"data":"| N/A   59C    P8             10W /   70W |       0MiB /  15360MiB |      0%      Default |\n"}
+,{"stream_name":"stdout","time":0.990331391,"data":"|                                         |                        |                  N/A |\n"}
+,{"stream_name":"stdout","time":0.990335797,"data":"+-----------------------------------------+------------------------+----------------------+\n"}
+,{"stream_name":"stdout","time":0.990372354,"data":"|   1  Tesla T4                       Off |   00000000:00:05.0 Off |                    0 |\n"}
+,{"stream_name":"stdout","time":0.990377822,"data":"| N/A   58C    P8             11W /   70W |       0MiB /  15360MiB |      0%      Default |\n"}
+,{"stream_name":"stdout","time":0.990545915,"data":"|                                         |                        |                  N/A |\n"}
+,{"stream_name":"stdout","time":0.990557481,"data":"+-----------------------------------------+------------------------+----------------------+\n"}
+,{"stream_name":"stdout","time":1.000061844,"data":"\n"}
+,{"stream_name":"stdout","time":1.000086431,"data":"+-----------------------------------------------------------------------------------------+\n"}
+,{"stream_name":"stdout","time":1.000093218,"data":"| Processes:                                                                              |\n"}
+,{"stream_name":"stdout","time":1.000098379,"data":"|  GPU   GI   CI              PID   Type   Process name                        GPU Memory |\n"}
+,{"stream_name":"stdout","time":1.000103537,"data":"|        ID   ID                                                               Usage      |\n"}
+,{"stream_name":"stdout","time":1.000108244,"data":"|=========================================================================================|\n"}
+,{"stream_name":"stdout","time":1.019417641,"data":"|  No running processes found                                                             |\n"}
+,{"stream_name":"stdout","time":1.019451485,"data":"+-----------------------------------------------------------------------------------------+\n"}
+,{"stream_name":"stdout","time":1.37555794,"data":"nvcc: NVIDIA (R) Cuda compiler driver\n"}
+,{"stream_name":"stdout","time":1.375602451,"data":"Copyright (c) 2005-2025 NVIDIA Corporation\n"}
+,{"stream_name":"stdout","time":1.375610778,"data":"Built on Fri_Feb_21_20:23:50_PST_2025\n"}
+,{"stream_name":"stdout","time":1.375614921,"data":"Cuda compilation tools, release 12.8, V12.8.93\n"}
+,{"stream_name":"stdout","time":1.375618963,"data":"Build cuda_12.8.r12.8/compiler.35583870_0\n"}
+,{"stream_name":"stdout","time":1.381492456,"data":"4\n"}
+,{"stream_name":"stdout","time":1.42375806,"data":"               total        used        free      shared  buff/cache   available\n"}
+,{"stream_name":"stdout","time":1.423797953,"data":"Mem:              31           1          25           0           4          30\n"}
+,{"stream_name":"stdout","time":1.423803903,"data":"Swap:              0           0           0\n"}
+,{"stream_name":"stdout","time":1.425747359,"data":"$ make bench-part2b\n"}
+,{"stream_name":"stdout","time":1.4336254529999999,"data":"cmake -S . -B build -DCMAKE_BUILD_TYPE=Release \u003e /dev/null\n"}
+,{"stream_name":"stdout","time":7.132713209,"data":"cmake --build build -j4\n"}
+,{"stream_name":"stdout","time":7.313519354,"data":"gmake[1]: Entering directory '/kaggle/repo/build'\n"}
+,{"stream_name":"stdout","time":7.32424392,"data":"gmake[2]: Entering directory '/kaggle/repo/build'\n"}
+,{"stream_name":"stdout","time":7.325857218,"data":"gmake[3]: Entering directory '/kaggle/repo/build'\n"}
+,{"stream_name":"stdout","time":7.330901842,"data":"gmake[3]: Leaving directory '/kaggle/repo/build'\n"}
+,{"stream_name":"stdout","time":7.332706253,"data":"gmake[3]: Entering directory '/kaggle/repo/build'\n"}
+,{"stream_name":"stdout","time":7.337651638,"data":"[  5%] Building CXX object CMakeFiles/cpu.dir/src/datagen.cpp.o\n"}
+,{"stream_name":"stdout","time":7.338484446,"data":"[ 10%] Building CXX object CMakeFiles/cpu.dir/src/cpu/reference.cpp.o\n"}
+,{"stream_name":"stdout","time":7.338925921,"data":"[ 15%] Building CXX object CMakeFiles/cpu.dir/src/cpu/engine.cpp.o\n"}
+,{"stream_name":"stdout","time":7.33917019,"data":"[ 20%] Building CXX object CMakeFiles/cpu.dir/src/cpu/join_cpu.cpp.o\n"}
+,{"stream_name":"stdout","time":10.994218851,"data":"[ 25%] Linking CXX static library libcpu.a\n"}
+,{"stream_name":"stdout","time":11.021914294,"data":"gmake[3]: Leaving directory '/kaggle/repo/build'\n"}
+,{"stream_name":"stdout","time":11.028013131,"data":"[ 25%] Built target cpu\n"}
+,{"stream_name":"stdout","time":11.031684557,"data":"gmake[3]: Entering directory '/kaggle/repo/build'\n"}
+,{"stream_name":"stdout","time":11.037701154,"data":"gmake[3]: Leaving directory '/kaggle/repo/build'\n"}
+,{"stream_name":"stdout","time":11.040662797,"data":"gmake[3]: Entering directory '/kaggle/repo/build'\n"}
+,{"stream_name":"stdout","time":11.046265678,"data":"[ 35%] Building CUDA object CMakeFiles/bench.dir/bench/micro.cu.o\n"}
+,{"stream_name":"stdout","time":11.046282732,"data":"[ 35%] Building CUDA object CMakeFiles/bench.dir/bench/bench.cu.o\n"}
+,{"stream_name":"stdout","time":11.04696493,"data":"[ 40%] Building CUDA object CMakeFiles/bench.dir/bench/stream.cu.o\n"}
+,{"stream_name":"stdout","time":11.050272789,"data":"[ 45%] Building CUDA object CMakeFiles/bench.dir/bench/join.cu.o\n"}
+,{"stream_name":"stdout","time":18.872799827,"data":"[ 50%] Building CUDA object CMakeFiles/bench.dir/bench/tpch.cu.o\n"}
+,{"stream_name":"stdout","time":20.849843859,"data":"[ 55%] Building CUDA object CMakeFiles/bench.dir/src/gpu/dev.cu.o\n"}
+,{"stream_name":"stdout","time":21.187889604,"data":"[ 60%] Building CUDA object CMakeFiles/bench.dir/src/kernels/v0_naive.cu.o\n"}
+,{"stream_name":"stdout","time":25.730212866,"data":"[ 65%] Building CUDA object CMakeFiles/bench.dir/src/kernels/v1_vec.cu.o\n"}
+,{"stream_name":"stdout","time":27.150260445,"data":"[ 70%] Building CUDA object CMakeFiles/bench.dir/src/kernels/v2_smem.cu.o\n"}
+,{"stream_name":"stdout","time":28.969144697,"data":"[ 75%] Building CUDA object CMakeFiles/bench.dir/src/kernels/v3_warpagg.cu.o\n"}
+,{"stream_name":"stdout","time":32.912524713,"data":"[ 80%] Building CUDA object CMakeFiles/bench.dir/src/kernels/v4_radix.cu.o\n"}
+,{"stream_name":"stdout","time":39.126855929,"data":"[ 85%] Building CUDA object CMakeFiles/bench.dir/src/kernels/v4_sort.cu.o\n"}
+,{"stream_name":"stdout","time":41.075339972,"data":"[ 90%] Building CUDA object CMakeFiles/bench.dir/src/kernels/v6_join.cu.o\n"}
+,{"stream_name":"stdout","time":46.393885169,"data":"[ 95%] Building CUDA object CMakeFiles/bench.dir/src/kernels/variants.cu.o\n"}
+,{"stream_name":"stdout","time":65.481375353,"data":"[100%] Linking CXX executable bench\n"}
+,{"stream_name":"stdout","time":65.652799436,"data":"gmake[3]: Leaving directory '/kaggle/repo/build'\n"}
+,{"stream_name":"stdout","time":65.657962947,"data":"[100%] Built target bench\n"}
+,{"stream_name":"stdout","time":65.658514836,"data":"gmake[2]: Leaving directory '/kaggle/repo/build'\n"}
+,{"stream_name":"stdout","time":65.662655137,"data":"gmake[1]: Leaving directory '/kaggle/repo/build'\n"}
+,{"stream_name":"stdout","time":65.664093964,"data":"build/bench sweep rows=500M cards=65536,1048576,16777216 skews=0,0.5,1,1.5 sels=1,10,50,100 variants=main tag=sweep cpu_budget_s=15\n"}
+,{"stream_name":"stdout","time":70.150975514,"data":"device: Tesla T4, 40 SMs, L2 4 MB, smem/SM 64 KB\n"}
+,{"stream_name":"stdout","time":70.151014792,"data":"achievable DRAM read bandwidth (own microbenchmark): 278.1 GB/s; CPU threads=4\n"}
+,{"stream_name":"stdout","time":70.151021494,"data":"  generated rows=500000000 card=65536 skew=0.0 comp=0 in 3815 ms (runs=15623430, 3093.7 MB compressed)\n"}
+,{"stream_name":"stdout","time":75.583028342,"data":" sel=1% groups=65536 ref=1295ms cpu_engine=106.7ms cap=131072\n"}
+,{"stream_name":"stdout","time":76.918479405,"data":"  v0_naive            33.523 ms  iqr 0.144    33.2% bw     3.2x cpu  groups=65536\n"}
+,{"stream_name":"stdout","time":77.781897268,"data":"  v1_vec              22.757 ms  iqr 0.065    48.9% bw     4.7x cpu  groups=65536\n"}
+,{"stream_name":"stdout","time":79.133856725,"data":"  v2_smem_aos512      36.072 ms  iqr 0.254    30.8% bw     3.0x cpu  groups=65536\n"}
+,{"stream_name":"stdout","time":80.489485769,"data":"  v2_smem_soa512      36.200 ms  iqr 0.353    30.7% bw     2.9x cpu  groups=65536\n"}
+,{"stream_name":"stdout","time":81.484832701,"data":"  v2_smem_soa         26.514 ms  iqr 0.118    42.0% bw     4.0x cpu  groups=65536\n"}
+,{"stream_name":"stdout","time":82.501267199,"data":"  v3_warpagg          27.025 ms  iqr 0.236    41.2% bw     3.9x cpu  groups=65536\n"}
+,{"stream_name":"stdout","time":84.349178846,"data":"  v4_radix_smem       49.764 ms  iqr 0.593    22.4% bw     2.1x cpu  groups=65536\n"}
+,{"stream_name":"stdout","time":85.815826822,"data":"  v4_radix_l2         39.175 ms  iqr 0.949    28.4% bw     2.7x cpu  groups=65536\n"}
+,{"stream_name":"stdout","time":86.694474763,"data":"  v4_sort             19.246 ms  iqr 0.505    57.8% bw     5.5x cpu  groups=65536\n"}
+,{"stream_name":"stdout","time":103.461936642,"data":" sel=10% groups=65536 ref=1849ms cpu_engine=668.2ms cap=131072\n"}
+,{"stream_name":"stdout","time":106.122335208,"data":"  v0_naive            70.554 ms  iqr 0.176    15.8% bw     9.5x cpu  groups=65536\n"}
+,{"stream_name":"stdout","time":108.353423575,"data":"  v1_vec              59.897 ms  iqr 0.124    18.6% bw    11.2x cpu  groups=65536\n"}
+,{"stream_name":"stdout","time":112.142066287,"data":"  v2_smem_aos512     101.519 ms  iqr 1.063    11.0% bw     6.6x cpu  groups=65536\n"}
+,{"stream_name":"stdout","time":115.911391126,"data":"  v2_smem_soa512     101.416 ms  iqr 0.917    11.0% bw     6.6x cpu  groups=65536\n"}
+,{"stream_name":"stdout","time":118.757708458,"data":"  v2_smem_soa         76.068 ms  iqr 1.426    14.6% bw     8.8x cpu  groups=65536\n"}
+,{"stream_name":"stdout","time":121.623378263,"data":"  v3_warpagg          77.016 ms  iqr 1.281    14.4% bw     8.7x cpu  groups=65536\n"}
+,{"stream_name":"stdout","time":126.389555982,"data":"  v4_radix_smem      128.324 ms  iqr 1.139     8.7% bw     5.2x cpu  groups=65536\n"}
+,{"stream_name":"stdout","time":128.797919604,"data":"  v4_radix_l2         64.297 ms  iqr 0.536    17.3% bw    10.4x cpu  groups=65536\n"}
+,{"stream_name":"stdout","time":130.565676278,"data":"  v4_sort             43.256 ms  iqr 1.276    25.7% bw    15.4x cpu  groups=65536\n"}
+,{"stream_name":"stdout","time":152.367423082,"data":" sel=50% groups=65536 ref=3735ms cpu_engine=2981.8ms cap=131072\n"}
+,{"stream_name":"stdout","time":161.020761204,"data":"  v0_naive           233.132 ms  iqr 0.902     4.8% bw    12.8x cpu  groups=65536\n"}
+,{"stream_name":"stdout","time":169.192568575,"data":"  v1_vec             220.400 ms  iqr 0.663     5.0% bw    13.5x cpu  groups=65536\n"}
+,{"stream_name":"stdout","time":182.886752422,"data":"  v2_smem_aos512     369.611 ms  iqr 7.699     3.0% bw     8.1x cpu  groups=65536\n"}
+,{"stream_name":"stdout","time":196.232915007,"data":"  v2_smem_soa512     359.579 ms  iqr 6.587     3.1% bw     8.3x cpu  groups=65536\n"}
+,{"stream_name":"stdout","time":205.917033484,"data":"  v2_smem_soa        260.833 ms  iqr 5.138     4.3% bw    11.4x cpu  groups=65536\n"}
+,{"stream_name":"stdout","time":215.603545988,"data":"  v3_warpagg         261.975 ms  iqr 5.174     4.2% bw    11.4x cpu  groups=65536\n"}
+,{"stream_name":"stdout","time":227.709803787,"data":"  v4_radix_smem      326.442 ms  iqr 2.227     3.4% bw     9.1x cpu  groups=65536\n"}
+,{"stream_name":"stdout","time":233.737445222,"data":"  v4_radix_l2        161.930 ms  iqr 0.682     6.9% bw    18.4x cpu  groups=65536\n"}
+,{"stream_name":"stdout","time":239.166449204,"data":"  v4_sort            142.051 ms  iqr 0.536     7.8% bw    21.0x cpu  groups=65536\n"}
+,{"stream_name":"stdout","time":268.244178057,"data":" sel=100% groups=65536 ref=6045ms cpu_engine=5711.3ms cap=131072\n"}
+,{"stream_name":"stdout","time":284.247028575,"data":"  v0_naive           432.998 ms  iqr 2.605     2.6% bw    13.2x cpu  groups=65536\n"}
+,{"stream_name":"stdout","time":299.475935835,"data":"  v1_vec             411.661 ms  iqr 1.435     2.7% bw    13.9x cpu  groups=65536\n"}
+,{"stream_name":"stdout","time":323.707262222,"data":"  v2_smem_aos512     647.809 ms  iqr 15.662     1.7% bw     8.8x cpu  groups=65536\n"}
+,{"stream_name":"stdout","time":346.831519965,"data":"  v2_smem_soa512     620.197 ms  iqr 13.036     1.8% bw     9.2x cpu  groups=65536\n"}
+,{"stream_name":"stdout","time":364.697360175,"data":"  v2_smem_soa        482.463 ms  iqr 13.297     2.3% bw    11.8x cpu  groups=65536\n"}
+,{"stream_name":"stdout","time":382.964383076,"data":"  v3_warpagg         493.384 ms  iqr 13.271     2.3% bw    11.6x cpu  groups=65536\n"}
+,{"stream_name":"stdout","time":400.287244312,"data":"  v4_radix_smem      468.431 ms  iqr 1.070     2.4% bw    12.2x cpu  groups=65536\n"}
+,{"stream_name":"stdout","time":411.437169378,"data":"  v4_radix_l2        300.737 ms  iqr 1.547     3.7% bw    19.0x cpu  groups=65536\n"}
+,{"stream_name":"stdout","time":421.580854386,"data":"  v4_sort            269.444 ms  iqr 1.178     4.1% bw    21.2x cpu  groups=65536\n"}
+,{"stream_name":"stdout","time":426.69383384,"data":"  generated rows=500000000 card=65536 skew=0.5 comp=0 in 4872 ms (runs=15623430, 3093.7 MB compressed)\n"}
+,{"stream_name":"stdout","time":431.276026867,"data":" sel=1% groups=65536 ref=1205ms cpu_engine=83.7ms cap=131072\n"}
+,{"stream_name":"stdout","time":432.611315076,"data":"  v0_naive            34.459 ms  iqr 0.235    32.3% bw     2.4x cpu  groups=65536\n"}
+,{"stream_name":"stdout","time":433.467003737,"data":"  v1_vec              22.569 ms  iqr 0.127    49.3% bw     3.7x cpu  groups=65536\n"}
+,{"stream_name":"stdout","time":434.833478742,"data":"  v2_smem_aos512      36.356 ms  iqr 0.182    30.6% bw     2.3x cpu  groups=65536\n"}
+,{"stream_name":"stdout","time":436.191980068,"data":"  v2_smem_soa512      36.389 ms  iqr 0.212    30.6% bw     2.3x cpu  groups=65536\n"}
+,{"stream_name":"stdout","time":437.200998565,"data":"  v2_smem_soa         26.812 ms  iqr 0.256    41.5% bw     3.1x cpu  groups=65536\n"}
+,{"stream_name":"stdout","time":438.228810434,"data":"  v3_warpagg          27.216 ms  iqr 0.315    40.9% bw     3.1x cpu  groups=65536\n"}
+,{"stream_name":"stdout","time":440.139669741,"data":"  v4_radix_smem       51.012 ms  iqr 0.290    21.8% bw     1.6x cpu  groups=65536\n"}
+,{"stream_name":"stdout","time":441.66129018,"data":"  v4_radix_l2         40.436 ms  iqr 0.338    27.5% bw     2.1x cpu  groups=65536\n"}
+,{"stream_name":"stdout","time":442.565771033,"data":"  v4_sort             20.127 ms  iqr 0.053    55.3% bw     4.2x cpu  groups=65536\n"}
+,{"stream_name":"stdout","time":459.158151873,"data":" sel=10% groups=65536 ref=1710ms cpu_engine=566.7ms cap=131072\n"}
+,{"stream_name":"stdout","time":461.665553692,"data":"  v0_naive            66.569 ms  iqr 0.637    16.7% bw     8.5x cpu  groups=65536\n"}
+,{"stream_name":"stdout","time":463.727209175,"data":"  v1_vec              55.216 ms  iqr 0.293    20.1% bw    10.3x cpu  groups=65536\n"}
+,{"stream_name":"stdout","time":467.373772379,"data":"  v2_smem_aos512      97.663 ms  iqr 1.005    11.4% bw     5.8x cpu  groups=65536\n"}
+,{"stream_name":"stdout","time":471.058980725,"data":"  v2_smem_soa512      99.233 ms  iqr 1.028    11.2% bw     5.7x cpu  groups=65536\n"}
+,{"stream_name":"stdout","time":473.83090652,"data":"  v2_smem_soa         74.545 ms  iqr 2.719    14.9% bw     7.6x cpu  groups=65536\n"}
+,{"stream_name":"stdout","time":476.632932048,"data":"  v3_warpagg          75.328 ms  iqr 1.857    14.8% bw     7.5x cpu  groups=65536\n"}
+,{"stream_name":"stdout","time":481.509340691,"data":"  v4_radix_smem      131.178 ms  iqr 1.093     8.5% bw     4.3x cpu  groups=65536\n"}
+,{"stream_name":"stdout","time":484.025538254,"data":"  v4_radix_l2         67.492 ms  iqr 1.025    16.5% bw     8.4x cpu  groups=65536\n"}
+,{"stream_name":"stdout","time":485.828164809,"data":"  v4_sort             44.276 ms  iqr 1.220    25.1% bw    12.8x cpu  groups=65536\n"}
+,{"stream_name":"stdout","time":504.418222688,"data":" sel=50% groups=65536 ref=3416ms cpu_engine=2494.0ms cap=131072\n"}
+,{"stream_name":"stdout","time":511.699023342,"data":"  v0_naive           196.011 ms  iqr 0.737     5.7% bw    12.7x cpu  groups=65536\n"}
+,{"stream_name":"stdout","time":518.500245855,"data":"  v1_vec             183.487 ms  iqr 0.643     6.1% bw    13.6x cpu  groups=65536\n"}
+,{"stream_name":"stdout","time":531.044683478,"data":"  v2_smem_aos512     337.694 ms  iqr 7.520     3.3% bw     7.4x cpu  groups=65536\n"}
+,{"stream_name":"stdout","time":543.805920442,"data":"  v2_smem_soa512     345.162 ms  iqr 7.652     3.2% bw     7.2x cpu  groups=65536\n"}
+,{"stream_name":"stdout","time":553.055242831,"data":"  v2_smem_soa        248.060 ms  iqr 6.916     4.5% bw    10.1x cpu  groups=65536\n"}
+,{"stream_name":"stdout","time":562.229784282,"data":"  v3_warpagg         247.044 ms  iqr 1.713     4.5% bw    10.1x cpu  groups=65536\n"}
+,{"stream_name":"stdout","time":574.335128629,"data":"  v4_radix_smem      326.109 ms  iqr 1.982     3.4% bw     7.6x cpu  groups=65536\n"}
+,{"stream_name":"stdout","time":580.363818061,"data":"  v4_radix_l2        162.244 ms  iqr 0.822     6.9% bw    15.4x cpu  groups=65536\n"}
+,{"stream_name":"stdout","time":585.775417648,"data":"  v4_sort            141.745 ms  iqr 0.733     7.8% bw    17.6x cpu  groups=65536\n"}
+,{"stream_name":"stdout","time":610.256388346,"data":" sel=100% groups=65536 ref=5223ms cpu_engine=4763.5ms cap=131072\n"}
+,{"stream_name":"stdout","time":623.611085483,"data":"  v0_naive           360.433 ms  iqr 0.958     3.1% bw    13.2x cpu  groups=65536\n"}
+,{"stream_name":"stdout","time":636.244155942,"data":"  v1_vec             340.975 ms  iqr 1.032     3.3% bw    14.0x cpu  groups=65536\n"}
+,{"stream_name":"stdout","time":659.329354377,"data":"  v2_smem_aos512     622.210 ms  iqr 10.793     1.8% bw     7.7x cpu  groups=65536\n"}
+,{"stream_name":"stdout","time":681.228401695,"data":"  v2_smem_soa512     585.736 ms  iqr 15.910     1.9% bw     8.1x cpu  groups=65536\n"}
+,{"stream_name":"stdout","time":697.050979114,"data":"  v2_smem_soa        426.816 ms  iqr 8.093     2.6% bw    11.2x cpu  groups=65536\n"}
+,{"stream_name":"stdout","time":713.168804133,"data":"  v3_warpagg         432.511 ms  iqr 9.807     2.6% bw    11.0x cpu  groups=65536\n"}
+,{"stream_name":"stdout","time":730.397184511,"data":"  v4_radix_smem      465.998 ms  iqr 3.537     2.4% bw    10.2x cpu  groups=65536\n"}
+,{"stream_name":"stdout","time":741.548325833,"data":"  v4_radix_l2        300.779 ms  iqr 1.367     3.7% bw    15.8x cpu  groups=65536\n"}
+,{"stream_name":"stdout","time":751.747608191,"data":"  v4_sort            270.928 ms  iqr 0.718     4.1% bw    17.6x cpu  groups=65536\n"}
+,{"stream_name":"stdout","time":756.79590698,"data":"  generated rows=500000000 card=65536 skew=1.0 comp=0 in 4810 ms (runs=15623430, 3093.7 MB compressed)\n"}
+,{"stream_name":"stdout","time":760.674101193,"data":" sel=1% groups=65529 ref=1159ms cpu_engine=63.3ms cap=131072\n"}
+,{"stream_name":"stdout","time":761.947923222,"data":"  v0_naive            32.908 ms  iqr 0.939    33.8% bw     1.9x cpu  groups=65529\n"}
+,{"stream_name":"stdout","time":762.714116856,"data":"  v1_vec              20.214 ms  iqr 0.199    55.0% bw     3.1x cpu  groups=65529\n"}
+,{"stream_name":"stdout","time":763.989540495,"data":"  v2_smem_aos512      33.758 ms  iqr 0.423    32.9% bw     1.9x cpu  groups=65529\n"}
+,{"stream_name":"stdout","time":765.253670948,"data":"  v2_smem_soa512      33.697 ms  iqr 0.321    33.0% bw     1.9x cpu  groups=65529\n"}
+,{"stream_name":"stdout","time":766.149782008,"data":"  v2_smem_soa         24.081 ms  iqr 0.252    46.2% bw     2.6x cpu  groups=65529\n"}
+,{"stream_name":"stdout","time":767.077926201,"data":"  v3_warpagg          24.597 ms  iqr 0.281    45.2% bw     2.6x cpu  groups=65529\n"}
+,{"stream_name":"stdout","time":768.924111685,"data":"  v4_radix_smem       49.335 ms  iqr 0.848    22.5% bw     1.3x cpu  groups=65529\n"}
+,{"stream_name":"stdout","time":770.443369444,"data":"  v4_radix_l2         40.479 ms  iqr 0.152    27.5% bw     1.6x cpu  groups=65529\n"}
+,{"stream_name":"stdout","time":771.351013333,"data":"  v4_sort             20.141 ms  iqr 0.151    55.2% bw     3.1x cpu  groups=65529\n"}
+,{"stream_name":"stdout","time":785.186112692,"data":" sel=10% groups=65536 ref=1582ms cpu_engine=393.1ms cap=131072\n"}
+,{"stream_name":"stdout","time":787.417848296,"data":"  v0_naive            58.625 ms  iqr 0.143    19.0% bw     6.7x cpu  groups=65536\n"}
+,{"stream_name":"stdout","time":789.35922138,"data":"  v1_vec              52.090 ms  iqr 0.081    21.4% bw     7.5x cpu  groups=65536\n"}
+,{"stream_name":"stdout","time":792.123196388,"data":"  v2_smem_aos512      73.981 ms  iqr 1.105    15.0% bw     5.3x cpu  groups=65536\n"}
+,{"stream_name":"stdout","time":794.860450419,"data":"  v2_smem_soa512      73.458 ms  iqr 1.190    15.1% bw     5.4x cpu  groups=65536\n"}
+,{"stream_name":"stdout","time":796.806337557,"data":"  v2_smem_soa         52.537 ms  iqr 2.266    21.2% bw     7.5x cpu  groups=65536\n"}
+,{"stream_name":"stdout","time":798.812845068,"data":"  v3_warpagg          53.867 ms  iqr 1.009    20.6% bw     7.3x cpu  groups=65536\n"}
+,{"stream_name":"stdout","time":802.829473356,"data":"  v4_radix_smem      108.066 ms  iqr 0.922    10.3% bw     3.6x cpu  groups=65536\n"}
+,{"stream_name":"stdout","time":805.440178153,"data":"  v4_radix_l2         69.531 ms  iqr 0.768    16.0% bw     5.7x cpu  groups=65536\n"}
+,{"stream_name":"stdout","time":807.225300441,"data":"  v4_sort             43.616 ms  iqr 1.185    25.5% bw     9.0x cpu  groups=65536\n"}
+,{"stream_name":"stdout","time":825.024754115,"data":" sel=50% groups=65536 ref=2669ms cpu_engine=1666.3ms cap=131072\n"}
+,{"stream_name":"stdout","time":833.389732355,"data":"  v0_naive           223.025 ms  iqr 1.434     5.0% bw     7.5x cpu  groups=65536\n"}
+,{"stream_name":"stdout","time":841.563497578,"data":"  v1_vec             221.148 ms  iqr 1.527     5.0% bw     7.5x cpu  groups=65536\n"}
+,{"stream_name":"stdout","time":850.076711369,"data":"  v2_smem_aos512     228.827 ms  iqr 2.919     4.9% bw     7.3x cpu  groups=65536\n"}
+,{"stream_name":"stdout","time":858.202765886,"data":"  v2_smem_soa512     219.204 ms  iqr 4.898     5.1% bw     7.6x cpu  groups=65536\n"}
+,{"stream_name":"stdout","time":863.882768228,"data":"  v2_smem_soa        152.462 ms  iqr 6.369     7.3% bw    10.9x cpu  groups=65536\n"}
+,{"stream_name":"stdout","time":869.542615321,"data":"  v3_warpagg         151.716 ms  iqr 4.857     7.3% bw    11.0x cpu  groups=65536\n"}
+,{"stream_name":"stdout","time":880.494990705,"data":"  v4_radix_smem      295.736 ms  iqr 1.433     3.8% bw     5.6x cpu  groups=65536\n"}
+,{"stream_name":"stdout","time":887.003635905,"data":"  v4_radix_l2        175.172 ms  iqr 1.207     6.3% bw     9.5x cpu  groups=65536\n"}
+,{"stream_name":"stdout","time":892.393811532,"data":"  v4_sort            141.628 ms  iqr 0.511     7.9% bw    11.8x cpu  groups=65536\n"}
+,{"stream_name":"stdout","time":911.709096788,"data":" sel=100% groups=65536 ref=3664ms cpu_engine=3113.1ms cap=131072\n"}
+,{"stream_name":"stdout","time":927.124354404,"data":"  v0_naive           418.114 ms  iqr 8.123     2.7% bw     7.4x cpu  groups=65536\n"}
+,{"stream_name":"stdout","time":942.798296218,"data":"  v1_vec             423.739 ms  iqr 5.679     2.6% bw     7.3x cpu  groups=65536\n"}
+,{"stream_name":"stdout","time":957.268516041,"data":"  v2_smem_aos512     390.410 ms  iqr 8.017     2.8% bw     8.0x cpu  groups=65536\n"}
+,{"stream_name":"stdout","time":970.677926767,"data":"  v2_smem_soa512     360.142 ms  iqr 9.840     3.1% bw     8.6x cpu  groups=65536\n"}
+,{"stream_name":"stdout","time":980.365038972,"data":"  v2_smem_soa        261.463 ms  iqr 7.200     4.3% bw    11.9x cpu  groups=65536\n"}
+,{"stream_name":"stdout","time":990.133487041,"data":"  v3_warpagg         264.307 ms  iqr 5.655     4.2% bw    11.8x cpu  groups=65536\n"}
+,{"stream_name":"stdout","time":1005.861664306,"data":"  v4_radix_smem      424.540 ms  iqr 0.323     2.6% bw     7.3x cpu  groups=65536\n"}
+,{"stream_name":"stdout","time":1017.473443338,"data":"  v4_radix_l2        313.141 ms  iqr 1.239     3.6% bw     9.9x cpu  groups=65536\n"}
+,{"stream_name":"stdout","time":1027.612015372,"data":"  v4_sort            269.823 ms  iqr 1.298     4.1% bw    11.5x cpu  groups=65536\n"}
+,{"stream_name":"stdout","time":1032.11341361,"data":"  generated rows=500000000 card=65536 skew=1.5 comp=0 in 4261 ms (runs=15623430, 3093.7 MB compressed)\n"}
+,{"stream_name":"stdout","time":1035.281102817,"data":" sel=1% groups=26759 ref=1125ms cpu_engine=42.3ms cap=131072\n"}
+,{"stream_name":"stdout","time":1036.561566682,"data":"  v0_naive            32.609 ms  iqr 1.741    34.1% bw     1.3x cpu  groups=26759\n"}
+,{"stream_name":"stdout","time":1037.354884842,"data":"  v1_vec              20.821 ms  iqr 0.065    53.4% bw     2.0x cpu  groups=26759\n"}
+,{"stream_name":"stdout","time":1038.515950877,"data":"  v2_smem_aos512      30.780 ms  iqr 0.069    36.1% bw     1.4x cpu  groups=26759\n"}
+,{"stream_name":"stdout","time":1039.666218347,"data":"  v2_smem_soa512      30.662 ms  iqr 0.243    36.3% bw     1.4x cpu  groups=26759\n"}
+,{"stream_name":"stdout","time":1040.480429534,"data":"  v2_smem_soa         22.052 ms  iqr 0.668    50.4% bw     1.9x cpu  groups=26759\n"}
+,{"stream_name":"stdout","time":1041.322357304,"data":"  v3_warpagg          22.149 ms  iqr 0.745    50.2% bw     1.9x cpu  groups=26759\n"}
+,{"stream_name":"stdout","time":1043.025414208,"data":"  v4_radix_smem       45.518 ms  iqr 1.272    24.4% bw     0.9x cpu  groups=26759\n"}
+,{"stream_name":"stdout","time":1044.487131548,"data":"  v4_radix_l2         39.324 ms  iqr 0.778    28.3% bw     1.1x cpu  groups=26759\n"}
+,{"stream_name":"stdout","time":1045.394010826,"data":"  v4_sort             20.128 ms  iqr 0.160    55.3% bw     2.1x cpu  groups=26759\n"}
+,{"stream_name":"stdout","time":1054.024489042,"data":" sel=10% groups=59542 ref=1461ms cpu_engine=226.1ms cap=131072\n"}
+,{"stream_name":"stdout","time":1058.956350959,"data":"  v0_naive           128.790 ms  iqr 0.075     8.6% bw     1.8x cpu  groups=59542\n"}
+,{"stream_name":"stdout","time":1063.483501105,"data":"  v1_vec             121.695 ms  iqr 0.489     9.1% bw     1.9x cpu  groups=59542\n"}
+,{"stream_name":"stdout","time":1066.026941826,"data":"  v2_smem_aos512      68.305 ms  iqr 0.546    16.3% bw     3.3x cpu  groups=59542\n"}
+,{"stream_name":"stdout","time":1068.397239639,"data":"  v2_smem_soa512      63.568 ms  iqr 0.528    17.5% bw     3.6x cpu  groups=59542\n"}
+,{"stream_name":"stdout","time":1070.114424326,"data":"  v2_smem_soa         46.231 ms  iqr 0.560    24.1% bw     4.9x cpu  groups=59542\n"}
+,{"stream_name":"stdout","time":1071.451680803,"data":"  v3_warpagg          35.759 ms  iqr 1.205    31.1% bw     6.3x cpu  groups=59542\n"}
+,{"stream_name":"stdout","time":1074.05207808,"data":"  v4_radix_smem       69.913 ms  iqr 0.503    15.9% bw     3.2x cpu  groups=59542\n"}
+,{"stream_name":"stdout","time":1076.315355203,"data":"  v4_radix_l2         60.545 ms  iqr 0.296    18.4% bw     3.7x cpu  groups=59542\n"}
+,{"stream_name":"stdout","time":1078.075984314,"data":"  v4_sort             42.901 ms  iqr 1.104    25.9% bw     5.3x cpu  groups=59542\n"}
+,{"stream_name":"stdout","time":1095.669594265,"data":" sel=50% groups=65518 ref=2192ms cpu_engine=951.3ms cap=131072\n"}
+,{"stream_name":"stdout","time":1118.366969061,"data":"  v0_naive           608.995 ms  iqr 0.026     1.8% bw     1.6x cpu  groups=65518\n"}
+,{"stream_name":"stdout","time":1140.858606889,"data":"  v1_vec             606.825 ms  iqr 0.031     1.8% bw     1.6x cpu  groups=65518\n"}
+,{"stream_name":"stdout","time":1150.249817955,"data":"  v2_smem_aos512     253.436 ms  iqr 0.466     4.4% bw     3.8x cpu  groups=65518\n"}
+,{"stream_name":"stdout","time":1158.670130987,"data":"  v2_smem_soa512     227.039 ms  iqr 0.592     4.9% bw     4.2x cpu  groups=65518\n"}
+,{"stream_name":"stdout","time":1165.574088862,"data":"  v2_smem_soa        185.921 ms  iqr 1.299     6.0% bw     5.1x cpu  groups=65518\n"}
+,{"stream_name":"stdout","time":1168.519500128,"data":"  v3_warpagg          79.162 ms  iqr 1.412    14.1% bw    12.0x cpu  groups=65518\n"}
+,{"stream_name":"stdout","time":1174.898469448,"data":"  v4_radix_smem      172.047 ms  iqr 0.945     6.5% bw     5.5x cpu  groups=65518\n"}
+,{"stream_name":"stdout","time":1179.961223247,"data":"  v4_radix_l2        136.382 ms  iqr 1.685     8.2% bw     7.0x cpu  groups=65518\n"}
+,{"stream_name":"stdout","time":1185.242347401,"data":"  v4_sort            138.466 ms  iqr 0.379     8.0% bw     6.9x cpu  groups=65518\n"}
+,{"stream_name":"stdout","time":1204.241278364,"data":" sel=100% groups=65536 ref=2669ms cpu_engine=1633.5ms cap=131072\n"}
+,{"stream_name":"stdout","time":1244.465342885,"data":"  v0_naive          1213.456 ms  iqr 0.025     0.9% bw     1.3x cpu  groups=65536\n"}
+,{"stream_name":"stdout","time":1284.571114752,"data":"  v1_vec            1214.187 ms  iqr 0.016     0.9% bw     1.3x cpu  groups=65536\n"}
+,{"stream_name":"stdout","time":1302.325625861,"data":"  v2_smem_aos512     479.241 ms  iqr 1.295     2.3% bw     3.4x cpu  groups=65536\n"}
+,{"stream_name":"stdout","time":1318.206606773,"data":"  v2_smem_soa512     428.408 ms  iqr 2.113     2.6% bw     3.8x cpu  groups=65536\n"}
+,{"stream_name":"stdout","time":1332.267162133,"data":"  v2_smem_soa        379.727 ms  iqr 1.334     2.9% bw     4.3x cpu  groups=65536\n"}
+,{"stream_name":"stdout","time":1337.303354909,"data":"  v3_warpagg         135.561 ms  iqr 3.487     8.2% bw    12.0x cpu  groups=65536\n"}
+,{"stream_name":"stdout","time":1347.758708196,"data":"  v4_radix_smem      282.521 ms  iqr 0.623     3.9% bw     5.8x cpu  groups=65536\n"}
+,{"stream_name":"stdout","time":1356.248411144,"data":"  v4_radix_l2        228.897 ms  iqr 0.994     4.9% bw     7.1x cpu  groups=65536\n"}
+,{"stream_name":"stdout","time":1366.180135213,"data":"  v4_sort            264.088 ms  iqr 0.692     4.2% bw     6.2x cpu  groups=65536\n"}
+,{"stream_name":"stdout","time":1370.963917063,"data":"  generated rows=500000000 card=1048576 skew=0.0 comp=0 in 4535 ms (runs=15623430, 4093.7 MB compressed)\n"}
+,{"stream_name":"stdout","time":1381.341789182,"data":" sel=1% groups=1039706 ref=1766ms cpu_engine=237.6ms cap=2097152\n"}
+,{"stream_name":"stdout","time":1382.856149558,"data":"  v0_naive            39.071 ms  iqr 0.302    37.7% bw     6.1x cpu  groups=1039706\n"}
+,{"stream_name":"stdout","time":1384.009983218,"data":"  v1_vec              30.644 ms  iqr 0.055    48.0% bw     7.8x cpu  groups=1039706\n"}
+,{"stream_name":"stdout","time":1385.568236514,"data":"  v2_smem_aos512      41.445 ms  iqr 0.453    35.5% bw     5.7x cpu  groups=1039706\n"}
+,{"stream_name":"stdout","time":1387.132712721,"data":"  v2_smem_soa512      41.628 ms  iqr 0.324    35.4% bw     5.7x cpu  groups=1039706\n"}
+,{"stream_name":"stdout","time":1388.387438631,"data":"  v2_smem_soa         33.259 ms  iqr 0.217    44.3% bw     7.1x cpu  groups=1039706\n"}
+,{"stream_name":"stdout","time":1389.649966258,"data":"  v3_warpagg          33.657 ms  iqr 0.166    43.7% bw     7.1x cpu  groups=1039706\n"}
+,{"stream_name":"stdout","time":1389.654548756,"data":"  v4_radix_smem    skipped: oom:v4 pass-2 buffer\n"}
+,{"stream_name":"stdout","time":1392.124755043,"data":"  v4_radix_l2         60.920 ms  iqr 0.138    24.2% bw     3.9x cpu  groups=1039706\n"}
+,{"stream_name":"stdout","time":1392.273447669,"data":"  v4_sort          skipped: oom:sort tmp\n"}
+,{"stream_name":"stdout","time":1412.016387624,"data":" sel=10% groups=1048576 ref=4331ms cpu_engine=1512.1ms cap=2097152\n"}
+,{"stream_name":"stdout","time":1416.652741546,"data":"  v0_naive           124.030 ms  iqr 0.125    11.9% bw    12.2x cpu  groups=1048576\n"}
+,{"stream_name":"stdout","time":1420.950201048,"data":"  v1_vec             115.404 ms  iqr 0.119    12.8% bw    13.1x cpu  groups=1048576\n"}
+,{"stream_name":"stdout","time":1426.205259776,"data":"  v2_smem_aos512     141.607 ms  iqr 1.681    10.4% bw    10.7x cpu  groups=1048576\n"}
+,{"stream_name":"stdout","time":1431.471936627,"data":"  v2_smem_soa512     141.630 ms  iqr 1.691    10.4% bw    10.7x cpu  groups=1048576\n"}
+,{"stream_name":"stdout","time":1436.11226954,"data":"  v2_smem_soa        124.784 ms  iqr 0.882    11.8% bw    12.1x cpu  groups=1048576\n"}
+,{"stream_name":"stdout","time":1440.766082333,"data":"  v3_warpagg         125.026 ms  iqr 0.782    11.8% bw    12.1x cpu  groups=1048576\n"}
+,{"stream_name":"stdout","time":1440.767618239,"data":"  v4_radix_smem    skipped: oom:v4 pass-2 buffer\n"}
+,{"stream_name":"stdout","time":1445.836584577,"data":"  v4_radix_l2        130.284 ms  iqr 0.502    11.3% bw    11.6x cpu  groups=1048576\n"}
+,{"stream_name":"stdout","time":1445.985627724,"data":"  v4_sort          skipped: oom:sort tmp\n"}
+,{"stream_name":"stdout","time":1488.842507119,"data":" sel=50% groups=1048576 ref=14381ms cpu_engine=7146.6ms cap=2097152\n"}
+,{"stream_name":"stdout","time":1508.497353644,"data":"  v0_naive           530.501 ms  iqr 1.376     2.8% bw    13.5x cpu  groups=1048576\n"}
+,{"stream_name":"stdout","time":1528.122158355,"data":"  v1_vec             529.927 ms  iqr 0.286     2.8% bw    13.5x cpu  groups=1048576\n"}
+,{"stream_name":"stdout","time":1549.45228191,"data":"  v2_smem_aos512     573.630 ms  iqr 7.175     2.6% bw    12.5x cpu  groups=1048576\n"}
+,{"stream_name":"stdout","time":1570.684614802,"data":"  v2_smem_soa512     572.315 ms  iqr 4.953     2.6% bw    12.5x cpu  groups=1048576\n"}
+,{"stream_name":"stdout","time":1590.421255697,"data":"  v2_smem_soa        531.759 ms  iqr 4.917     2.8% bw    13.4x cpu  groups=1048576\n"}
+,{"stream_name":"stdout","time":1610.25437893,"data":"  v3_warpagg         534.851 ms  iqr 5.127     2.8% bw    13.4x cpu  groups=1048576\n"}
+,{"stream_name":"stdout","time":1610.256074198,"data":"  v4_radix_smem    skipped: oom:v4 pass-2 buffer\n"}
+,{"stream_name":"stdout","time":1624.348920256,"data":"  v4_radix_l2        374.941 ms  iqr 0.750     3.9% bw    19.1x cpu  groups=1048576\n"}
+,{"stream_name":"stdout","time":1624.499764997,"data":"  v4_sort          skipped: oom:sort tmp\n"}
+,{"stream_name":"stdout","time":1716.532945677,"data":" sel=100% groups=1048576 ref=30190ms cpu_engine=15350.0ms cap=2097152\n"}
+,{"stream_name":"stdout","time":1751.782575235,"data":"  v0_naive          1068.412 ms  iqr 1.550     1.4% bw    14.4x cpu  groups=1048576\n"}
+,{"stream_name":"stdout","time":1786.551375144,"data":"  v1_vec            1051.736 ms  iqr 0.423     1.4% bw    14.6x cpu  groups=1048576\n"}
+,{"stream_name":"stdout","time":1823.206826989,"data":"  v2_smem_aos512    1108.867 ms  iqr 9.891     1.3% bw    13.8x cpu  groups=1048576\n"}
+,{"stream_name":"stdout","time":1860.237576149,"data":"  v2_smem_soa512    1119.771 ms  iqr 8.888     1.3% bw    13.7x cpu  groups=1048576\n"}
+,{"stream_name":"stdout","time":1894.512041391,"data":"  v2_smem_soa       1036.652 ms  iqr 16.131     1.4% bw    14.8x cpu  groups=1048576\n"}
+,{"stream_name":"stdout","time":1928.990557261,"data":"  v3_warpagg        1042.448 ms  iqr 14.433     1.4% bw    14.7x cpu  groups=1048576\n"}
+,{"stream_name":"stdout","time":1928.992102256,"data":"  v4_radix_smem    skipped: oom:v4 pass-2 buffer\n"}
+,{"stream_name":"stdout","time":1952.488697817,"data":"  v4_radix_l2        628.910 ms  iqr 0.410     2.3% bw    24.4x cpu  groups=1048576\n"}
+,{"stream_name":"stdout","time":1952.641552324,"data":"  v4_sort          skipped: oom:sort tmp\n"}
+,{"stream_name":"stdout","time":1960.518507527,"data":"  generated rows=500000000 card=1048576 skew=0.5 comp=0 in 7539 ms (runs=15623430, 4093.7 MB compressed)\n"}
+,{"stream_name":"stdout","time":1970.190889596,"data":" sel=1% groups=1009258 ref=1672ms cpu_engine=218.3ms cap=2097152\n"}
+,{"stream_name":"stdout","time":1971.691470274,"data":"  v0_naive            38.581 ms  iqr 0.257    38.1% bw     5.7x cpu  groups=1009258\n"}
+,{"stream_name":"stdout","time":1972.826479965,"data":"  v1_vec              30.173 ms  iqr 0.099    48.8% bw     7.2x cpu  groups=1009258\n"}
+,{"stream_name":"stdout","time":1974.362883133,"data":"  v2_smem_aos512      40.733 ms  iqr 0.303    36.1% bw     5.4x cpu  groups=1009258\n"}
+,{"stream_name":"stdout","time":1975.904413169,"data":"  v2_smem_soa512      41.000 ms  iqr 0.068    35.9% bw     5.3x cpu  groups=1009258\n"}
+,{"stream_name":"stdout","time":1977.1229575,"data":"  v2_smem_soa         32.522 ms  iqr 0.167    45.3% bw     6.7x cpu  groups=1009258\n"}
+,{"stream_name":"stdout","time":1978.35778321,"data":"  v3_warpagg          32.913 ms  iqr 0.166    44.7% bw     6.6x cpu  groups=1009258\n"}
+,{"stream_name":"stdout","time":1978.359266823,"data":"  v4_radix_smem    skipped: oom:v4 pass-2 buffer\n"}
+,{"stream_name":"stdout","time":1980.809074084,"data":"  v4_radix_l2         60.496 ms  iqr 1.080    24.3% bw     3.6x cpu  groups=1009258\n"}
+,{"stream_name":"stdout","time":1980.958646133,"data":"  v4_sort          skipped: oom:sort tmp\n"}
+,{"stream_name":"stdout","time":2002.133301584,"data":" sel=10% groups=1048576 ref=4244ms cpu_engine=1540.8ms cap=2097152\n"}
+,{"stream_name":"stdout","time":2006.532874692,"data":"  v0_naive           117.342 ms  iqr 0.157    12.5% bw    13.1x cpu  groups=1048576\n"}
+,{"stream_name":"stdout","time":2010.603396032,"data":"  v1_vec             109.289 ms  iqr 0.115    13.5% bw    14.1x cpu  groups=1048576\n"}
+,{"stream_name":"stdout","time":2015.551706646,"data":"  v2_smem_aos512     133.188 ms  iqr 1.061    11.1% bw    11.6x cpu  groups=1048576\n"}
+,{"stream_name":"stdout","time":2020.559204188,"data":"  v2_smem_soa512     134.395 ms  iqr 0.969    11.0% bw    11.5x cpu  groups=1048576\n"}
+,{"stream_name":"stdout","time":2024.930030451,"data":"  v2_smem_soa        117.633 ms  iqr 0.599    12.5% bw    13.1x cpu  groups=1048576\n"}
+,{"stream_name":"stdout","time":2029.318374055,"data":"  v3_warpagg         117.725 ms  iqr 1.713    12.5% bw    13.1x cpu  groups=1048576\n"}
+,{"stream_name":"stdout","time":2029.319845105,"data":"  v4_radix_smem    skipped: oom:v4 pass-2 buffer\n"}
+,{"stream_name":"stdout","time":2034.17746467,"data":"  v4_radix_l2        124.953 ms  iqr 0.669    11.8% bw    12.3x cpu  groups=1048576\n"}
+,{"stream_name":"stdout","time":2034.328802797,"data":"  v4_sort          skipped: oom:sort tmp\n"}
+,{"stream_name":"stdout","time":2078.933731245,"data":" sel=50% groups=1048576 ref=15103ms cpu_engine=7398.3ms cap=2097152\n"}
+,{"stream_name":"stdout","time":2097.318303185,"data":"  v0_naive           496.215 ms  iqr 1.435     3.0% bw    14.9x cpu  groups=1048576\n"}
+,{"stream_name":"stdout","time":2115.720003487,"data":"  v1_vec             497.096 ms  iqr 0.667     3.0% bw    14.9x cpu  groups=1048576\n"}
+,{"stream_name":"stdout","time":2135.808645295,"data":"  v2_smem_aos512     539.474 ms  iqr 5.990     2.7% bw    13.7x cpu  groups=1048576\n"}
+,{"stream_name":"stdout","time":2155.63954467,"data":"  v2_smem_soa512     534.423 ms  iqr 5.573     2.8% bw    13.8x cpu  groups=1048576\n"}
+,{"stream_name":"stdout","time":2173.911084515,"data":"  v2_smem_soa        491.001 ms  iqr 6.290     3.0% bw    15.1x cpu  groups=1048576\n"}
+,{"stream_name":"stdout","time":2192.387883647,"data":"  v3_warpagg         499.225 ms  iqr 6.812     2.9% bw    14.8x cpu  groups=1048576\n"}
+,{"stream_name":"stdout","time":2192.389402849,"data":"  v4_radix_smem    skipped: oom:v4 pass-2 buffer\n"}
+,{"stream_name":"stdout","time":2205.462264337,"data":"  v4_radix_l2        347.382 ms  iqr 0.542     4.2% bw    21.3x cpu  groups=1048576\n"}
+,{"stream_name":"stdout","time":2205.614591337,"data":"  v4_sort          skipped: oom:sort tmp\n"}
+,{"stream_name":"stdout","time":2285.91189997,"data":" sel=100% groups=1048576 ref=25224ms cpu_engine=13908.2ms cap=2097152\n"}
+,{"stream_name":"stdout","time":2319.07985233,"data":"  v0_naive          1005.582 ms  iqr 3.368     1.5% bw    13.8x cpu  groups=1048576\n"}
+,{"stream_name":"stdout","time":2355.753372217,"data":"  v1_vec             987.905 ms  iqr 3.939     1.5% bw    14.1x cpu  groups=1048576\n"}
+,{"stream_name":"stdout","time":2389.710416971,"data":"  v2_smem_aos512    1028.095 ms  iqr 10.260     1.4% bw    13.5x cpu  groups=1048576\n"}
+,{"stream_name":"stdout","time":2424.03021336,"data":"  v2_smem_soa512    1039.745 ms  iqr 10.769     1.4% bw    13.4x cpu  groups=1048576\n"}
+,{"stream_name":"stdout","time":2459.92108969,"data":"  v2_smem_soa        968.878 ms  iqr 19.384     1.5% bw    14.4x cpu  groups=1048576\n"}
+,{"stream_name":"stdout","time":2495.679098947,"data":"  v3_warpagg         962.994 ms  iqr 10.805     1.5% bw    14.4x cpu  groups=1048576\n"}
+,{"stream_name":"stdout","time":2495.680781862,"data":"  v4_radix_smem    skipped: oom:v4 pass-2 buffer\n"}
+,{"stream_name":"stdout","time":2517.083449523,"data":"  v4_radix_l2        572.330 ms  iqr 0.500     2.6% bw    24.3x cpu  groups=1048576\n"}
+,{"stream_name":"stdout","time":2517.233639965,"data":"  v4_sort          skipped: oom:sort tmp\n"}
+,{"stream_name":"stdout","time":2525.358110757,"data":"  generated rows=500000000 card=1048576 skew=1.0 comp=0 in 7768 ms (runs=15623430, 4093.7 MB compressed)\n"}
+,{"stream_name":"stdout","time":2532.586533502,"data":" sel=1% groups=585181 ref=1430ms cpu_engine=154.0ms cap=2097152\n"}
+,{"stream_name":"stdout","time":2533.947024886,"data":"  v0_naive            35.233 ms  iqr 0.676    41.8% bw     4.4x cpu  groups=585181\n"}
+,{"stream_name":"stdout","time":2534.936938735,"data":"  v1_vec              26.029 ms  iqr 0.137    56.5% bw     5.9x cpu  groups=585181\n"}
+,{"stream_name":"stdout","time":2536.349206663,"data":"  v2_smem_aos512      37.263 ms  iqr 0.615    39.5% bw     4.1x cpu  groups=585181\n"}
+,{"stream_name":"stdout","time":2537.746103678,"data":"  v2_smem_soa512      37.320 ms  iqr 0.402    39.4% bw     4.1x cpu  groups=585181\n"}
+,{"stream_name":"stdout","time":2538.804542982,"data":"  v2_smem_soa         28.109 ms  iqr 0.111    52.4% bw     5.5x cpu  groups=585181\n"}
+,{"stream_name":"stdout","time":2539.878552479,"data":"  v3_warpagg          28.615 ms  iqr 0.179    51.4% bw     5.4x cpu  groups=585181\n"}
+,{"stream_name":"stdout","time":2539.880124389,"data":"  v4_radix_smem    skipped: oom:v4 pass-2 buffer\n"}
+,{"stream_name":"stdout","time":2542.052218985,"data":"  v4_radix_l2         53.034 ms  iqr 0.406    27.8% bw     2.9x cpu  groups=585181\n"}
+,{"stream_name":"stdout","time":2542.200846254,"data":"  v4_sort          skipped: oom:sort tmp\n"}
+,{"stream_name":"stdout","time":2560.318793417,"data":" sel=10% groups=1040836 ref=2819ms cpu_engine=1156.6ms cap=2097152\n"}
+,{"stream_name":"stdout","time":2562.949059255,"data":"  v0_naive            68.280 ms  iqr 1.056    21.6% bw    16.9x cpu  groups=1040836\n"}
+,{"stream_name":"stdout","time":2565.173493952,"data":"  v1_vec              59.816 ms  iqr 0.636    24.6% bw    19.3x cpu  groups=1040836\n"}
+,{"stream_name":"stdout","time":2568.473701009,"data":"  v2_smem_aos512      88.679 ms  iqr 1.050    16.6% bw    13.0x cpu  groups=1040836\n"}
+,{"stream_name":"stdout","time":2571.724032017,"data":"  v2_smem_soa512      87.129 ms  iqr 1.555    16.9% bw    13.3x cpu  groups=1040836\n"}
+,{"stream_name":"stdout","time":2574.255180734,"data":"  v2_smem_soa         67.829 ms  iqr 1.648    21.7% bw    17.1x cpu  groups=1040836\n"}
+,{"stream_name":"stdout","time":2576.851066252,"data":"  v3_warpagg          69.171 ms  iqr 1.412    21.3% bw    16.7x cpu  groups=1040836\n"}
+,{"stream_name":"stdout","time":2576.85261858,"data":"  v4_radix_smem    skipped: oom:v4 pass-2 buffer\n"}
+,{"stream_name":"stdout","time":2580.808662093,"data":"  v4_radix_l2        101.212 ms  iqr 0.670    14.5% bw    11.4x cpu  groups=1040836\n"}
+,{"stream_name":"stdout","time":2580.965838657,"data":"  v4_sort          skipped: oom:sort tmp\n"}
+,{"stream_name":"stdout","time":2608.421691599,"data":" sel=50% groups=1048576 ref=7140ms cpu_engine=5032.7ms cap=2097152\n"}
+,{"stream_name":"stdout","time":2617.093378969,"data":"  v0_naive           231.220 ms  iqr 2.455     6.4% bw    21.8x cpu  groups=1048576\n"}
+,{"stream_name":"stdout","time":2625.624550628,"data":"  v1_vec             230.774 ms  iqr 3.895     6.4% bw    21.8x cpu  groups=1048576\n"}
+,{"stream_name":"stdout","time":2636.562569538,"data":"  v2_smem_aos512     293.966 ms  iqr 6.209     5.0% bw    17.1x cpu  groups=1048576\n"}
+,{"stream_name":"stdout","time":2647.255344677,"data":"  v2_smem_soa512     288.758 ms  iqr 8.741     5.1% bw    17.4x cpu  groups=1048576\n"}
+,{"stream_name":"stdout","time":2655.603713097,"data":"  v2_smem_soa        227.030 ms  iqr 9.246     6.5% bw    22.2x cpu  groups=1048576\n"}
+,{"stream_name":"stdout","time":2664.065335683,"data":"  v3_warpagg         227.511 ms  iqr 11.082     6.5% bw    22.1x cpu  groups=1048576\n"}
+,{"stream_name":"stdout","time":2664.066942477,"data":"  v4_radix_smem    skipped: oom:v4 pass-2 buffer\n"}
+,{"stream_name":"stdout","time":2673.661407747,"data":"  v4_radix_l2        253.727 ms  iqr 1.114     5.8% bw    19.8x cpu  groups=1048576\n"}
+,{"stream_name":"stdout","time":2673.808834914,"data":"  v4_sort          skipped: oom:sort tmp\n"}
+,{"stream_name":"stdout","time":2724.416917288,"data":" sel=100% groups=1048576 ref=11691ms cpu_engine=9749.8ms cap=2097152\n"}
+,{"stream_name":"stdout","time":2740.359756314,"data":"  v0_naive           426.817 ms  iqr 6.889     3.4% bw    22.8x cpu  groups=1048576\n"}
+,{"stream_name":"stdout","time":2756.514524068,"data":"  v1_vec             436.526 ms  iqr 7.358     3.4% bw    22.3x cpu  groups=1048576\n"}
+,{"stream_name":"stdout","time":2776.327208812,"data":"  v2_smem_aos512     539.904 ms  iqr 15.699     2.7% bw    18.1x cpu  groups=1048576\n"}
+,{"stream_name":"stdout","time":2794.57780144,"data":"  v2_smem_soa512     489.066 ms  iqr 14.229     3.0% bw    19.9x cpu  groups=1048576\n"}
+,{"stream_name":"stdout","time":2809.21381055,"data":"  v2_smem_soa        394.228 ms  iqr 13.481     3.7% bw    24.7x cpu  groups=1048576\n"}
+,{"stream_name":"stdout","time":2824.09177146,"data":"  v3_warpagg         398.998 ms  iqr 13.587     3.7% bw    24.4x cpu  groups=1048576\n"}
+,{"stream_name":"stdout","time":2824.093308415,"data":"  v4_radix_smem    skipped: oom:v4 pass-2 buffer\n"}
+,{"stream_name":"stdout","time":2839.306910603,"data":"  v4_radix_l2        405.516 ms  iqr 0.950     3.6% bw    24.0x cpu  groups=1048576\n"}
+,{"stream_name":"stdout","time":2839.452849256,"data":"  v4_sort          skipped: oom:sort tmp\n"}
+,{"stream_name":"stdout","time":2847.507389443,"data":"  generated rows=500000000 card=1048576 skew=1.5 comp=0 in 7693 ms (runs=15623430, 4093.7 MB compressed)\n"}
+,{"stream_name":"stdout","time":2852.796710472,"data":" sel=1% groups=37723 ref=1288ms cpu_engine=95.2ms cap=2097152\n"}
+,{"stream_name":"stdout","time":2854.112406851,"data":"  v0_naive            33.795 ms  iqr 2.397    43.6% bw     2.8x cpu  groups=37723\n"}
+,{"stream_name":"stdout","time":2854.957438223,"data":"  v1_vec              22.114 ms  iqr 0.221    66.6% bw     4.3x cpu  groups=37723\n"}
+,{"stream_name":"stdout","time":2856.208695106,"data":"  v2_smem_aos512      33.479 ms  iqr 0.215    44.0% bw     2.8x cpu  groups=37723\n"}
+,{"stream_name":"stdout","time":2857.449361465,"data":"  v2_smem_soa512      33.090 ms  iqr 0.202    44.5% bw     2.9x cpu  groups=37723\n"}
+,{"stream_name":"stdout","time":2858.375285955,"data":"  v2_smem_soa         24.620 ms  iqr 0.321    59.8% bw     3.9x cpu  groups=37723\n"}
+,{"stream_name":"stdout","time":2859.308732645,"data":"  v3_warpagg          24.848 ms  iqr 0.457    59.2% bw     3.8x cpu  groups=37723\n"}
+,{"stream_name":"stdout","time":2859.310551891,"data":"  v4_radix_smem    skipped: oom:v4 pass-2 buffer\n"}
+,{"stream_name":"stdout","time":2861.276556367,"data":"  v4_radix_l2         47.496 ms  iqr 1.028    31.0% bw     2.0x cpu  groups=37723\n"}
+,{"stream_name":"stdout","time":2861.426752886,"data":"  v4_sort          skipped: oom:sort tmp\n"}
+,{"stream_name":"stdout","time":2879.146508363,"data":" sel=10% groups=154880 ref=1716ms cpu_engine=837.3ms cap=2097152\n"}
+,{"stream_name":"stdout","time":2883.152390757,"data":"  v0_naive           105.091 ms  iqr 0.308    14.0% bw     8.0x cpu  groups=154880\n"}
+,{"stream_name":"stdout","time":2886.794808194,"data":"  v1_vec              98.044 ms  iqr 0.049    15.0% bw     8.5x cpu  groups=154880\n"}
+,{"stream_name":"stdout","time":2889.446949174,"data":"  v2_smem_aos512      71.393 ms  iqr 0.275    20.6% bw    11.7x cpu  groups=154880\n"}
+,{"stream_name":"stdout","time":2891.953383456,"data":"  v2_smem_soa512      67.243 ms  iqr 0.393    21.9% bw    12.5x cpu  groups=154880\n"}
+,{"stream_name":"stdout","time":2893.797148252,"data":"  v2_smem_soa         49.513 ms  iqr 1.220    29.7% bw    16.9x cpu  groups=154880\n"}
+,{"stream_name":"stdout","time":2895.265783141,"data":"  v3_warpagg          39.670 ms  iqr 0.691    37.1% bw    21.1x cpu  groups=154880\n"}
+,{"stream_name":"stdout","time":2895.267616029,"data":"  v4_radix_smem    skipped: oom:v4 pass-2 buffer\n"}
+,{"stream_name":"stdout","time":2898.086577768,"data":"  v4_radix_l2         70.528 ms  iqr 0.473    20.9% bw    11.9x cpu  groups=154880\n"}
+,{"stream_name":"stdout","time":2898.236775676,"data":"  v4_sort          skipped: oom:sort tmp\n"}
+,{"stream_name":"stdout","time":2916.737559819,"data":" sel=50% groups=374967 ref=2369ms cpu_engine=4035.1ms cap=2097152\n"}
+,{"stream_name":"stdout","time":2933.842032838,"data":"  v0_naive           458.049 ms  iqr 0.026     3.2% bw     8.8x cpu  groups=374967\n"}
+,{"stream_name":"stdout","time":2950.778115139,"data":"  v1_vec             456.747 ms  iqr 0.030     3.2% bw     8.8x cpu  groups=374967\n"}
+,{"stream_name":"stdout","time":2960.417287712,"data":"  v2_smem_aos512     257.225 ms  iqr 9.427     5.7% bw    15.7x cpu  groups=374967\n"}
+,{"stream_name":"stdout","time":2968.962270545,"data":"  v2_smem_soa512     229.736 ms  iqr 1.025     6.4% bw    17.6x cpu  groups=374967\n"}
+,{"stream_name":"stdout","time":2975.997098673,"data":"  v2_smem_soa        189.683 ms  iqr 0.841     7.8% bw    21.3x cpu  groups=374967\n"}
+,{"stream_name":"stdout","time":2979.186100415,"data":"  v3_warpagg          85.499 ms  iqr 1.744    17.2% bw    47.2x cpu  groups=374967\n"}
+,{"stream_name":"stdout","time":2979.187817292,"data":"  v4_radix_smem    skipped: oom:v4 pass-2 buffer\n"}
+,{"stream_name":"stdout","time":2985.129443784,"data":"  v4_radix_l2        155.040 ms  iqr 1.619     9.5% bw    26.0x cpu  groups=374967\n"}
+,{"stream_name":"stdout","time":2985.275847242,"data":"  v4_sort          skipped: oom:sort tmp\n"}
+,{"stream_name":"stdout","time":3020.442019475,"data":" sel=100% groups=522788 ref=3380ms cpu_engine=7912.2ms cap=2097152\n"}
+,{"stream_name":"stdout","time":3054.290272369,"data":"  v0_naive           911.031 ms  iqr 0.026     1.6% bw     8.7x cpu  groups=522788\n"}
+,{"stream_name":"stdout","time":3088.057355464,"data":"  v1_vec             911.505 ms  iqr 0.027     1.6% bw     8.7x cpu  groups=522788\n"}
+,{"stream_name":"stdout","time":3105.862504981,"data":"  v2_smem_aos512     480.530 ms  iqr 0.782     3.1% bw    16.5x cpu  groups=522788\n"}
+,{"stream_name":"stdout","time":3121.796925179,"data":"  v2_smem_soa512     429.940 ms  iqr 3.023     3.4% bw    18.4x cpu  groups=522788\n"}
+,{"stream_name":"stdout","time":3135.959008587,"data":"  v2_smem_soa        382.478 ms  iqr 3.739     3.8% bw    20.7x cpu  groups=522788\n"}
+,{"stream_name":"stdout","time":3141.229074934,"data":"  v3_warpagg         140.325 ms  iqr 4.143    10.5% bw    56.4x cpu  groups=522788\n"}
+,{"stream_name":"stdout","time":3141.231244486,"data":"  v4_radix_smem    skipped: oom:v4 pass-2 buffer\n"}
+,{"stream_name":"stdout","time":3150.993587072,"data":"  v4_radix_l2        258.282 ms  iqr 1.055     5.7% bw    30.6x cpu  groups=522788\n"}
+,{"stream_name":"stdout","time":3151.140770395,"data":"  v4_sort          skipped: oom:sort tmp\n"}
+,{"stream_name":"stdout","time":3156.433928788,"data":"  generated rows=500000000 card=16777216 skew=0.0 comp=0 in 4913 ms (runs=15623430, 4093.7 MB compressed)\n"}
+,{"stream_name":"stdout","time":3172.945235764,"data":" sel=1% groups=4328391 ref=3176ms cpu_engine=786.8ms cap=33554432\n"}
+,{"stream_name":"stdout","time":3175.448452587,"data":"  v0_naive            65.633 ms  iqr 0.114    22.4% bw    12.0x cpu  groups=4328391\n"}
+,{"stream_name":"stdout","time":3177.658574341,"data":"  v1_vec              58.786 ms  iqr 0.134    25.0% bw    13.4x cpu  groups=4328391\n"}
+,{"stream_name":"stdout","time":3180.27032519,"data":"  v2_smem_aos512      69.588 ms  iqr 0.339    21.2% bw    11.3x cpu  groups=4328391\n"}
+,{"stream_name":"stdout","time":3182.889012902,"data":"  v2_smem_soa512      69.776 ms  iqr 0.297    21.1% bw    11.3x cpu  groups=4328391\n"}
+,{"stream_name":"stdout","time":3185.165944643,"data":"  v2_smem_soa         60.534 ms  iqr 0.110    24.3% bw    13.0x cpu  groups=4328391\n"}
+,{"stream_name":"stdout","time":3187.461020248,"data":"  v3_warpagg          60.823 ms  iqr 0.123    24.2% bw    12.9x cpu  groups=4328391\n"}
+,{"stream_name":"stdout","time":3187.462346923,"data":"  v4_radix_smem    skipped: oom:v4 pass-2 buffer\n"}
+,{"stream_name":"stdout","time":3187.632113352,"data":"  v4_radix_l2      skipped: oom:v4 pass-2 buffer\n"}
+,{"stream_name":"stdout","time":3187.774389654,"data":"  v4_sort          skipped: oom:sort buffers\n"}
+,{"stream_name":"stdout","time":3222.107408465,"data":" sel=10% groups=15925625 ref=11114ms cpu_engine=5552.7ms cap=33554432\n"}
+,{"stream_name":"stdout","time":3228.105834892,"data":"  v0_naive           158.707 ms  iqr 0.115     9.3% bw    35.0x cpu  groups=15925625\n"}
+,{"stream_name":"stdout","time":3233.775338478,"data":"  v1_vec             150.891 ms  iqr 0.168     9.8% bw    36.8x cpu  groups=15925625\n"}
+,{"stream_name":"stdout","time":3240.440235149,"data":"  v2_smem_aos512     177.471 ms  iqr 1.767     8.3% bw    31.3x cpu  groups=15925625\n"}
+,{"stream_name":"stdout","time":3247.102568993,"data":"  v2_smem_soa512     177.151 ms  iqr 2.220     8.3% bw    31.3x cpu  groups=15925625\n"}
+,{"stream_name":"stdout","time":3253.12301997,"data":"  v2_smem_soa        159.323 ms  iqr 2.845     9.2% bw    34.9x cpu  groups=15925625\n"}
+,{"stream_name":"stdout","time":3259.156902826,"data":"  v3_warpagg         161.239 ms  iqr 2.133     9.1% bw    34.4x cpu  groups=15925625\n"}
+,{"stream_name":"stdout","time":3259.160304363,"data":"  v4_radix_smem    skipped: oom:v4 pass-2 buffer\n"}
+,{"stream_name":"stdout","time":3259.324185824,"data":"  v4_radix_l2      skipped: oom:v4 pass-2 buffer\n"}
+,{"stream_name":"stdout","time":3259.462019832,"data":"  v4_sort          skipped: oom:sort buffers\n"}
+,{"stream_name":"stdout","time":3379.936560516,"data":" sel=50% groups=16777211 ref=34882ms cpu_engine=20908.7ms cap=33554432\n"}
+,{"stream_name":"stdout","time":3402.247858904,"data":"  v0_naive           599.489 ms  iqr 1.280     2.5% bw    34.9x cpu  groups=16777211\n"}
+,{"stream_name":"stdout","time":3424.564972893,"data":"  v1_vec             600.794 ms  iqr 1.335     2.4% bw    34.8x cpu  groups=16777211\n"}
+,{"stream_name":"stdout","time":3448.17157564,"data":"  v2_smem_aos512     633.200 ms  iqr 7.943     2.3% bw    33.0x cpu  groups=16777211\n"}
+,{"stream_name":"stdout","time":3471.740026682,"data":"  v2_smem_soa512     633.845 ms  iqr 6.989     2.3% bw    33.0x cpu  groups=16777211\n"}
+,{"stream_name":"stdout","time":3493.889070441,"data":"  v2_smem_soa        595.099 ms  iqr 6.962     2.5% bw    35.1x cpu  groups=16777211\n"}
+,{"stream_name":"stdout","time":3516.110022927,"data":"  v3_warpagg         596.825 ms  iqr 5.433     2.5% bw    35.0x cpu  groups=16777211\n"}
+,{"stream_name":"stdout","time":3516.111378096,"data":"  v4_radix_smem    skipped: oom:v4 pass-2 buffer\n"}
+,{"stream_name":"stdout","time":3516.276869031,"data":"  v4_radix_l2      skipped: oom:v4 pass-2 buffer\n"}
+,{"stream_name":"stdout","time":3516.41595669,"data":"  v4_sort          skipped: oom:sort buffers\n"}
+,{"stream_name":"stdout","time":3738.344743206,"data":" sel=100% groups=16777216 ref=63417ms cpu_engine=39603.7ms cap=33554432\n"}
+,{"stream_name":"stdout","time":3777.444880945,"data":"  v0_naive          1182.732 ms  iqr 3.210     1.2% bw    33.5x cpu  groups=16777216\n"}
+,{"stream_name":"stdout","time":3816.054537021,"data":"  v1_vec            1166.472 ms  iqr 1.199     1.3% bw    34.0x cpu  groups=16777216\n"}
+,{"stream_name":"stdout","time":3856.175595222,"data":"  v2_smem_aos512    1216.622 ms  iqr 16.398     1.2% bw    32.6x cpu  groups=16777216\n"}
+,{"stream_name":"stdout","time":3896.536721565,"data":"  v2_smem_soa512    1215.280 ms  iqr 13.977     1.2% bw    32.6x cpu  groups=16777216\n"}
+,{"stream_name":"stdout","time":3934.331127501,"data":"  v2_smem_soa       1141.613 ms  iqr 12.745     1.3% bw    34.7x cpu  groups=16777216\n"}
+,{"stream_name":"stdout","time":3972.026035163,"data":"  v3_warpagg        1140.898 ms  iqr 17.221     1.3% bw    34.7x cpu  groups=16777216\n"}
+,{"stream_name":"stdout","time":3972.027407836,"data":"  v4_radix_smem    skipped: oom:v4 pass-2 buffer\n"}
+,{"stream_name":"stdout","time":3972.196418777,"data":"  v4_radix_l2      skipped: oom:v4 pass-2 buffer\n"}
+,{"stream_name":"stdout","time":3972.334949518,"data":"  v4_sort          skipped: oom:sort buffers\n"}
+,{"stream_name":"stdout","time":3988.746284046,"data":"  generated rows=500000000 card=16777216 skew=0.5 comp=0 in 16016 ms (runs=15623430, 4093.7 MB compressed)\n"}
+,{"stream_name":"stdout","time":4007.050196226,"data":" sel=1% groups=3933943 ref=3017ms cpu_engine=692.2ms cap=33554432\n"}
+,{"stream_name":"stdout","time":4009.550566293,"data":"  v0_naive            65.424 ms  iqr 0.171    22.5% bw    10.6x cpu  groups=3933943\n"}
+,{"stream_name":"stdout","time":4011.752067053,"data":"  v1_vec              58.609 ms  iqr 0.106    25.1% bw    11.8x cpu  groups=3933943\n"}
+,{"stream_name":"stdout","time":4014.345744723,"data":"  v2_smem_aos512      69.171 ms  iqr 0.340    21.3% bw    10.0x cpu  groups=3933943\n"}
+,{"stream_name":"stdout","time":4017.040152587,"data":"  v2_smem_soa512      69.321 ms  iqr 0.293    21.2% bw    10.0x cpu  groups=3933943\n"}
+,{"stream_name":"stdout","time":4019.315461633,"data":"  v2_smem_soa         60.601 ms  iqr 0.165    24.3% bw    11.4x cpu  groups=3933943\n"}
+,{"stream_name":"stdout","time":4021.607915727,"data":"  v3_warpagg          60.876 ms  iqr 0.263    24.2% bw    11.4x cpu  groups=3933943\n"}
+,{"stream_name":"stdout","time":4021.609159953,"data":"  v4_radix_smem    skipped: oom:v4 pass-2 buffer\n"}
+,{"stream_name":"stdout","time":4021.777334078,"data":"  v4_radix_l2      skipped: oom:v4 pass-2 buffer\n"}
+,{"stream_name":"stdout","time":4021.917031976,"data":"  v4_sort          skipped: oom:sort buffers\n"}
+,{"stream_name":"stdout","time":4054.161654093,"data":" sel=10% groups=14848462 ref=10282ms cpu_engine=5178.4ms cap=33554432\n"}
+,{"stream_name":"stdout","time":4060.013535047,"data":"  v0_naive           154.905 ms  iqr 0.269     9.5% bw    33.4x cpu  groups=14848462\n"}
+,{"stream_name":"stdout","time":4065.57135938,"data":"  v1_vec             147.822 ms  iqr 0.146    10.0% bw    35.0x cpu  groups=14848462\n"}
+,{"stream_name":"stdout","time":4072.035937795,"data":"  v2_smem_aos512     172.516 ms  iqr 1.934     8.5% bw    30.0x cpu  groups=14848462\n"}
+,{"stream_name":"stdout","time":4078.550062443,"data":"  v2_smem_soa512     173.473 ms  iqr 1.110     8.5% bw    29.9x cpu  groups=14848462\n"}
+,{"stream_name":"stdout","time":4084.379516729,"data":"  v2_smem_soa        155.060 ms  iqr 1.692     9.5% bw    33.4x cpu  groups=14848462\n"}
+,{"stream_name":"stdout","time":4090.186271808,"data":"  v3_warpagg         154.530 ms  iqr 1.457     9.5% bw    33.5x cpu  groups=14848462\n"}
+,{"stream_name":"stdout","time":4090.187782152,"data":"  v4_radix_smem    skipped: oom:v4 pass-2 buffer\n"}
+,{"stream_name":"stdout","time":4090.355124305,"data":"  v4_radix_l2      skipped: oom:v4 pass-2 buffer\n"}
+,{"stream_name":"stdout","time":4090.493161644,"data":"  v4_sort          skipped: oom:sort buffers\n"}
+,{"stream_name":"stdout","time":4204.821358977,"data":" sel=50% groups=16775358 ref=32573ms cpu_engine=20034.7ms cap=33554432\n"}
+,{"stream_name":"stdout","time":4226.646503991,"data":"  v0_naive           585.441 ms  iqr 1.084     2.5% bw    34.2x cpu  groups=16775358\n"}
+,{"stream_name":"stdout","time":4248.515155425,"data":"  v1_vec             588.490 ms  iqr 0.756     2.5% bw    34.0x cpu  groups=16775358\n"}
+,{"stream_name":"stdout","time":4271.320015082,"data":"  v2_smem_aos512     613.519 ms  iqr 5.086     2.4% bw    32.7x cpu  groups=16775358\n"}
+,{"stream_name":"stdout","time":4294.119162851,"data":"  v2_smem_soa512     613.933 ms  iqr 5.220     2.4% bw    32.6x cpu  groups=16775358\n"}
+,{"stream_name":"stdout","time":4315.465507296,"data":"  v2_smem_soa        573.250 ms  iqr 5.186     2.6% bw    34.9x cpu  groups=16775358\n"}
+,{"stream_name":"stdout","time":4336.926905022,"data":"  v3_warpagg         575.457 ms  iqr 4.985     2.6% bw    34.8x cpu  groups=16775358\n"}
+,{"stream_name":"stdout","time":4336.928218708,"data":"  v4_radix_smem    skipped: oom:v4 pass-2 buffer\n"}
+,{"stream_name":"stdout","time":4337.091962577,"data":"  v4_radix_l2      skipped: oom:v4 pass-2 buffer\n"}
+,{"stream_name":"stdout","time":4337.229804816,"data":"  v4_sort          skipped: oom:sort buffers\n"}
+,{"stream_name":"stdout","time":4545.184303858,"data":" sel=100% groups=16777215 ref=56859ms cpu_engine=38198.0ms cap=33554432\n"}
+,{"stream_name":"stdout","time":4583.585535313,"data":"  v0_naive          1161.048 ms  iqr 3.141     1.3% bw    32.9x cpu  groups=16777215\n"}
+,{"stream_name":"stdout","time":4621.497587643,"data":"  v1_vec            1145.808 ms  iqr 1.244     1.3% bw    33.3x cpu  groups=16777215\n"}
+,{"stream_name":"stdout","time":4659.84016818,"data":"  v2_smem_aos512    1157.386 ms  iqr 11.784     1.3% bw    33.0x cpu  groups=16777215\n"}
+,{"stream_name":"stdout","time":4698.331405401,"data":"  v2_smem_soa512    1160.506 ms  iqr 14.606     1.3% bw    32.9x cpu  groups=16777215\n"}
+,{"stream_name":"stdout","time":4734.583480846,"data":"  v2_smem_soa       1094.355 ms  iqr 10.482     1.3% bw    34.9x cpu  groups=16777215\n"}
+,{"stream_name":"stdout","time":4770.859822681,"data":"  v3_warpagg        1094.454 ms  iqr 11.934     1.3% bw    34.9x cpu  groups=16777215\n"}
+,{"stream_name":"stdout","time":4770.861284629,"data":"  v4_radix_smem    skipped: oom:v4 pass-2 buffer\n"}
+,{"stream_name":"stdout","time":4771.025420866,"data":"  v4_radix_l2      skipped: oom:v4 pass-2 buffer\n"}
+,{"stream_name":"stdout","time":4771.16396797,"data":"  v4_sort          skipped: oom:sort buffers\n"}
+,{"stream_name":"stdout","time":4786.722509746,"data":"  generated rows=500000000 card=16777216 skew=1.0 comp=0 in 15147 ms (runs=15623430, 4093.7 MB compressed)\n"}
+,{"stream_name":"stdout","time":4799.62167047,"data":" sel=1% groups=1305630 ref=2124ms cpu_engine=301.6ms cap=33554432\n"}
+,{"stream_name":"stdout","time":4801.913361843,"data":"  v0_naive            60.037 ms  iqr 0.135    24.5% bw     5.0x cpu  groups=1305630\n"}
+,{"stream_name":"stdout","time":4803.92720711,"data":"  v1_vec              53.874 ms  iqr 0.095    27.3% bw     5.6x cpu  groups=1305630\n"}
+,{"stream_name":"stdout","time":4806.346114644,"data":"  v2_smem_aos512      64.822 ms  iqr 0.261    22.7% bw     4.7x cpu  groups=1305630\n"}
+,{"stream_name":"stdout","time":4808.772925393,"data":"  v2_smem_soa512      65.007 ms  iqr 0.220    22.6% bw     4.6x cpu  groups=1305630\n"}
+,{"stream_name":"stdout","time":4810.861812429,"data":"  v2_smem_soa         55.869 ms  iqr 0.109    26.3% bw     5.4x cpu  groups=1305630\n"}
+,{"stream_name":"stdout","time":4812.971017825,"data":"  v3_warpagg          56.116 ms  iqr 0.171    26.2% bw     5.4x cpu  groups=1305630\n"}
+,{"stream_name":"stdout","time":4812.972206846,"data":"  v4_radix_smem    skipped: oom:v4 pass-2 buffer\n"}
+,{"stream_name":"stdout","time":4813.139016525,"data":"  v4_radix_l2      skipped: oom:v4 pass-2 buffer\n"}
+,{"stream_name":"stdout","time":4813.277898951,"data":"  v4_sort          skipped: oom:sort buffers\n"}
+,{"stream_name":"stdout","time":4835.460655451,"data":" sel=10% groups=6565198 ref=5444ms cpu_engine=2671.4ms cap=33554432\n"}
+,{"stream_name":"stdout","time":4839.350625884,"data":"  v0_naive           101.866 ms  iqr 0.384    14.4% bw    26.2x cpu  groups=6565198\n"}
+,{"stream_name":"stdout","time":4842.959231358,"data":"  v1_vec              96.025 ms  iqr 0.406    15.3% bw    27.8x cpu  groups=6565198\n"}
+,{"stream_name":"stdout","time":4847.603485687,"data":"  v2_smem_aos512     123.968 ms  iqr 1.000    11.9% bw    21.5x cpu  groups=6565198\n"}
+,{"stream_name":"stdout","time":4852.310073525,"data":"  v2_smem_soa512     125.703 ms  iqr 3.058    11.7% bw    21.3x cpu  groups=6565198\n"}
+,{"stream_name":"stdout","time":4856.253392916,"data":"  v2_smem_soa        105.390 ms  iqr 1.208    14.0% bw    25.3x cpu  groups=6565198\n"}
+,{"stream_name":"stdout","time":4860.242853336,"data":"  v3_warpagg         105.891 ms  iqr 1.830    13.9% bw    25.2x cpu  groups=6565198\n"}
+,{"stream_name":"stdout","time":4860.24416656,"data":"  v4_radix_smem    skipped: oom:v4 pass-2 buffer\n"}
+,{"stream_name":"stdout","time":4860.411039415,"data":"  v4_radix_l2      skipped: oom:v4 pass-2 buffer\n"}
+,{"stream_name":"stdout","time":4860.548786099,"data":"  v4_sort          skipped: oom:sort buffers\n"}
+,{"stream_name":"stdout","time":4921.021314429,"data":" sel=50% groups=13729403 ref=16308ms cpu_engine=10753.3ms cap=33554432\n"}
+,{"stream_name":"stdout","time":4932.480121251,"data":"  v0_naive           305.095 ms  iqr 2.895     4.8% bw    35.2x cpu  groups=13729403\n"}
+,{"stream_name":"stdout","time":4943.988093072,"data":"  v1_vec             309.852 ms  iqr 4.236     4.8% bw    34.7x cpu  groups=13729403\n"}
+,{"stream_name":"stdout","time":4957.37343501,"data":"  v2_smem_aos512     361.271 ms  iqr 6.387     4.1% bw    29.8x cpu  groups=13729403\n"}
+,{"stream_name":"stdout","time":4970.551056167,"data":"  v2_smem_soa512     354.485 ms  iqr 7.588     4.2% bw    30.3x cpu  groups=13729403\n"}
+,{"stream_name":"stdout","time":4981.562450517,"data":"  v2_smem_soa        294.013 ms  iqr 3.856     5.0% bw    36.6x cpu  groups=13729403\n"}
+,{"stream_name":"stdout","time":4992.682667784,"data":"  v3_warpagg         297.292 ms  iqr 4.030     5.0% bw    36.2x cpu  groups=13729403\n"}
+,{"stream_name":"stdout","time":4992.684069027,"data":"  v4_radix_smem    skipped: oom:v4 pass-2 buffer\n"}
+,{"stream_name":"stdout","time":4992.850919053,"data":"  v4_radix_l2      skipped: oom:v4 pass-2 buffer\n"}
+,{"stream_name":"stdout","time":4992.988687112,"data":"  v4_sort          skipped: oom:sort buffers\n"}
+,{"stream_name":"stdout","time":5104.721603876,"data":" sel=100% groups=15881338 ref=26956ms cpu_engine=21078.5ms cap=33554432\n"}
+,{"stream_name":"stdout","time":5126.520107965,"data":"  v0_naive           584.589 ms  iqr 6.307     2.5% bw    36.1x cpu  groups=15881338\n"}
+,{"stream_name":"stdout","time":5148.580639486,"data":"  v1_vec             595.000 ms  iqr 4.610     2.5% bw    35.4x cpu  groups=15881338\n"}
+,{"stream_name":"stdout","time":5171.614864021,"data":"  v2_smem_aos512     618.786 ms  iqr 12.687     2.4% bw    34.1x cpu  groups=15881338\n"}
+,{"stream_name":"stdout","time":5193.874982868,"data":"  v2_smem_soa512     595.768 ms  iqr 10.908     2.5% bw    35.4x cpu  groups=15881338\n"}
+,{"stream_name":"stdout","time":5213.565085651,"data":"  v2_smem_soa        528.456 ms  iqr 8.413     2.8% bw    39.9x cpu  groups=15881338\n"}
+,{"stream_name":"stdout","time":5233.612253843,"data":"  v3_warpagg         539.359 ms  iqr 9.992     2.7% bw    39.1x cpu  groups=15881338\n"}
+,{"stream_name":"stdout","time":5233.613478579,"data":"  v4_radix_smem    skipped: oom:v4 pass-2 buffer\n"}
+,{"stream_name":"stdout","time":5233.776772267,"data":"  v4_radix_l2      skipped: oom:v4 pass-2 buffer\n"}
+,{"stream_name":"stdout","time":5233.914829983,"data":"  v4_sort          skipped: oom:sort buffers\n"}
+,{"stream_name":"stdout","time":5249.185470081,"data":"  generated rows=500000000 card=16777216 skew=1.5 comp=0 in 14858 ms (runs=15623430, 4093.7 MB compressed)\n"}
+,{"stream_name":"stdout","time":5254.925321236,"data":" sel=1% groups=40460 ref=1680ms cpu_engine=97.7ms cap=33554432\n"}
+,{"stream_name":"stdout","time":5256.976897645,"data":"  v0_naive            53.015 ms  iqr 0.292    27.8% bw     1.8x cpu  groups=40460\n"}
+,{"stream_name":"stdout","time":5258.771104312,"data":"  v1_vec              48.037 ms  iqr 0.141    30.6% bw     2.0x cpu  groups=40460\n"}
+,{"stream_name":"stdout","time":5261.023943304,"data":"  v2_smem_aos512      60.176 ms  iqr 0.210    24.5% bw     1.6x cpu  groups=40460\n"}
+,{"stream_name":"stdout","time":5263.268293045,"data":"  v2_smem_soa512      59.965 ms  iqr 0.205    24.5% bw     1.6x cpu  groups=40460\n"}
+,{"stream_name":"stdout","time":5265.12544652,"data":"  v2_smem_soa         49.691 ms  iqr 0.275    29.6% bw     2.0x cpu  groups=40460\n"}
+,{"stream_name":"stdout","time":5266.991704816,"data":"  v3_warpagg          50.070 ms  iqr 0.368    29.4% bw     2.0x cpu  groups=40460\n"}
+,{"stream_name":"stdout","time":5266.992916037,"data":"  v4_radix_smem    skipped: oom:v4 pass-2 buffer\n"}
+,{"stream_name":"stdout","time":5267.161836222,"data":"  v4_radix_l2      skipped: oom:v4 pass-2 buffer\n"}
+,{"stream_name":"stdout","time":5267.300995474,"data":"  v4_sort          skipped: oom:sort buffers\n"}
+,{"stream_name":"stdout","time":5285.416136932,"data":" sel=10% groups=182382 ref=2117ms cpu_engine=887.9ms cap=33554432\n"}
+,{"stream_name":"stdout","time":5290.517490098,"data":"  v0_naive           134.767 ms  iqr 0.272    10.9% bw     6.6x cpu  groups=182382\n"}
+,{"stream_name":"stdout","time":5295.352889448,"data":"  v1_vec             130.393 ms  iqr 0.795    11.3% bw     6.8x cpu  groups=182382\n"}
+,{"stream_name":"stdout","time":5299.030262986,"data":"  v2_smem_aos512      99.011 ms  iqr 0.348    14.9% bw     9.0x cpu  groups=182382\n"}
+,{"stream_name":"stdout","time":5302.550472718,"data":"  v2_smem_soa512      94.617 ms  iqr 0.208    15.6% bw     9.4x cpu  groups=182382\n"}
+,{"stream_name":"stdout","time":5305.291317451,"data":"  v2_smem_soa         73.576 ms  iqr 1.037    20.0% bw    12.1x cpu  groups=182382\n"}
+,{"stream_name":"stdout","time":5307.645638223,"data":"  v3_warpagg          63.038 ms  iqr 0.629    23.3% bw    14.1x cpu  groups=182382\n"}
+,{"stream_name":"stdout","time":5307.646944631,"data":"  v4_radix_smem    skipped: oom:v4 pass-2 buffer\n"}
+,{"stream_name":"stdout","time":5307.814726429,"data":"  v4_radix_l2      skipped: oom:v4 pass-2 buffer\n"}
+,{"stream_name":"stdout","time":5307.95383343,"data":"  v4_sort          skipped: oom:sort buffers\n"}
+,{"stream_name":"stdout","time":5328.872101193,"data":" sel=50% groups=513223 ref=3539ms cpu_engine=4311.8ms cap=33554432\n"}
+,{"stream_name":"stdout","time":5347.452285661,"data":"  v0_naive           498.336 ms  iqr 1.052     3.0% bw     8.7x cpu  groups=513223\n"}
+,{"stream_name":"stdout","time":5365.922473388,"data":"  v1_vec             498.576 ms  iqr 0.570     3.0% bw     8.6x cpu  groups=513223\n"}
+,{"stream_name":"stdout","time":5376.5546252,"data":"  v2_smem_aos512     286.321 ms  iqr 2.083     5.1% bw    15.1x cpu  groups=513223\n"}
+,{"stream_name":"stdout","time":5386.17825723,"data":"  v2_smem_soa512     259.161 ms  iqr 0.750     5.7% bw    16.6x cpu  groups=513223\n"}
+,{"stream_name":"stdout","time":5394.22929352,"data":"  v2_smem_soa        216.526 ms  iqr 1.286     6.8% bw    19.9x cpu  groups=513223\n"}
+,{"stream_name":"stdout","time":5398.474253964,"data":"  v3_warpagg         113.740 ms  iqr 2.003    12.9% bw    37.9x cpu  groups=513223\n"}
+,{"stream_name":"stdout","time":5398.475423481,"data":"  v4_radix_smem    skipped: oom:v4 pass-2 buffer\n"}
+,{"stream_name":"stdout","time":5398.641088967,"data":"  v4_radix_l2      skipped: oom:v4 pass-2 buffer\n"}
+,{"stream_name":"stdout","time":5398.778878773,"data":"  v4_sort          skipped: oom:sort buffers\n"}
+,{"stream_name":"stdout","time":5436.977601943,"data":" sel=100% groups=795238 ref=4179ms cpu_engine=8512.0ms cap=33554432\n"}
+,{"stream_name":"stdout","time":5472.577123374,"data":"  v0_naive           959.095 ms  iqr 1.239     1.5% bw     8.9x cpu  groups=795238\n"}
+,{"stream_name":"stdout","time":5508.155074683,"data":"  v1_vec             960.333 ms  iqr 1.047     1.5% bw     8.9x cpu  groups=795238\n"}
+,{"stream_name":"stdout","time":5527.176567046,"data":"  v2_smem_aos512     513.752 ms  iqr 0.795     2.9% bw    16.6x cpu  groups=795238\n"}
+,{"stream_name":"stdout","time":5544.68907515,"data":"  v2_smem_soa512     475.105 ms  iqr 4.758     3.1% bw    17.9x cpu  groups=795238\n"}
+,{"stream_name":"stdout","time":5559.882326741,"data":"  v2_smem_soa        409.594 ms  iqr 2.464     3.6% bw    20.8x cpu  groups=795238\n"}
+,{"stream_name":"stdout","time":5566.312623911,"data":"  v3_warpagg         174.116 ms  iqr 4.879     8.5% bw    48.9x cpu  groups=795238\n"}
+,{"stream_name":"stdout","time":5566.313955159,"data":"  v4_radix_smem    skipped: oom:v4 pass-2 buffer\n"}
+,{"stream_name":"stdout","time":5566.479991571,"data":"  v4_radix_l2      skipped: oom:v4 pass-2 buffer\n"}
+,{"stream_name":"stdout","time":5566.619028402,"data":"  v4_sort          skipped: oom:sort buffers\n"}
+,{"stream_name":"stdout","time":5567.166315088,"data":"EXIT_CODE=0\n"}
+,{"stream_name":"stderr","time":5569.956365859,"data":"/usr/local/lib/python3.13/dist-packages/mistune.py:435: SyntaxWarning: invalid escape sequence '\\|'\n"}
+,{"stream_name":"stderr","time":5569.956394602,"data":"  cells[i][c] = re.sub('\\\\\\\\\\|', '|', cell)\n"}
+,{"stream_name":"stderr","time":5570.37987189,"data":"/usr/local/lib/python3.13/dist-packages/nbconvert/filters/filter_links.py:36: SyntaxWarning: invalid escape sequence '\\_'\n"}
+,{"stream_name":"stderr","time":5570.379902463,"data":"  text = re.sub(r'_', '\\_', text) # Escape underscores in display text\n"}
+,{"stream_name":"stderr","time":5572.415078595,"data":"[NbConvertApp] Converting notebook __script__.ipynb to html\n"}
+,{"stream_name":"stderr","time":5573.599061822,"data":"[NbConvertApp] Writing 368963 bytes to __results__.html\n"}
+]

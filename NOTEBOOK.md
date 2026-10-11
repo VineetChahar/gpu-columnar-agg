@@ -155,3 +155,11 @@ at every D < F.
 sweeps; `gca-part1b`: nsys, ablations, composite keys, V5, V6, TPC-H, cuDF); 500M rows follow in two
 more sessions. Scratch buffers are now freed after every variant so 500M-row V4/sort runs do not
 inherit each other's 4–12 GB of partition/sort buffers.
+
+## 2026-10-11 — gca-part2b (500M rows, 64K/1M/16M groups) landed
+- runs/20261011T131144Z: 432 rows, 352 timed, all correct; 80 `skip: oom:*` (v4_sort at 1M/16M,
+  v4_radix_smem at 1M/16M, v4_radix_l2 at 16M). Out-of-place plans need a second copy of the selected
+  rows (+ cub temp) next to ~4 GB of columns, which exceeds 15 GB.
+- Consequence: at 16M uniform / 100%, best drops from v4_sort 1.3 G rows/s (100M) to v3_warpagg 0.4 G/s.
+  GPU/CPU 119x -> 35x. Where the plan is unchanged (64K, skew/V3), scaling is 4.3-4.8x for 5x rows.
+- Not built: chunked sort plan + partial-aggregate merge (would remove the OOM cliff). Written up in RESULTS Scale.

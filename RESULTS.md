@@ -259,7 +259,36 @@ With 4 groups and ~59M qualifying rows, Q1 is a pure contention benchmark. Warp 
 
 ![scale](plots/scale.png)
 
-_500M-row sweep: see the section update below (filled in when the 500M runs complete)._
+Best correct variant, 100M → 500M rows (CPU = 4-thread engine; throughput = input rows / time):
+
+| groups | skew | sel | 100M best | 500M best | GPU/CPU 100M → 500M |
+|---|---|---|---|---|---|
+| 64K | uniform | 100% | v4_sort 56.5 ms (1.8 G rows/s) | v4_sort 269.4 ms (1.9 G/s) | 19× → 21× |
+| 64K | Zipf 1.5 | 100% | v3_warpagg 31.1 ms | v3_warpagg 135.6 ms | 11× → 12× |
+| 1M | uniform | 100% | v4_sort 68.4 ms (1.5 G/s) | v4_radix_l2 628.9 ms (0.8 G/s) | 40× → 24× |
+| 1M | Zipf 1.5 | 100% | v3_warpagg 32.8 ms | v3_warpagg 140.3 ms | 41× → 56× |
+| 16M | uniform | 100% | v4_sort 77.9 ms (1.3 G/s) | v3_warpagg 1140.9 ms (0.4 G/s) | 119× → 35× |
+| 16M | uniform | 1% | v4_sort 5.7 ms | v1_vec 58.8 ms | 21× → 13× |
+| 16M | Zipf 1.5 | 1% | v4_sort 4.9 ms | v1_vec 48.0 ms | 3.6× → 2.0× |
+
+**Scaling is linear wherever the plan stays the same.** At 64K groups, and wherever V3 wins (skew),
+time grows 4.3–4.8× for 5× the rows. Throughput even rises slightly, because launch and extraction
+costs are amortised. The CPU engine scales the same way, so the GPU/CPU ratio holds.
+
+**It breaks where memory capacity changes the plan.** At 500M rows the out-of-place algorithms no
+longer fit in the T4's 15 GB alongside the ~4 GB of columns (u32 codes + int32 values):
+- `v4_sort` needs double-buffered keys and values plus cub's temp space, and it is skipped at 1M and 16M groups.
+- `v4_radix_smem` and `v4_radix_l2` need a full partitioned copy of the selected rows. Both are
+  skipped at 16M groups, and `v4_radix_smem` is also skipped at 1M.
+
+These are recorded as `skip: oom:*`, with no time reported. The in-place hash variants then win by
+default, and they are back to random DRAM atomics into a 16M-group table. At 16M uniform groups,
+throughput drops 3.3× (1.3 → 0.4 G rows/s). The GPU's lead over the CPU falls from 119× to 35×, and to
+2.0× at Zipf 1.5 / 1% selectivity. That is a fourth answer to "where does the GPU stop winning": **when
+the working set of the best algorithm no longer fits in device memory.** The fix is the V5 machinery
+applied to group-by: process the input in chunks that each fit the sort plan, then merge the per-chunk
+partial aggregates. That was not built. 352 of the 432 points at 500M/high cardinality are timed and
+all are correct; the other 80 are the OOM skips above.
 
 ## Roofline
 

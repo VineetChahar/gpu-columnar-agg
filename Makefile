@@ -63,7 +63,9 @@ bench-part1: bench-part1a bench-part1b
 bench-part2: bench-part2a bench-part2b
 # hash-table capacity from estimated groups instead of dictionary size (same for every variant)
 bench-part3: build
+	$(BENCH) verify variants=v3_latemat,v3_warpagg
 	$(BENCH) sweep rows=10M,100M cards=65536,1048576,16777216 skews=0,1.5 sels=1,10,50,100 variants=main cap=est tag=capest
+	$(BENCH) sweep rows=100M cards=$(CARDS) skews=0,1.5 sels=1,10,50,100 variants=v3_warpagg,v3_latemat tag=latemat cpu=0
 
 bench: bench-part1 bench-part2 bench-part3
 

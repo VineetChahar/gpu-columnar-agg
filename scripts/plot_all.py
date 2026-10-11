@@ -9,6 +9,7 @@ from collections import defaultdict
 import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
+import matplotlib.ticker
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 OUT = os.path.join(ROOT, "plots")
@@ -234,46 +235,82 @@ if micro:
     for k, r in sorted(micro.items()):
         md.append(f"| {k} | {r['value']:.3f} | {r['unit']} |")
 
-# ---------------- roofline (atomic-update roofline) ----------------
-# x: aggregate updates per byte of compulsory input traffic; y: achieved updates/s.
-# roofs: measured DRAM read BW (diagonal) and measured atomic throughputs (flat).
+# ---------------- roofline ----------------
+# x = aggregate updates (selected rows) per byte of *analytic* DRAM traffic of that variant,
+# y = updates/s.  The diagonal is the measured DRAM read bandwidth: a point on it is bandwidth-bound,
+# a point far below it is bound by something else (atomic latency/serialisation, host round trips).
+L2_BYTES = 4 << 20
+def dram_traffic(r):
+    n, sel_rows = r["rows"], r.get("selected_est", r["rows"])
+    w = {"u8": 1, "u16": 2, "u32": 4}.get(r.get("key_kind"), 4)
+    card, cap = r["card"], r.get("table_cap", 2 * r["card"])
+    t = r["bytes_in"]                                            # compulsory scan
+    dict_bytes = card * 8
+    gather = sel_rows * 32 if dict_bytes > L2_BYTES else dict_bytes  # random 32 B sector per decode when dict > L2
+    table = cap * 64
+    v = r["variant"]
+    if v == "v4_sort":
+        bits = max(1, int(math.log2(card)))
+        passes = math.ceil(bits / 8)
+        t += sel_rows * 8 + passes * sel_rows * 16 + sel_rows * 8   # compact write, onesweep passes (r+w 8 B), reduce read
+        t += min(card, sel_rows) * (8 + 32)                          # unique codes + aggregates out
+        t += min(card, sel_rows) * 32 if dict_bytes > L2_BYTES else dict_bytes  # decode uniques only
+        return t
+    t += gather + table + cap * 8                                   # clear the table, read keys at extract
+    if table > L2_BYTES:
+        # V0-V3: a 256-slot shared table cannot hold >>256 keys, so (uniform keys) ~every row updates a
+        # random DRAM-resident slot.  V4: each partition's slice of the table is L2/smem-resident, so each
+        # slot is fetched and written back about once.
+        groups_touch = min(sel_rows, card) if v.startswith("v4_radix") else sel_rows
+        t += groups_touch * 128                                     # read+write one 64 B slot per update
+    info = r.get("info") or {}
+    passes = info.get("passes", 0)
+    if v.startswith("v4_radix") and passes:
+        t += r["bytes_in"] + gather                                 # histogram pass re-reads + re-decodes
+        t += passes * sel_rows * 12 * 2                             # partition write + read back
+    return t
+
 if micro and sweep:
     bw = micro.get("dram_read_gbs_best", {}).get("value")
-    fig, ax = plt.subplots(figsize=(6.4, 4.2))
-    xs = [10 ** (i / 20) for i in range(-60, 21)]
-    if bw:
-        ax.plot(xs, [bw * 1e9 * x for x in xs], color=INK2, lw=1.2)
-        ax.text(0.02, bw * 1e9 * 0.02 * 1.4, f"DRAM read {bw:.0f} GB/s", color=INK2, fontsize=7, rotation=33)
-    for name, lbl in [("gatomic_u64_random_ws128KB_gops", "global atomics, L2-resident"),
-                      ("gatomic_u64_random_ws1048576KB_gops", "global atomics, DRAM working set"),
-                      ("gatomic_u64_hot_single_address_gops", "single hot address")]:
+    fig, ax = plt.subplots(figsize=(6.6, 4.4))
+    xs = [10 ** (i / 20) for i in range(-80, 1)]
+    ax.plot(xs, [bw * 1e9 * x for x in xs], color=INK2, lw=1.2)
+    ax.text(2e-3, bw * 1e9 * 2e-3 * 1.5, f"DRAM read {bw:.0f} GB/s (measured)", color=INK2, fontsize=7, rotation=31)
+    for name, lbl in [("gatomic_u64_random_ws1048576KB_gops", "random global atomics, DRAM-resident (÷5 per update)")]:
         if name in micro:
-            y = micro[name]["value"] * 1e9 / 5  # 5 atomics per aggregate update
+            y = micro[name]["value"] * 1e9 / 5
             ax.axhline(y, color=INK2, lw=0.8, ls=":")
-            ax.text(xs[0] * 1.2, y * 1.08, lbl + " (/5 atomics)", color=INK2, fontsize=7)
+            ax.text(xs[0] * 1.3, y * 1.12, lbl, color=INK2, fontsize=7)
     ref_rows = [r for r in sweep if r["sel"] == 100 and r["skew"] == 0 and not r.get("composite")]
     big = max((r["rows"] for r in ref_rows), default=0)
     for v in MAIN:
-        for c, mk in ((65536, "o"), (16777216, "^")):
+        for c, mk in ((4096, "s"), (1048576, "o"), (16777216, "^")):
             m = [r for r in ref_rows if r["variant"] == v and r["card"] == c and r["rows"] == big]
             if not m:
                 continue
             r = m[-1]
-            sel_rows = r.get("selected_est", r["rows"])
-            x = sel_rows / r["bytes_in"]
-            y = sel_rows / (r["median_ms"] / 1e3)
-            ax.scatter([x], [y], color=COLOR[v], marker=mk, s=40, zorder=3, edgecolor="white", linewidth=1)
+            u = r.get("selected_est", r["rows"])
+            ax.scatter([u / dram_traffic(r)], [u / (r["median_ms"] / 1e3)], color=COLOR[v], marker=mk, s=46, zorder=3,
+                       edgecolor="white", linewidth=1)
     for v in MAIN:
         ax.scatter([], [], color=COLOR[v], label=LABEL[v])
-    ax.scatter([], [], color=INK2, marker="o", label="card 64K"); ax.scatter([], [], color=INK2, marker="^", label="card 16M")
+    for lbl, mk in (("card 4K", "s"), ("card 1M", "o"), ("card 16M", "^")):
+        ax.scatter([], [], color=INK2, marker=mk, label=lbl)
     ax.set_xscale("log"); ax.set_yscale("log")
-    ax.set_xlabel("aggregate updates per input byte (analytic)"); ax.set_ylabel("aggregate updates / s")
+    ax.set_xlabel("updates per byte of analytic DRAM traffic"); ax.set_ylabel("aggregate updates / s")
     ax.set_title(f"Roofline: {big / 1e6:.0f}M rows, uniform, sel 100%", fontsize=9)
     ax.legend(fontsize=7, loc="upper left", bbox_to_anchor=(1, 1))
     fig.savefig(os.path.join(OUT, "roofline.png")); plt.close(fig)
+    md.append("\n## Roofline points (100M, uniform, sel 100%)\n\n| variant | card | analytic GB | GB/s achieved | % of DRAM BW |\n|---|---|---|---|---|")
+    for v in MAIN:
+        for c in (4096, 1048576, 16777216):
+            m = [r for r in ref_rows if r["variant"] == v and r["card"] == c and r["rows"] == big]
+            if m:
+                r = m[-1]; tb = dram_traffic(r); g = tb / (r["median_ms"] / 1e3) / 1e9
+                md.append(f"| {v} | {CARD_LBL[c]} | {tb / 1e9:.2f} | {g:.0f} | {100 * g / bw:.0f}% |")
 
 # ---------------- V5 timeline + PCIe wall ----------------
-tl = [r for r in R if r.get("exp") == "timeline"]
+tl = [r for r in R if r.get("exp") == "timeline" and r.get("_run") == max((x["_run"] for x in R if x.get("exp") == "timeline"), default="")]
 if tl:
     for q in sorted({r["query"] for r in tl}):
         ev = [r for r in tl if r["query"] == q]
@@ -290,14 +327,15 @@ if tl:
         ax.set_xlabel("ms since pipeline start"); ax.invert_yaxis(); ax.grid(axis="y", visible=False)
         ax.set_title(f"V5 event timeline, {q}", fontsize=9, pad=24)
         fig.savefig(os.path.join(OUT, f"timeline_{q}.png")); plt.close(fig)
-st = [r for r in R if "stream" in str(r.get("exp", "")) and r.get("exp") != "timeline" and "median_ms" in r]
+st = [r for r in R if r.get("exp") == "stream" and "median_ms" in r]
 if st:
     md.append("\n## V5 streaming / PCIe wall\n\n| query | mode | streams | chunk rows | ms | eff. PCIe GB/s | CPU engine ms | correct |\n|---|---|---|---|---|---|---|---|")
     for r in sorted(st, key=lambda r: (r["query"], r["mode"], r.get("streams") or 0, r.get("chunk_rows") or 0)):
         md.append(f"| {r['query']} | {r['mode']} | {r.get('streams', '')} | {r.get('chunk_rows', '')} | {r['median_ms']:.1f} | "
                   f"{r.get('eff_pcie_gbs', float('nan')):.1f} | {r.get('cpu_ms', float('nan')):.1f} | {r.get('correct', '')} |")
     qs = sorted({r["query"] for r in st})
-    fig, axes = plt.subplots(1, len(qs), figsize=(4.2 * len(qs), 3.6), sharey=False)
+    fig, axes = plt.subplots(1, len(qs), figsize=(4.0 * len(qs) + 2, 3.4), sharey=True)
+    fig.subplots_adjust(wspace=0.08)
     axes = axes if len(qs) > 1 else [axes]
     order = ["gpu_resident_kernel_only", "gpu_stream_pinned_overlap", "gpu_stream_pinned_serial", "gpu_stream_pageable_overlap",
              "gpu_stream_pageable_serial", "cpu_engine_host_resident"]
@@ -308,7 +346,9 @@ if st:
             if c:
                 vals.append((m, c[-1]["median_ms"], c[-1].get("extra_ms", 0) if "pinned" in m else 0))
         ys = range(len(vals))
-        ax.barh(list(ys), [v[1] for v in vals], color=[SLOT[0] if "gpu" in v[0] else INK2 for v in vals], height=0.6)
+        base = min(v[1] for v in vals) * 0.5
+        ax.barh(list(ys), [v[1] - base for v in vals], left=base,
+                color=[SLOT[0] if "gpu" in v[0] else INK2 for v in vals], height=0.6)
         ax.barh(list(ys), [v[2] for v in vals], left=[v[1] for v in vals], color=SLOT[1], height=0.6,
                 label="+ cudaHostRegister (one-shot query)")
         pc = [r for r in st if r["query"] == q and "pcie_bytes" in r]
@@ -317,12 +357,18 @@ if st:
             floor = pc[0]["pcie_bytes"] / (h2d * 1e6)
             ax.axvline(floor, color=SLOT[7], lw=1.2, ls="--", label=f"PCIe floor ({h2d:.1f} GB/s pinned)")
         ax.set_yticks(list(ys)); ax.set_yticklabels([v[0].replace("gpu_", "").replace("_", " ") for v in vals], fontsize=7)
-        ax.invert_yaxis(); ax.set_xlabel("ms"); ax.set_title(q, fontsize=9)
-        ax.legend(fontsize=6, loc="lower right")
+        ax.set_xscale("log"); ax.set_xlabel("ms (log)"); ax.set_title(q.replace("_", " "), fontsize=9)
+        ax.xaxis.set_minor_formatter(matplotlib.ticker.NullFormatter())
+        ax.set_xlim(left=base, right=max(v[1] + v[2] for v in vals) * 2.2)
+        for yy, v in zip(ys, vals):
+            ax.text((v[1] + v[2]) * 1.06, yy, f"{v[1]:.0f}" + (f" (+{v[2]:.0f})" if v[2] else ""), va="center", fontsize=7, color=INK)
+    axes[0].invert_yaxis()
+    h, l = axes[0].get_legend_handles_labels()
+    fig.legend(h, l, loc="upper center", ncol=2, bbox_to_anchor=(0.5, 1.08), fontsize=7)
     fig.savefig(os.path.join(OUT, "pcie_wall.png")); plt.close(fig)
 
 # ---------------- V6 join ----------------
-jn = [r for r in R if "join" in str(r.get("exp", "")) and r.get("correct") and "median_ms" in r]
+jn = [r for r in R if r.get("exp") == "join" and r.get("correct") and "median_ms" in r]
 if jn:
     JV = ["v6_np", "v6_np_bloom", "v6_part", "v6_part_bloom", "v6_dict"]
     Ds = sorted({r["D"] for r in jn})
@@ -353,7 +399,7 @@ if tp:
     for r in sorted(tp, key=lambda r: (r["query"], r["median_ms"])):
         md.append(f"| {r['query']} | {r['variant']} | {r['median_ms']:.2f} | {r['bw_pct']:.0f}% | {r['speedup_vs_cpu']:.1f} |")
     for q in sorted({r["query"] for r in tp}):
-        md.append(f"| {q} | CPU engine (4 thr) | {tp[0]['cpu_ms'] if tp[0]['query'] == q else [r for r in tp if r['query'] == q][0]['cpu_ms']:.1f} | | 1.0 |")
+        md.append(f"| {q} | CPU engine (4 thr) | {[r for r in tp if r['query'] == q][0]['cpu_ms']:.1f} | | 1.0 |")
     for r in tx:
         md.append(f"| {r['query']} | {r['engine']} (external) | {r['median_ms']:.2f} | | |")
 

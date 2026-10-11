@@ -1,0 +1,920 @@
+$ nvidia-smi; nvcc --version; nproc; free -g
+Sun Oct 11 13:07:40 2026       
++-----------------------------------------------------------------------------------------+
+| NVIDIA-SMI 580.178.04             Driver Version: 580.178.04     CUDA Version: 13.0     |
++-----------------------------------------+------------------------+----------------------+
+| GPU  Name                 Persistence-M | Bus-Id          Disp.A | Volatile Uncorr. ECC |
+| Fan  Temp   Perf          Pwr:Usage/Cap |           Memory-Usage | GPU-Util  Compute M. |
+|                                         |                        |               MIG M. |
+|=========================================+========================+======================|
+|   0  Tesla T4                       Off |   00000000:00:04.0 Off |                    0 |
+| N/A   55C    P8             12W /   70W |       0MiB /  15360MiB |      0%      Default |
+|                                         |                        |                  N/A |
++-----------------------------------------+------------------------+----------------------+
+|   1  Tesla T4                       Off |   00000000:00:05.0 Off |                    0 |
+| N/A   36C    P8              9W /   70W |       0MiB /  15360MiB |      0%      Default |
+|                                         |                        |                  N/A |
++-----------------------------------------+------------------------+----------------------+
+
++-----------------------------------------------------------------------------------------+
+| Processes:                                                                              |
+|  GPU   GI   CI              PID   Type   Process name                        GPU Memory |
+|        ID   ID                                                               Usage      |
+|=========================================================================================|
+|  No running processes found                                                             |
++-----------------------------------------------------------------------------------------+
+nvcc: NVIDIA (R) Cuda compiler driver
+Copyright (c) 2005-2025 NVIDIA Corporation
+Built on Fri_Feb_21_20:23:50_PST_2025
+Cuda compilation tools, release 12.8, V12.8.93
+Build cuda_12.8.r12.8/compiler.35583870_0
+4
+               total        used        free      shared  buff/cache   available
+Mem:              31           1          25           0           4          30
+Swap:              0           0           0
+$ make bench-part1b
+cmake -S . -B build -DCMAKE_BUILD_TYPE=Release > /dev/null
+cmake --build build -j4
+gmake[1]: Entering directory '/kaggle/repo/build'
+gmake[2]: Entering directory '/kaggle/repo/build'
+gmake[3]: Entering directory '/kaggle/repo/build'
+gmake[3]: Leaving directory '/kaggle/repo/build'
+gmake[3]: Entering directory '/kaggle/repo/build'
+[  5%] Building CXX object CMakeFiles/cpu.dir/src/datagen.cpp.o
+[ 10%] Building CXX object CMakeFiles/cpu.dir/src/cpu/reference.cpp.o
+[ 15%] Building CXX object CMakeFiles/cpu.dir/src/cpu/engine.cpp.o
+[ 20%] Building CXX object CMakeFiles/cpu.dir/src/cpu/join_cpu.cpp.o
+[ 25%] Linking CXX static library libcpu.a
+gmake[3]: Leaving directory '/kaggle/repo/build'
+[ 25%] Built target cpu
+gmake[3]: Entering directory '/kaggle/repo/build'
+gmake[3]: Leaving directory '/kaggle/repo/build'
+gmake[3]: Entering directory '/kaggle/repo/build'
+[ 30%] Building CUDA object CMakeFiles/bench.dir/bench/bench.cu.o
+[ 35%] Building CUDA object CMakeFiles/bench.dir/bench/micro.cu.o
+[ 40%] Building CUDA object CMakeFiles/bench.dir/bench/stream.cu.o
+[ 45%] Building CUDA object CMakeFiles/bench.dir/bench/join.cu.o
+[ 50%] Building CUDA object CMakeFiles/bench.dir/bench/tpch.cu.o
+[ 55%] Building CUDA object CMakeFiles/bench.dir/src/gpu/dev.cu.o
+[ 60%] Building CUDA object CMakeFiles/bench.dir/src/kernels/v0_naive.cu.o
+[ 65%] Building CUDA object CMakeFiles/bench.dir/src/kernels/v1_vec.cu.o
+[ 70%] Building CUDA object CMakeFiles/bench.dir/src/kernels/v2_smem.cu.o
+[ 75%] Building CUDA object CMakeFiles/bench.dir/src/kernels/v3_warpagg.cu.o
+[ 80%] Building CUDA object CMakeFiles/bench.dir/src/kernels/v4_radix.cu.o
+[ 85%] Building CUDA object CMakeFiles/bench.dir/src/kernels/v4_sort.cu.o
+[ 90%] Building CUDA object CMakeFiles/bench.dir/src/kernels/v6_join.cu.o
+[ 95%] Building CUDA object CMakeFiles/bench.dir/src/kernels/variants.cu.o
+[100%] Linking CXX executable bench
+gmake[3]: Leaving directory '/kaggle/repo/build'
+[100%] Built target bench
+gmake[2]: Leaving directory '/kaggle/repo/build'
+gmake[1]: Leaving directory '/kaggle/repo/build'
+make nsys
+make[1]: Entering directory '/kaggle/repo'
+cmake -S . -B build -DCMAKE_BUILD_TYPE=Release > /dev/null
+cmake --build build -j4
+gmake[2]: Entering directory '/kaggle/repo/build'
+gmake[3]: Entering directory '/kaggle/repo/build'
+gmake[4]: Entering directory '/kaggle/repo/build'
+gmake[4]: Leaving directory '/kaggle/repo/build'
+[ 25%] Built target cpu
+gmake[4]: Entering directory '/kaggle/repo/build'
+gmake[4]: Leaving directory '/kaggle/repo/build'
+[100%] Built target bench
+gmake[3]: Leaving directory '/kaggle/repo/build'
+gmake[2]: Leaving directory '/kaggle/repo/build'
+which nsys || (apt-get install -y -qq nsight-systems-2024.5.1 >/dev/null 2>&1 || apt-get install -y -qq nsight-systems-2024.4.2 >/dev/null 2>&1); \
+NSYS=$(which nsys || ls /opt/nvidia/nsight-systems/*/bin/nsys | head -1); echo "nsys: $NSYS"; \
+$NSYS profile -t cuda -o ${RESULTS_DIR:-.}/v5_stream -f true build/bench stream rows=100M iters=6 queries=groupby_card16 nsys_only=1 tag=nsys_stream && \
+$NSYS stats --report cuda_gpu_trace --format csv -o ${RESULTS_DIR:-.}/v5_stream ${RESULTS_DIR:-.}/v5_stream.nsys-rep >/dev/null && ls -la ${RESULTS_DIR:-.} | grep v5_stream
+nsys: /usr/local/bin/nsys
+device: Tesla T4, 40 SMs, L2 4 MB, smem/SM 64 KB
+  groupby_card16 cpu_engine_host_resident        0.00 ms (iqr 0.00) 
+  CPU read bandwidth (4 threads): 0.0 GB/s
+  groupby_card16 gpu_stream_pinned_overlap      45.00 ms (iqr 0.10) +36ms
+  groupby_card16 cudaHostRegister of the columns: 36.2 ms
+stream: 0 failures
+Collecting data...
+Generating '/tmp/nsys-report-3976.qdstrm'
+
+[1/1] [0%                          ] v5_stream.nsys-rep
+[1/1] [0%                          ] v5_stream.nsys-rep
+[1/1] [===================79%      ] v5_stream.nsys-rep
+[1/1] [===================81%      ] v5_stream.nsys-rep
+[1/1] [===================82%      ] v5_stream.nsys-rep
+[1/1] [====================83%     ] v5_stream.nsys-rep
+[1/1] [========================100%] v5_stream.nsys-rep
+[1/1] [========================100%] v5_stream.nsys-rep
+Generated:
+    /kaggle/working/v5_stream.nsys-rep
+-rw-r--r-- 1 root root  44700 Oct 11 13:09 v5_stream_cuda_gpu_trace.csv
+-rw-rw-r-- 1 root root  89729 Oct 11 13:09 v5_stream.nsys-rep
+-rw-r--r-- 1 root root 573440 Oct 11 13:09 v5_stream.sqlite
+make[1]: Leaving directory '/kaggle/repo'
+build/bench sweep rows=100M cards=16,256,4096,65536,1048576,16777216 skews=0,1.5 sels=10,100 variants=v0_naive,v0_naive_soa,v1_vec,v1_nocompact,v3_warpagg,v3_global,v4_radix_smem,v4_radix_nostage,v4_radix_1pass,v2_smem_soa1024,v3_warpagg512,v3_warpagg1024 tag=ablation cpu=0
+device: Tesla T4, 40 SMs, L2 4 MB, smem/SM 64 KB
+achievable DRAM read bandwidth (own microbenchmark): 277.5 GB/s; CPU threads=4
+  generated rows=100000000 card=16 skew=0.0 comp=0 in 745 ms (runs=3123385, 518.7 MB compressed)
+ sel=10% groups=16 ref=238ms cpu_engine=0.0ms
+  v0_naive            11.015 ms  iqr 0.157    17.0% bw     0.0x cpu  groups=16
+  v0_naive_soa         7.507 ms  iqr 0.182    24.9% bw     0.0x cpu  groups=16
+  v1_vec               9.824 ms  iqr 0.012    19.0% bw     0.0x cpu  groups=16
+  v1_nocompact        10.364 ms  iqr 0.015    18.0% bw     0.0x cpu  groups=16
+  v3_warpagg           4.944 ms  iqr 0.318    37.8% bw     0.0x cpu  groups=16
+  v3_global            5.786 ms  iqr 0.028    32.3% bw     0.0x cpu  groups=16
+  v4_radix_smem        4.951 ms  iqr 0.117    37.8% bw     0.0x cpu  groups=16
+  v4_radix_nostage     4.913 ms  iqr 0.114    38.1% bw     0.0x cpu  groups=16
+  v4_radix_1pass       4.923 ms  iqr 0.110    38.0% bw     0.0x cpu  groups=16
+  v2_smem_soa1024      7.122 ms  iqr 0.102    26.2% bw     0.0x cpu  groups=16
+  v3_warpagg512        6.972 ms  iqr 0.062    26.8% bw     0.0x cpu  groups=16
+  v3_warpagg1024       6.984 ms  iqr 0.080    26.8% bw     0.0x cpu  groups=16
+ sel=100% groups=16 ref=557ms cpu_engine=0.0ms
+  v0_naive            85.488 ms  iqr 0.012     2.2% bw     0.0x cpu  groups=16
+  v0_naive_soa        46.861 ms  iqr 0.066     4.0% bw     0.0x cpu  groups=16
+  v1_vec              85.986 ms  iqr 0.013     2.2% bw     0.0x cpu  groups=16
+  v1_nocompact        85.995 ms  iqr 0.016     2.2% bw     0.0x cpu  groups=16
+  v3_warpagg          14.853 ms  iqr 0.208    12.6% bw     0.0x cpu  groups=16
+  v3_global           42.100 ms  iqr 0.390     4.4% bw     0.0x cpu  groups=16
+  v4_radix_smem       14.880 ms  iqr 0.352    12.6% bw     0.0x cpu  groups=16
+  v4_radix_nostage    14.891 ms  iqr 0.350    12.6% bw     0.0x cpu  groups=16
+  v4_radix_1pass      14.867 ms  iqr 0.354    12.6% bw     0.0x cpu  groups=16
+  v2_smem_soa1024     28.133 ms  iqr 0.339     6.6% bw     0.0x cpu  groups=16
+  v3_warpagg512       21.209 ms  iqr 0.088     8.8% bw     0.0x cpu  groups=16
+  v3_warpagg1024      21.278 ms  iqr 0.191     8.8% bw     0.0x cpu  groups=16
+  generated rows=100000000 card=16 skew=1.5 comp=0 in 903 ms (runs=3123385, 518.7 MB compressed)
+ sel=10% groups=16 ref=234ms cpu_engine=0.0ms
+  v0_naive            23.482 ms  iqr 0.014     8.0% bw     0.0x cpu  groups=16
+  v0_naive_soa        12.259 ms  iqr 0.201    15.2% bw     0.0x cpu  groups=16
+  v1_vec              22.196 ms  iqr 0.011     8.4% bw     0.0x cpu  groups=16
+  v1_nocompact        22.670 ms  iqr 0.008     8.2% bw     0.0x cpu  groups=16
+  v3_warpagg           5.603 ms  iqr 1.031    33.4% bw     0.0x cpu  groups=16
+  v3_global            4.967 ms  iqr 0.100    37.6% bw     0.0x cpu  groups=16
+  v4_radix_smem        5.349 ms  iqr 0.132    34.9% bw     0.0x cpu  groups=16
+  v4_radix_nostage     5.359 ms  iqr 0.055    34.9% bw     0.0x cpu  groups=16
+  v4_radix_1pass       5.355 ms  iqr 0.153    34.9% bw     0.0x cpu  groups=16
+  v2_smem_soa1024     13.386 ms  iqr 0.180    14.0% bw     0.0x cpu  groups=16
+  v3_warpagg512        7.534 ms  iqr 0.090    24.8% bw     0.0x cpu  groups=16
+  v3_warpagg1024       7.535 ms  iqr 0.070    24.8% bw     0.0x cpu  groups=16
+ sel=100% groups=16 ref=526ms cpu_engine=0.0ms
+  v0_naive           221.073 ms  iqr 0.008     0.8% bw     0.0x cpu  groups=16
+  v0_naive_soa        93.541 ms  iqr 0.013     2.0% bw     0.0x cpu  groups=16
+  v1_vec             221.164 ms  iqr 0.016     0.8% bw     0.0x cpu  groups=16
+  v1_nocompact       221.167 ms  iqr 0.013     0.8% bw     0.0x cpu  groups=16
+  v3_warpagg          16.951 ms  iqr 0.439    11.0% bw     0.0x cpu  groups=16
+  v3_global           31.061 ms  iqr 0.024     6.0% bw     0.0x cpu  groups=16
+  v4_radix_smem       17.373 ms  iqr 0.365    10.8% bw     0.0x cpu  groups=16
+  v4_radix_nostage    17.342 ms  iqr 0.387    10.8% bw     0.0x cpu  groups=16
+  v4_radix_1pass      17.315 ms  iqr 0.456    10.8% bw     0.0x cpu  groups=16
+  v2_smem_soa1024    102.649 ms  iqr 0.285     1.8% bw     0.0x cpu  groups=16
+  v3_warpagg512       23.725 ms  iqr 0.265     7.9% bw     0.0x cpu  groups=16
+  v3_warpagg1024      23.963 ms  iqr 0.273     7.8% bw     0.0x cpu  groups=16
+  generated rows=100000000 card=256 skew=0.0 comp=0 in 701 ms (runs=3123385, 518.7 MB compressed)
+ sel=10% groups=256 ref=251ms cpu_engine=0.0ms
+  v0_naive             9.989 ms  iqr 0.334    18.7% bw     0.0x cpu  groups=256
+  v0_naive_soa        10.001 ms  iqr 0.053    18.7% bw     0.0x cpu  groups=256
+  v1_vec               7.096 ms  iqr 0.126    26.3% bw     0.0x cpu  groups=256
+  v1_nocompact         7.539 ms  iqr 0.235    24.8% bw     0.0x cpu  groups=256
+  v3_warpagg           9.057 ms  iqr 0.180    20.6% bw     0.0x cpu  groups=256
+  v3_global            7.345 ms  iqr 0.319    25.5% bw     0.0x cpu  groups=256
+  v4_radix_smem        9.121 ms  iqr 0.446    20.5% bw     0.0x cpu  groups=256
+  v4_radix_nostage     9.175 ms  iqr 0.370    20.4% bw     0.0x cpu  groups=256
+  v4_radix_1pass       9.295 ms  iqr 0.409    20.1% bw     0.0x cpu  groups=256
+  v2_smem_soa1024      8.544 ms  iqr 0.093    21.9% bw     0.0x cpu  groups=256
+  v3_warpagg512       10.788 ms  iqr 0.162    17.3% bw     0.0x cpu  groups=256
+  v3_warpagg1024       9.023 ms  iqr 0.083    20.7% bw     0.0x cpu  groups=256
+ sel=100% groups=256 ref=524ms cpu_engine=0.0ms
+  v0_naive            42.318 ms  iqr 0.090     4.4% bw     0.0x cpu  groups=256
+  v0_naive_soa        36.921 ms  iqr 0.139     5.1% bw     0.0x cpu  groups=256
+  v1_vec              40.639 ms  iqr 0.539     4.6% bw     0.0x cpu  groups=256
+  v1_nocompact        40.576 ms  iqr 0.407     4.6% bw     0.0x cpu  groups=256
+  v3_warpagg          40.997 ms  iqr 1.355     4.6% bw     0.0x cpu  groups=256
+  v3_global           40.234 ms  iqr 0.049     4.6% bw     0.0x cpu  groups=256
+  v4_radix_smem       40.733 ms  iqr 1.227     4.6% bw     0.0x cpu  groups=256
+  v4_radix_nostage    40.940 ms  iqr 1.159     4.6% bw     0.0x cpu  groups=256
+  v4_radix_1pass      40.760 ms  iqr 0.902     4.6% bw     0.0x cpu  groups=256
+  v2_smem_soa1024     28.901 ms  iqr 0.320     6.5% bw     0.0x cpu  groups=256
+  v3_warpagg512       53.080 ms  iqr 0.813     3.5% bw     0.0x cpu  groups=256
+  v3_warpagg1024      33.012 ms  iqr 0.412     5.7% bw     0.0x cpu  groups=256
+  generated rows=100000000 card=256 skew=1.5 comp=0 in 800 ms (runs=3123385, 518.7 MB compressed)
+ sel=10% groups=256 ref=244ms cpu_engine=0.0ms
+  v0_naive            23.905 ms  iqr 0.198     7.8% bw     0.0x cpu  groups=256
+  v0_naive_soa        12.915 ms  iqr 0.027    14.5% bw     0.0x cpu  groups=256
+  v1_vec              21.971 ms  iqr 0.076     8.5% bw     0.0x cpu  groups=256
+  v1_nocompact        22.504 ms  iqr 0.237     8.3% bw     0.0x cpu  groups=256
+  v3_warpagg           7.071 ms  iqr 0.315    26.4% bw     0.0x cpu  groups=256
+  v3_global            6.687 ms  iqr 0.548    28.0% bw     0.0x cpu  groups=256
+  v4_radix_smem        6.971 ms  iqr 0.185    26.8% bw     0.0x cpu  groups=256
+  v4_radix_nostage     7.027 ms  iqr 0.392    26.6% bw     0.0x cpu  groups=256
+  v4_radix_1pass       7.081 ms  iqr 0.265    26.4% bw     0.0x cpu  groups=256
+  v2_smem_soa1024     13.106 ms  iqr 0.134    14.3% bw     0.0x cpu  groups=256
+  v3_warpagg512        8.726 ms  iqr 0.087    21.4% bw     0.0x cpu  groups=256
+  v3_warpagg1024       8.622 ms  iqr 0.210    21.7% bw     0.0x cpu  groups=256
+ sel=100% groups=256 ref=501ms cpu_engine=0.0ms
+  v0_naive           200.904 ms  iqr 0.033     0.9% bw     0.0x cpu  groups=256
+  v0_naive_soa        86.532 ms  iqr 0.021     2.2% bw     0.0x cpu  groups=256
+  v1_vec             201.096 ms  iqr 0.024     0.9% bw     0.0x cpu  groups=256
+  v1_nocompact       201.119 ms  iqr 0.089     0.9% bw     0.0x cpu  groups=256
+  v3_warpagg          23.333 ms  iqr 0.776     8.0% bw     0.0x cpu  groups=256
+  v3_global           34.672 ms  iqr 0.059     5.4% bw     0.0x cpu  groups=256
+  v4_radix_smem       23.132 ms  iqr 1.000     8.1% bw     0.0x cpu  groups=256
+  v4_radix_nostage    23.173 ms  iqr 0.773     8.1% bw     0.0x cpu  groups=256
+  v4_radix_1pass      23.150 ms  iqr 0.472     8.1% bw     0.0x cpu  groups=256
+  v2_smem_soa1024     89.446 ms  iqr 0.274     2.1% bw     0.0x cpu  groups=256
+  v3_warpagg512       28.634 ms  iqr 0.406     6.5% bw     0.0x cpu  groups=256
+  v3_warpagg1024      26.592 ms  iqr 0.192     7.0% bw     0.0x cpu  groups=256
+  generated rows=100000000 card=4096 skew=0.0 comp=0 in 749 ms (runs=3123385, 618.7 MB compressed)
+ sel=10% groups=4096 ref=242ms cpu_engine=0.0ms
+  v0_naive            11.706 ms  iqr 0.375    19.0% bw     0.0x cpu  groups=4096
+  v0_naive_soa        11.682 ms  iqr 0.133    19.1% bw     0.0x cpu  groups=4096
+  v1_vec               8.076 ms  iqr 0.156    27.6% bw     0.0x cpu  groups=4096
+  v1_nocompact         8.995 ms  iqr 0.145    24.8% bw     0.0x cpu  groups=4096
+  v3_warpagg          11.356 ms  iqr 0.169    19.6% bw     0.0x cpu  groups=4096
+  v3_global            8.015 ms  iqr 0.310    27.8% bw     0.0x cpu  groups=4096
+  v4_radix_smem       13.685 ms  iqr 0.268    16.3% bw     0.0x cpu  groups=4096
+  v4_radix_nostage    14.351 ms  iqr 0.193    15.5% bw     0.0x cpu  groups=4096
+  v4_radix_1pass      13.665 ms  iqr 0.190    16.3% bw     0.0x cpu  groups=4096
+  v2_smem_soa1024     15.875 ms  iqr 0.167    14.0% bw     0.0x cpu  groups=4096
+  v3_warpagg512       16.078 ms  iqr 0.121    13.9% bw     0.0x cpu  groups=4096
+  v3_warpagg1024      16.256 ms  iqr 0.379    13.7% bw     0.0x cpu  groups=4096
+ sel=100% groups=4096 ref=492ms cpu_engine=0.0ms
+  v0_naive            44.138 ms  iqr 0.572     5.1% bw     0.0x cpu  groups=4096
+  v0_naive_soa        42.400 ms  iqr 0.150     5.3% bw     0.0x cpu  groups=4096
+  v1_vec              40.758 ms  iqr 0.054     5.5% bw     0.0x cpu  groups=4096
+  v1_nocompact        42.365 ms  iqr 0.706     5.3% bw     0.0x cpu  groups=4096
+  v3_warpagg          63.404 ms  iqr 6.193     3.5% bw     0.0x cpu  groups=4096
+  v3_global           42.184 ms  iqr 1.070     5.3% bw     0.0x cpu  groups=4096
+  v4_radix_smem       59.137 ms  iqr 0.723     3.8% bw     0.0x cpu  groups=4096
+  v4_radix_nostage    76.270 ms  iqr 1.926     2.9% bw     0.0x cpu  groups=4096
+  v4_radix_1pass      59.707 ms  iqr 0.872     3.7% bw     0.0x cpu  groups=4096
+  v2_smem_soa1024     89.074 ms  iqr 2.317     2.5% bw     0.0x cpu  groups=4096
+  v3_warpagg512       90.220 ms  iqr 2.614     2.5% bw     0.0x cpu  groups=4096
+  v3_warpagg1024      94.814 ms  iqr 2.044     2.4% bw     0.0x cpu  groups=4096
+  generated rows=100000000 card=4096 skew=1.5 comp=0 in 829 ms (runs=3123385, 618.7 MB compressed)
+ sel=10% groups=4096 ref=272ms cpu_engine=0.0ms
+  v0_naive            22.757 ms  iqr 0.015     9.8% bw     0.0x cpu  groups=4096
+  v0_naive_soa        13.213 ms  iqr 0.053    16.9% bw     0.0x cpu  groups=4096
+  v1_vec              20.387 ms  iqr 0.162    10.9% bw     0.0x cpu  groups=4096
+  v1_nocompact        20.895 ms  iqr 0.216    10.7% bw     0.0x cpu  groups=4096
+  v3_warpagg           7.741 ms  iqr 0.110    28.8% bw     0.0x cpu  groups=4096
+  v3_global            6.884 ms  iqr 0.226    32.4% bw     0.0x cpu  groups=4096
+  v4_radix_smem       12.734 ms  iqr 0.115    17.5% bw     0.0x cpu  groups=4096
+  v4_radix_nostage    13.238 ms  iqr 0.494    16.8% bw     0.0x cpu  groups=4096
+  v4_radix_1pass      12.761 ms  iqr 0.126    17.5% bw     0.0x cpu  groups=4096
+  v2_smem_soa1024     13.507 ms  iqr 0.115    16.5% bw     0.0x cpu  groups=4096
+  v3_warpagg512       10.037 ms  iqr 0.181    22.2% bw     0.0x cpu  groups=4096
+  v3_warpagg1024       9.700 ms  iqr 0.211    23.0% bw     0.0x cpu  groups=4096
+ sel=100% groups=4096 ref=443ms cpu_engine=0.0ms
+  v0_naive           183.952 ms  iqr 0.013     1.2% bw     0.0x cpu  groups=4096
+  v0_naive_soa        87.583 ms  iqr 0.381     2.5% bw     0.0x cpu  groups=4096
+  v1_vec             184.039 ms  iqr 0.014     1.2% bw     0.0x cpu  groups=4096
+  v1_nocompact       184.061 ms  iqr 0.018     1.2% bw     0.0x cpu  groups=4096
+  v3_warpagg          27.936 ms  iqr 0.787     8.0% bw     0.0x cpu  groups=4096
+  v3_global           30.074 ms  iqr 0.055     7.4% bw     0.0x cpu  groups=4096
+  v4_radix_smem       47.637 ms  iqr 1.141     4.7% bw     0.0x cpu  groups=4096
+  v4_radix_nostage    54.199 ms  iqr 0.672     4.1% bw     0.0x cpu  groups=4096
+  v4_radix_1pass      47.127 ms  iqr 0.819     4.7% bw     0.0x cpu  groups=4096
+  v2_smem_soa1024     90.465 ms  iqr 0.445     2.5% bw     0.0x cpu  groups=4096
+  v3_warpagg512       38.084 ms  iqr 0.392     5.9% bw     0.0x cpu  groups=4096
+  v3_warpagg1024      35.445 ms  iqr 0.328     6.3% bw     0.0x cpu  groups=4096
+  generated rows=100000000 card=65536 skew=0.0 comp=0 in 756 ms (runs=3123385, 618.7 MB compressed)
+ sel=10% groups=65536 ref=322ms cpu_engine=0.0ms
+  v0_naive            16.245 ms  iqr 0.262    13.7% bw     0.0x cpu  groups=65536
+  v0_naive_soa        33.406 ms  iqr 0.051     6.7% bw     0.0x cpu  groups=65536
+  v1_vec              13.241 ms  iqr 0.280    16.8% bw     0.0x cpu  groups=65536
+  v1_nocompact        14.436 ms  iqr 0.213    15.4% bw     0.0x cpu  groups=65536
+  v3_warpagg          16.571 ms  iqr 0.339    13.5% bw     0.0x cpu  groups=65536
+  v3_global           13.141 ms  iqr 0.238    17.0% bw     0.0x cpu  groups=65536
+  v4_radix_smem       27.058 ms  iqr 0.334     8.2% bw     0.0x cpu  groups=65536
+  v4_radix_nostage    31.829 ms  iqr 0.214     7.0% bw     0.0x cpu  groups=65536
+  v4_radix_1pass      27.251 ms  iqr 0.342     8.2% bw     0.0x cpu  groups=65536
+  v2_smem_soa1024     22.564 ms  iqr 0.468     9.9% bw     0.0x cpu  groups=65536
+  v3_warpagg512       22.244 ms  iqr 0.359    10.0% bw     0.0x cpu  groups=65536
+  v3_warpagg1024      22.709 ms  iqr 0.394     9.8% bw     0.0x cpu  groups=65536
+ sel=100% groups=65536 ref=1152ms cpu_engine=0.0ms
+  v0_naive            88.092 ms  iqr 0.077     2.5% bw     0.0x cpu  groups=65536
+  v0_naive_soa       283.248 ms  iqr 0.353     0.8% bw     0.0x cpu  groups=65536
+  v1_vec              84.154 ms  iqr 0.467     2.6% bw     0.0x cpu  groups=65536
+  v1_nocompact        92.301 ms  iqr 1.338     2.4% bw     0.0x cpu  groups=65536
+  v3_warpagg         110.446 ms  iqr 7.255     2.0% bw     0.0x cpu  groups=65536
+  v3_global           88.864 ms  iqr 1.667     2.5% bw     0.0x cpu  groups=65536
+  v4_radix_smem      102.757 ms  iqr 0.288     2.2% bw     0.0x cpu  groups=65536
+  v4_radix_nostage   255.389 ms  iqr 0.675     0.9% bw     0.0x cpu  groups=65536
+  v4_radix_1pass     101.104 ms  iqr 0.480     2.2% bw     0.0x cpu  groups=65536
+  v2_smem_soa1024    143.954 ms  iqr 1.513     1.5% bw     0.0x cpu  groups=65536
+  v3_warpagg512      141.625 ms  iqr 2.339     1.6% bw     0.0x cpu  groups=65536
+  v3_warpagg1024     146.384 ms  iqr 1.500     1.5% bw     0.0x cpu  groups=65536
+  generated rows=100000000 card=65536 skew=1.5 comp=0 in 846 ms (runs=3123385, 618.7 MB compressed)
+ sel=10% groups=36617 ref=265ms cpu_engine=0.0ms
+  v0_naive            28.546 ms  iqr 0.011     7.8% bw     0.0x cpu  groups=36617
+  v0_naive_soa        14.720 ms  iqr 0.031    15.1% bw     0.0x cpu  groups=36617
+  v1_vec              26.211 ms  iqr 0.010     8.5% bw     0.0x cpu  groups=36617
+  v1_nocompact        26.977 ms  iqr 0.015     8.3% bw     0.0x cpu  groups=36617
+  v3_warpagg           7.809 ms  iqr 0.728    28.6% bw     0.0x cpu  groups=36617
+  v3_global            7.141 ms  iqr 0.019    31.2% bw     0.0x cpu  groups=36617
+  v4_radix_smem       14.838 ms  iqr 0.159    15.0% bw     0.0x cpu  groups=36617
+  v4_radix_nostage    14.704 ms  iqr 0.087    15.2% bw     0.0x cpu  groups=36617
+  v4_radix_1pass      14.848 ms  iqr 0.140    15.0% bw     0.0x cpu  groups=36617
+  v2_smem_soa1024     13.694 ms  iqr 0.142    16.3% bw     0.0x cpu  groups=36617
+  v3_warpagg512       10.328 ms  iqr 0.103    21.6% bw     0.0x cpu  groups=36617
+  v3_warpagg1024      10.007 ms  iqr 0.106    22.3% bw     0.0x cpu  groups=36617
+ sel=100% groups=64272 ref=504ms cpu_engine=0.0ms
+  v0_naive           247.427 ms  iqr 0.009     0.9% bw     0.0x cpu  groups=64272
+  v0_naive_soa        99.057 ms  iqr 0.465     2.3% bw     0.0x cpu  groups=64272
+  v1_vec             247.582 ms  iqr 0.009     0.9% bw     0.0x cpu  groups=64272
+  v1_nocompact       247.583 ms  iqr 0.011     0.9% bw     0.0x cpu  groups=64272
+  v3_warpagg          30.565 ms  iqr 1.231     7.3% bw     0.0x cpu  groups=64272
+  v3_global           47.368 ms  iqr 0.011     4.7% bw     0.0x cpu  groups=64272
+  v4_radix_smem       61.887 ms  iqr 0.698     3.6% bw     0.0x cpu  groups=64272
+  v4_radix_nostage    83.836 ms  iqr 0.479     2.7% bw     0.0x cpu  groups=64272
+  v4_radix_1pass      61.685 ms  iqr 0.872     3.6% bw     0.0x cpu  groups=64272
+  v2_smem_soa1024     91.203 ms  iqr 0.384     2.4% bw     0.0x cpu  groups=64272
+  v3_warpagg512       40.662 ms  iqr 0.533     5.5% bw     0.0x cpu  groups=64272
+  v3_warpagg1024      38.549 ms  iqr 0.320     5.8% bw     0.0x cpu  groups=64272
+  generated rows=100000000 card=1048576 skew=0.0 comp=0 in 898 ms (runs=3123385, 818.7 MB compressed)
+ sel=10% groups=1048503 ref=916ms cpu_engine=0.0ms
+  v0_naive            27.019 ms  iqr 0.051    10.9% bw     0.0x cpu  groups=1048503
+  v0_naive_soa        79.097 ms  iqr 0.095     3.7% bw     0.0x cpu  groups=1048503
+  v1_vec              25.260 ms  iqr 0.102    11.7% bw     0.0x cpu  groups=1048503
+  v1_nocompact        26.388 ms  iqr 0.063    11.2% bw     0.0x cpu  groups=1048503
+  v3_warpagg          26.972 ms  iqr 0.308    10.9% bw     0.0x cpu  groups=1048503
+  v3_global           25.226 ms  iqr 0.086    11.7% bw     0.0x cpu  groups=1048503
+  v4_radix_smem       29.158 ms  iqr 0.302    10.1% bw     0.0x cpu  groups=1048503
+  v4_radix_nostage    38.937 ms  iqr 0.287     7.6% bw     0.0x cpu  groups=1048503
+  v4_radix_1pass      47.453 ms  iqr 0.933     6.2% bw     0.0x cpu  groups=1048503
+  v2_smem_soa1024     31.552 ms  iqr 0.376     9.4% bw     0.0x cpu  groups=1048503
+  v3_warpagg512       31.493 ms  iqr 0.492     9.4% bw     0.0x cpu  groups=1048503
+  v3_warpagg1024      31.717 ms  iqr 0.335     9.3% bw     0.0x cpu  groups=1048503
+ sel=100% groups=1048576 ref=5639ms cpu_engine=0.0ms
+  v0_naive           218.807 ms  iqr 0.285     1.3% bw     0.0x cpu  groups=1048576
+  v0_naive_soa       758.116 ms  iqr 3.185     0.4% bw     0.0x cpu  groups=1048576
+  v1_vec             217.590 ms  iqr 0.111     1.4% bw     0.0x cpu  groups=1048576
+  v1_nocompact       220.721 ms  iqr 0.174     1.3% bw     0.0x cpu  groups=1048576
+  v3_warpagg         214.850 ms  iqr 4.701     1.4% bw     0.0x cpu  groups=1048576
+  v3_global          217.009 ms  iqr 0.105     1.4% bw     0.0x cpu  groups=1048576
+  v4_radix_smem      160.567 ms  iqr 1.215     1.8% bw     0.0x cpu  groups=1048576
+  v4_radix_nostage   259.818 ms  iqr 0.548     1.1% bw     0.0x cpu  groups=1048576
+  v4_radix_1pass     394.427 ms  iqr 0.731     0.7% bw     0.0x cpu  groups=1048576
+  v2_smem_soa1024    234.935 ms  iqr 2.299     1.3% bw     0.0x cpu  groups=1048576
+  v3_warpagg512      235.036 ms  iqr 3.374     1.3% bw     0.0x cpu  groups=1048576
+  v3_warpagg1024     235.034 ms  iqr 2.267     1.3% bw     0.0x cpu  groups=1048576
+  generated rows=100000000 card=1048576 skew=1.5 comp=0 in 1485 ms (runs=3123385, 818.7 MB compressed)
+ sel=10% groups=58180 ref=278ms cpu_engine=0.0ms
+  v0_naive            24.853 ms  iqr 0.029    11.9% bw     0.0x cpu  groups=58180
+  v0_naive_soa        16.650 ms  iqr 0.281    17.7% bw     0.0x cpu  groups=58180
+  v1_vec              23.120 ms  iqr 0.226    12.8% bw     0.0x cpu  groups=58180
+  v1_nocompact        23.716 ms  iqr 0.018    12.4% bw     0.0x cpu  groups=58180
+  v3_warpagg           9.619 ms  iqr 0.219    30.7% bw     0.0x cpu  groups=58180
+  v3_global            8.489 ms  iqr 0.205    34.8% bw     0.0x cpu  groups=58180
+  v4_radix_smem       17.994 ms  iqr 0.282    16.4% bw     0.0x cpu  groups=58180
+  v4_radix_nostage    18.605 ms  iqr 0.329    15.9% bw     0.0x cpu  groups=58180
+  v4_radix_1pass      18.445 ms  iqr 0.247    16.0% bw     0.0x cpu  groups=58180
+  v2_smem_soa1024     15.706 ms  iqr 0.175    18.8% bw     0.0x cpu  groups=58180
+  v3_warpagg512       12.594 ms  iqr 0.136    23.4% bw     0.0x cpu  groups=58180
+  v3_warpagg1024      12.217 ms  iqr 0.119    24.2% bw     0.0x cpu  groups=58180
+ sel=100% groups=229248 ref=595ms cpu_engine=0.0ms
+  v0_naive           188.615 ms  iqr 0.211     1.6% bw     0.0x cpu  groups=229248
+  v0_naive_soa       119.181 ms  iqr 0.034     2.5% bw     0.0x cpu  groups=229248
+  v1_vec             187.742 ms  iqr 0.014     1.6% bw     0.0x cpu  groups=229248
+  v1_nocompact       187.736 ms  iqr 0.018     1.6% bw     0.0x cpu  groups=229248
+  v3_warpagg          33.002 ms  iqr 1.055     8.9% bw     0.0x cpu  groups=229248
+  v3_global           35.332 ms  iqr 0.881     8.4% bw     0.0x cpu  groups=229248
+  v4_radix_smem       71.542 ms  iqr 0.418     4.1% bw     0.0x cpu  groups=229248
+  v4_radix_nostage    88.017 ms  iqr 0.618     3.4% bw     0.0x cpu  groups=229248
+  v4_radix_1pass      96.424 ms  iqr 0.593     3.1% bw     0.0x cpu  groups=229248
+  v2_smem_soa1024     93.840 ms  iqr 0.432     3.1% bw     0.0x cpu  groups=229248
+  v3_warpagg512       44.573 ms  iqr 0.565     6.6% bw     0.0x cpu  groups=229248
+  v3_warpagg1024      42.537 ms  iqr 0.321     6.9% bw     0.0x cpu  groups=229248
+  generated rows=100000000 card=16777216 skew=0.0 comp=0 in 1116 ms (runs=3123385, 818.7 MB compressed)
+ sel=10% groups=7524385 ref=3060ms cpu_engine=0.0ms
+  v0_naive            55.787 ms  iqr 0.123     5.3% bw     0.0x cpu  groups=7524385
+  v0_naive_soa       103.036 ms  iqr 0.302     2.9% bw     0.0x cpu  groups=7524385
+  v1_vec              54.429 ms  iqr 0.083     5.4% bw     0.0x cpu  groups=7524385
+  v1_nocompact        55.624 ms  iqr 0.097     5.3% bw     0.0x cpu  groups=7524385
+  v3_warpagg          56.100 ms  iqr 0.182     5.3% bw     0.0x cpu  groups=7524385
+  v3_global           54.258 ms  iqr 0.105     5.4% bw     0.0x cpu  groups=7524385
+  v4_radix_smem       92.486 ms  iqr 1.067     3.2% bw     0.0x cpu  groups=7524385
+  v4_radix_nostage   112.047 ms  iqr 0.577     2.6% bw     0.0x cpu  groups=7524385
+  v4_radix_1pass   skipped: 1-pass fan-out > 2^12 needs a >16KB histogram
+  v2_smem_soa1024     60.148 ms  iqr 0.220     4.9% bw     0.0x cpu  groups=7524385
+  v3_warpagg512       60.329 ms  iqr 0.682     4.9% bw     0.0x cpu  groups=7524385
+  v3_warpagg1024      60.782 ms  iqr 0.232     4.9% bw     0.0x cpu  groups=7524385
+ sel=100% groups=16733965 ref=13708ms cpu_engine=0.0ms
+  v0_naive           271.774 ms  iqr 0.250     1.1% bw     0.0x cpu  groups=16733965
+  v0_naive_soa       835.205 ms  iqr 7.037     0.4% bw     0.0x cpu  groups=16733965
+  v1_vec             269.872 ms  iqr 0.259     1.1% bw     0.0x cpu  groups=16733965
+  v1_nocompact       271.949 ms  iqr 0.293     1.1% bw     0.0x cpu  groups=16733965
+  v3_warpagg         257.548 ms  iqr 2.646     1.1% bw     0.0x cpu  groups=16733965
+  v3_global          269.210 ms  iqr 0.124     1.1% bw     0.0x cpu  groups=16733965
+  v4_radix_smem      305.038 ms  iqr 0.539     1.0% bw     0.0x cpu  groups=16733965
+  v4_radix_nostage   608.987 ms  iqr 0.329     0.5% bw     0.0x cpu  groups=16733965
+  v4_radix_1pass   skipped: 1-pass fan-out > 2^12 needs a >16KB histogram
+  v2_smem_soa1024    278.802 ms  iqr 2.677     1.1% bw     0.0x cpu  groups=16733965
+  v3_warpagg512      279.958 ms  iqr 4.013     1.1% bw     0.0x cpu  groups=16733965
+  v3_warpagg1024     278.100 ms  iqr 1.828     1.1% bw     0.0x cpu  groups=16733965
+  generated rows=100000000 card=16777216 skew=1.5 comp=0 in 3594 ms (runs=3123385, 818.7 MB compressed)
+ sel=10% groups=63741 ref=694ms cpu_engine=0.0ms
+  v0_naive            52.665 ms  iqr 0.202     5.6% bw     0.0x cpu  groups=63741
+  v0_naive_soa        22.980 ms  iqr 0.434    12.8% bw     0.0x cpu  groups=63741
+  v1_vec              52.224 ms  iqr 0.364     5.6% bw     0.0x cpu  groups=63741
+  v1_nocompact        52.809 ms  iqr 0.423     5.6% bw     0.0x cpu  groups=63741
+  v3_warpagg          36.007 ms  iqr 0.125     8.2% bw     0.0x cpu  groups=63741
+  v3_global           33.468 ms  iqr 0.143     8.8% bw     0.0x cpu  groups=63741
+  v4_radix_smem       50.586 ms  iqr 0.303     5.8% bw     0.0x cpu  groups=63741
+  v4_radix_nostage    50.471 ms  iqr 0.590     5.8% bw     0.0x cpu  groups=63741
+  v4_radix_1pass   skipped: 1-pass fan-out > 2^12 needs a >16KB histogram
+  v2_smem_soa1024     43.516 ms  iqr 0.197     6.8% bw     0.0x cpu  groups=63741
+  v3_warpagg512       40.130 ms  iqr 0.131     7.4% bw     0.0x cpu  groups=63741
+  v3_warpagg1024      39.871 ms  iqr 0.164     7.4% bw     0.0x cpu  groups=63741
+ sel=100% groups=285239 ref=1097ms cpu_engine=0.0ms
+  v0_naive           222.266 ms  iqr 0.568     1.3% bw     0.0x cpu  groups=285239
+  v0_naive_soa       125.072 ms  iqr 0.594     2.4% bw     0.0x cpu  groups=285239
+  v1_vec             222.092 ms  iqr 0.416     1.3% bw     0.0x cpu  groups=285239
+  v1_nocompact       221.551 ms  iqr 1.137     1.3% bw     0.0x cpu  groups=285239
+  v3_warpagg          59.897 ms  iqr 0.437     4.9% bw     0.0x cpu  groups=285239
+  v3_global           62.085 ms  iqr 0.241     4.8% bw     0.0x cpu  groups=285239
+  v4_radix_smem      116.228 ms  iqr 0.924     2.5% bw     0.0x cpu  groups=285239
+  v4_radix_nostage   138.495 ms  iqr 0.802     2.1% bw     0.0x cpu  groups=285239
+  v4_radix_1pass   skipped: 1-pass fan-out > 2^12 needs a >16KB histogram
+  v2_smem_soa1024    124.544 ms  iqr 0.460     2.4% bw     0.0x cpu  groups=285239
+  v3_warpagg512       74.955 ms  iqr 0.335     3.9% bw     0.0x cpu  groups=285239
+  v3_warpagg1024      71.170 ms  iqr 0.207     4.1% bw     0.0x cpu  groups=285239
+build/bench sweep rows=100M cards=16,256,4096,65536,1048576,16777216 skews=0,1 sels=100 variants=main composite=1 tag=sweep
+device: Tesla T4, 40 SMs, L2 4 MB, smem/SM 64 KB
+achievable DRAM read bandwidth (own microbenchmark): 278.2 GB/s; CPU threads=4
+  generated rows=100000000 card=16 skew=0.0 comp=1 in 946 ms (runs=3123385, 818.7 MB compressed)
+ sel=100% groups=16 ref=544ms cpu_engine=339.5ms
+  v0_naive            67.721 ms  iqr 0.712     4.3% bw     5.0x cpu  groups=16
+  v1_vec              65.658 ms  iqr 0.602     4.5% bw     5.2x cpu  groups=16
+  v2_smem_aos512      50.744 ms  iqr 0.548     5.8% bw     6.7x cpu  groups=16
+  v2_smem_soa512      30.695 ms  iqr 0.067     9.6% bw    11.1x cpu  groups=16
+  v2_smem_soa         24.183 ms  iqr 0.195    12.2% bw    14.0x cpu  groups=16
+  v3_warpagg          17.272 ms  iqr 0.085    17.0% bw    19.7x cpu  groups=16
+  v4_radix_smem       17.321 ms  iqr 0.075    17.0% bw    19.6x cpu  groups=16
+  v4_radix_l2         17.257 ms  iqr 0.084    17.1% bw    19.7x cpu  groups=16
+  v4_sort             44.106 ms  iqr 1.087     6.7% bw     7.7x cpu  groups=16
+  generated rows=100000000 card=16 skew=1.0 comp=1 in 1182 ms (runs=3123385, 818.7 MB compressed)
+ sel=100% groups=16 ref=569ms cpu_engine=336.5ms
+  v0_naive           148.709 ms  iqr 0.414     2.0% bw     2.3x cpu  groups=16
+  v1_vec             147.563 ms  iqr 0.011     2.0% bw     2.3x cpu  groups=16
+  v2_smem_aos512      80.910 ms  iqr 0.205     3.6% bw     4.2x cpu  groups=16
+  v2_smem_soa512      70.183 ms  iqr 0.841     4.2% bw     4.8x cpu  groups=16
+  v2_smem_soa         68.344 ms  iqr 0.444     4.3% bw     4.9x cpu  groups=16
+  v3_warpagg          19.560 ms  iqr 0.434    15.0% bw    17.2x cpu  groups=16
+  v4_radix_smem       19.461 ms  iqr 0.421    15.1% bw    17.3x cpu  groups=16
+  v4_radix_l2         19.549 ms  iqr 0.486    15.1% bw    17.2x cpu  groups=16
+  v4_sort             45.415 ms  iqr 0.884     6.5% bw     7.4x cpu  groups=16
+  generated rows=100000000 card=256 skew=0.0 comp=1 in 908 ms (runs=3123385, 818.7 MB compressed)
+ sel=100% groups=256 ref=530ms cpu_engine=415.0ms
+  v0_naive            40.172 ms  iqr 0.038     7.3% bw    10.3x cpu  groups=256
+  v1_vec              36.883 ms  iqr 0.032     8.0% bw    11.3x cpu  groups=256
+  v2_smem_aos512      59.840 ms  iqr 2.157     4.9% bw     6.9x cpu  groups=256
+  v2_smem_soa512      49.515 ms  iqr 0.951     5.9% bw     8.4x cpu  groups=256
+  v2_smem_soa         36.742 ms  iqr 1.437     8.0% bw    11.3x cpu  groups=256
+  v3_warpagg          40.124 ms  iqr 1.105     7.3% bw    10.3x cpu  groups=256
+  v4_radix_smem       40.212 ms  iqr 1.359     7.3% bw    10.3x cpu  groups=256
+  v4_radix_l2         40.272 ms  iqr 0.613     7.3% bw    10.3x cpu  groups=256
+  v4_sort             45.317 ms  iqr 0.863     6.5% bw     9.2x cpu  groups=256
+  generated rows=100000000 card=256 skew=1.0 comp=1 in 1113 ms (runs=3123385, 818.7 MB compressed)
+ sel=100% groups=256 ref=555ms cpu_engine=371.9ms
+  v0_naive            92.388 ms  iqr 0.589     3.2% bw     4.0x cpu  groups=256
+  v1_vec              89.790 ms  iqr 0.295     3.3% bw     4.1x cpu  groups=256
+  v2_smem_aos512      64.995 ms  iqr 1.412     4.5% bw     5.7x cpu  groups=256
+  v2_smem_soa512      52.805 ms  iqr 1.109     5.6% bw     7.0x cpu  groups=256
+  v2_smem_soa         39.943 ms  iqr 1.943     7.4% bw     9.3x cpu  groups=256
+  v3_warpagg          35.203 ms  iqr 1.093     8.4% bw    10.6x cpu  groups=256
+  v4_radix_smem       35.139 ms  iqr 1.272     8.4% bw    10.6x cpu  groups=256
+  v4_radix_l2         35.250 ms  iqr 0.988     8.3% bw    10.5x cpu  groups=256
+  v4_sort             46.483 ms  iqr 1.163     6.3% bw     8.0x cpu  groups=256
+  generated rows=100000000 card=4096 skew=0.0 comp=1 in 892 ms (runs=3123385, 818.7 MB compressed)
+ sel=100% groups=4096 ref=580ms cpu_engine=613.3ms
+  v0_naive            42.876 ms  iqr 0.363     6.9% bw    14.3x cpu  groups=4096
+  v1_vec              38.461 ms  iqr 0.689     7.7% bw    15.9x cpu  groups=4096
+  v2_smem_aos512      78.105 ms  iqr 4.871     3.8% bw     7.9x cpu  groups=4096
+  v2_smem_soa512      80.852 ms  iqr 1.840     3.6% bw     7.6x cpu  groups=4096
+  v2_smem_soa         62.436 ms  iqr 2.438     4.7% bw     9.8x cpu  groups=4096
+  v3_warpagg          63.334 ms  iqr 2.946     4.6% bw     9.7x cpu  groups=4096
+  v4_radix_smem       58.586 ms  iqr 1.504     5.0% bw    10.5x cpu  groups=4096
+  v4_radix_l2         63.859 ms  iqr 4.362     4.6% bw     9.6x cpu  groups=4096
+  v4_sort             58.310 ms  iqr 0.938     5.0% bw    10.5x cpu  groups=4096
+  generated rows=100000000 card=4096 skew=1.0 comp=1 in 1101 ms (runs=3123385, 818.7 MB compressed)
+ sel=100% groups=4096 ref=550ms cpu_engine=441.5ms
+  v0_naive            80.745 ms  iqr 0.321     3.6% bw     5.5x cpu  groups=4096
+  v1_vec              78.418 ms  iqr 0.174     3.8% bw     5.6x cpu  groups=4096
+  v2_smem_aos512      72.012 ms  iqr 3.472     4.1% bw     6.1x cpu  groups=4096
+  v2_smem_soa512      62.889 ms  iqr 2.244     4.7% bw     7.0x cpu  groups=4096
+  v2_smem_soa         43.941 ms  iqr 1.894     6.7% bw    10.0x cpu  groups=4096
+  v3_warpagg          43.820 ms  iqr 1.260     6.7% bw    10.1x cpu  groups=4096
+  v4_radix_smem       57.306 ms  iqr 1.226     5.1% bw     7.7x cpu  groups=4096
+  v4_radix_l2         44.149 ms  iqr 1.006     6.7% bw    10.0x cpu  groups=4096
+  v4_sort             59.142 ms  iqr 1.015     5.0% bw     7.5x cpu  groups=4096
+  generated rows=100000000 card=65536 skew=0.0 comp=1 in 912 ms (runs=3123385, 818.7 MB compressed)
+ sel=100% groups=65536 ref=1205ms cpu_engine=980.6ms
+  v0_naive            81.994 ms  iqr 0.244     3.6% bw    12.0x cpu  groups=65536
+  v1_vec              77.018 ms  iqr 0.095     3.8% bw    12.7x cpu  groups=65536
+  v2_smem_aos512     127.416 ms  iqr 2.449     2.3% bw     7.7x cpu  groups=65536
+  v2_smem_soa512     128.271 ms  iqr 2.705     2.3% bw     7.6x cpu  groups=65536
+  v2_smem_soa        107.123 ms  iqr 1.962     2.7% bw     9.2x cpu  groups=65536
+  v3_warpagg         107.445 ms  iqr 6.257     2.7% bw     9.1x cpu  groups=65536
+  v4_radix_smem       92.842 ms  iqr 0.679     3.2% bw    10.6x cpu  groups=65536
+  v4_radix_l2         61.811 ms  iqr 2.083     4.8% bw    15.9x cpu  groups=65536
+  v4_sort             60.165 ms  iqr 0.966     4.9% bw    16.3x cpu  groups=65536
+  generated rows=100000000 card=65536 skew=1.0 comp=1 in 1110 ms (runs=3123385, 818.7 MB compressed)
+ sel=100% groups=65536 ref=801ms cpu_engine=657.5ms
+  v0_naive            70.303 ms  iqr 0.579     4.2% bw     9.4x cpu  groups=65536
+  v1_vec              69.034 ms  iqr 0.067     4.3% bw     9.5x cpu  groups=65536
+  v2_smem_aos512      80.517 ms  iqr 2.607     3.7% bw     8.2x cpu  groups=65536
+  v2_smem_soa512      77.108 ms  iqr 1.582     3.8% bw     8.5x cpu  groups=65536
+  v2_smem_soa         58.240 ms  iqr 3.739     5.1% bw    11.3x cpu  groups=65536
+  v3_warpagg          57.658 ms  iqr 3.181     5.1% bw    11.4x cpu  groups=65536
+  v4_radix_smem       87.452 ms  iqr 0.531     3.4% bw     7.5x cpu  groups=65536
+  v4_radix_l2         63.960 ms  iqr 1.063     4.6% bw    10.3x cpu  groups=65536
+  v4_sort             59.992 ms  iqr 0.637     4.9% bw    11.0x cpu  groups=65536
+  generated rows=100000000 card=1048576 skew=0.0 comp=1 in 940 ms (runs=3123385, 818.7 MB compressed)
+ sel=100% groups=1048576 ref=5510ms cpu_engine=1450.1ms
+  v0_naive           172.483 ms  iqr 1.028     1.7% bw     8.4x cpu  groups=1048576
+  v1_vec             174.234 ms  iqr 0.580     1.7% bw     8.3x cpu  groups=1048576
+  v2_smem_aos512     193.067 ms  iqr 2.744     1.5% bw     7.5x cpu  groups=1048576
+  v2_smem_soa512     190.584 ms  iqr 2.089     1.5% bw     7.6x cpu  groups=1048576
+  v2_smem_soa        187.208 ms  iqr 1.964     1.6% bw     7.7x cpu  groups=1048576
+  v3_warpagg         182.509 ms  iqr 3.310     1.6% bw     7.9x cpu  groups=1048576
+  v4_radix_smem       96.975 ms  iqr 0.904     3.0% bw    15.0x cpu  groups=1048576
+  v4_radix_l2         80.212 ms  iqr 0.566     3.7% bw    18.1x cpu  groups=1048576
+  v4_sort             70.568 ms  iqr 1.148     4.2% bw    20.5x cpu  groups=1048576
+  generated rows=100000000 card=1048576 skew=1.0 comp=1 in 1478 ms (runs=3123385, 818.7 MB compressed)
+ sel=100% groups=1048401 ref=2132ms cpu_engine=1431.9ms
+  v0_naive            87.141 ms  iqr 0.424     3.4% bw    16.4x cpu  groups=1048401
+  v1_vec              86.555 ms  iqr 0.660     3.4% bw    16.5x cpu  groups=1048401
+  v2_smem_aos512     100.437 ms  iqr 1.958     2.9% bw    14.3x cpu  groups=1048401
+  v2_smem_soa512      97.639 ms  iqr 2.848     3.0% bw    14.7x cpu  groups=1048401
+  v2_smem_soa         79.082 ms  iqr 2.478     3.7% bw    18.1x cpu  groups=1048401
+  v3_warpagg          81.780 ms  iqr 2.150     3.6% bw    17.5x cpu  groups=1048401
+  v4_radix_smem       88.901 ms  iqr 0.557     3.3% bw    16.1x cpu  groups=1048401
+  v4_radix_l2         76.058 ms  iqr 0.416     3.9% bw    18.8x cpu  groups=1048401
+  v4_sort             71.419 ms  iqr 0.541     4.1% bw    20.0x cpu  groups=1048401
+  generated rows=100000000 card=16777216 skew=0.0 comp=1 in 1020 ms (runs=3123385, 818.7 MB compressed)
+ sel=100% groups=16733965 ref=15473ms cpu_engine=4700.0ms
+  v0_naive           217.361 ms  iqr 1.089     1.4% bw    21.6x cpu  groups=16733965
+  v1_vec             220.217 ms  iqr 0.744     1.3% bw    21.3x cpu  groups=16733965
+  v2_smem_aos512     236.250 ms  iqr 4.854     1.2% bw    19.9x cpu  groups=16733965
+  v2_smem_soa512     234.184 ms  iqr 2.547     1.3% bw    20.1x cpu  groups=16733965
+  v2_smem_soa        223.873 ms  iqr 3.898     1.3% bw    21.0x cpu  groups=16733965
+  v3_warpagg         220.182 ms  iqr 4.652     1.3% bw    21.3x cpu  groups=16733965
+  v4_radix_smem      215.733 ms  iqr 0.750     1.4% bw    21.8x cpu  groups=16733965
+  v4_radix_l2        228.034 ms  iqr 0.402     1.3% bw    20.6x cpu  groups=16733965
+  v4_sort             78.812 ms  iqr 0.993     3.7% bw    59.6x cpu  groups=16733965
+  generated rows=100000000 card=16777216 skew=1.0 comp=1 in 3849 ms (runs=3123385, 818.7 MB compressed)
+ sel=100% groups=9569053 ref=7364ms cpu_engine=3376.1ms
+  v0_naive           135.118 ms  iqr 0.876     2.2% bw    25.0x cpu  groups=9569053
+  v1_vec             135.330 ms  iqr 0.569     2.2% bw    24.9x cpu  groups=9569053
+  v2_smem_aos512     143.741 ms  iqr 6.151     2.0% bw    23.5x cpu  groups=9569053
+  v2_smem_soa512     139.977 ms  iqr 3.084     2.1% bw    24.1x cpu  groups=9569053
+  v2_smem_soa        125.024 ms  iqr 3.200     2.4% bw    27.0x cpu  groups=9569053
+  v3_warpagg         130.796 ms  iqr 3.037     2.2% bw    25.8x cpu  groups=9569053
+  v4_radix_smem      184.261 ms  iqr 1.464     1.6% bw    18.3x cpu  groups=9569053
+  v4_radix_l2        127.481 ms  iqr 1.421     2.3% bw    26.5x cpu  groups=9569053
+  v4_sort             76.743 ms  iqr 0.711     3.8% bw    44.0x cpu  groups=9569053
+build/bench stream rows=200M tag=stream
+device: Tesla T4, 40 SMs, L2 4 MB, smem/SM 64 KB
+  global_agg     cpu_engine_host_resident       76.56 ms (iqr 1.94) 
+  CPU read bandwidth (4 threads): 24.9 GB/s
+  global_agg     gpu_resident_kernel_only       31.06 ms (iqr 0.44) 
+  global_agg     gpu_stream_pageable_serial    208.44 ms (iqr 4.36) 
+  global_agg     gpu_stream_pageable_overlap    190.25 ms (iqr 7.56) 
+  global_agg     gpu_stream_pageable_overlap    191.74 ms (iqr 3.43) 
+  global_agg     gpu_stream_pageable_overlap    189.98 ms (iqr 2.85) 
+  global_agg     gpu_stream_pinned_serial      110.22 ms (iqr 0.10) +58ms
+  global_agg     gpu_stream_pinned_overlap      88.45 ms (iqr 0.05) +58ms
+  global_agg     gpu_stream_pinned_overlap      92.04 ms (iqr 0.13) +58ms
+  global_agg     gpu_stream_pinned_overlap      93.00 ms (iqr 0.19) +58ms
+  global_agg     cudaHostRegister of the columns: 58.6 ms
+  groupby_card16 cpu_engine_host_resident      564.68 ms (iqr 7.15) 
+  CPU read bandwidth (4 threads): 24.9 GB/s
+  groupby_card16 gpu_resident_kernel_only       32.17 ms (iqr 0.58) 
+  groupby_card16 gpu_stream_pageable_serial    256.71 ms (iqr 2.69) 
+  groupby_card16 gpu_stream_pageable_overlap    234.07 ms (iqr 7.30) 
+  groupby_card16 gpu_stream_pageable_overlap    230.75 ms (iqr 5.61) 
+  groupby_card16 gpu_stream_pageable_overlap    228.95 ms (iqr 7.72) 
+  groupby_card16 gpu_stream_pinned_serial      135.16 ms (iqr 0.07) +73ms
+  groupby_card16 gpu_stream_pinned_overlap     112.08 ms (iqr 0.07) +73ms
+  groupby_card16 gpu_stream_pinned_overlap     116.52 ms (iqr 0.18) +73ms
+  groupby_card16 gpu_stream_pinned_overlap     117.35 ms (iqr 0.16) +73ms
+  groupby_card16 cudaHostRegister of the columns: 73.7 ms
+  groupby_card16 gpu_stream_pinned_overlap_chunk    128.65 ms (iqr 0.20) 
+  groupby_card16 gpu_stream_pinned_overlap_chunk    124.60 ms (iqr 0.22) 
+  groupby_card16 gpu_stream_pinned_overlap_chunk    120.30 ms (iqr 0.21) 
+  groupby_card16M cpu_engine_host_resident    16651.32 ms (iqr 154.65) 
+  CPU read bandwidth (4 threads): 25.3 GB/s
+  groupby_card16M gpu_resident_kernel_only      483.19 ms (iqr 4.07) 
+  groupby_card16M gpu_stream_pageable_serial    944.78 ms (iqr 6.39) 
+  groupby_card16M gpu_stream_pageable_overlap    611.40 ms (iqr 5.93) 
+  groupby_card16M gpu_stream_pageable_overlap    598.01 ms (iqr 1.58) 
+  groupby_card16M gpu_stream_pageable_overlap    596.53 ms (iqr 2.32) 
+  groupby_card16M gpu_stream_pinned_serial      740.47 ms (iqr 1.35) +107ms
+  groupby_card16M gpu_stream_pinned_overlap     590.70 ms (iqr 7.96) +107ms
+  groupby_card16M gpu_stream_pinned_overlap     585.16 ms (iqr 3.92) +107ms
+  groupby_card16M gpu_stream_pinned_overlap     587.31 ms (iqr 1.81) +107ms
+  groupby_card16M cudaHostRegister of the columns: 107.3 ms
+stream: 0 failures
+build/bench join D=65536,1048576,16777216 F=100M tag=join
+device: Tesla T4, 40 SMs, L2 4 MB, smem/SM 64 KB
+ D=65536 sel=1% matches=1005538 ref=1247ms cpu_engine=773.0ms
+  v6_np             17.575 ms (iqr 0.539) probed=100000000 44.0x cpu
+  v6_np_bloom       16.930 ms (iqr 0.192) probed=1005538 45.7x cpu
+  v6_part           43.432 ms (iqr 1.871) probed=100000000 17.8x cpu
+  v6_part_bloom     22.960 ms (iqr 0.172) probed=1005538 33.7x cpu
+  v6_dict           13.223 ms (iqr 0.089) probed=65536 58.5x cpu
+ D=65536 sel=10% matches=9939207 ref=2138ms cpu_engine=957.6ms
+  v6_np             20.553 ms (iqr 0.554) probed=100000000 46.6x cpu
+  v6_np_bloom       20.478 ms (iqr 0.540) probed=9945245 46.8x cpu
+  v6_part           47.755 ms (iqr 0.923) probed=100000000 20.1x cpu
+  v6_part_bloom     27.865 ms (iqr 0.373) probed=9945245 34.4x cpu
+  v6_dict           16.644 ms (iqr 0.107) probed=65536 57.5x cpu
+ D=65536 sel=50% matches=50191044 ref=5028ms cpu_engine=1313.6ms
+  v6_np             27.568 ms (iqr 0.029) probed=100000000 47.7x cpu
+  v6_np_bloom       28.517 ms (iqr 0.480) probed=50277988 46.1x cpu
+  v6_part           55.016 ms (iqr 0.706) probed=100000000 23.9x cpu
+  v6_part_bloom     45.038 ms (iqr 0.648) probed=50277988 29.2x cpu
+  v6_dict           21.745 ms (iqr 0.495) probed=65536 60.4x cpu
+ D=65536 sel=100% matches=100000000 ref=5757ms cpu_engine=1181.4ms
+  v6_np             32.404 ms (iqr 1.228) probed=100000000 36.5x cpu
+  v6_np_bloom       36.636 ms (iqr 1.045) probed=100000000 32.2x cpu
+  v6_part           56.259 ms (iqr 0.995) probed=100000000 21.0x cpu
+  v6_part_bloom     66.940 ms (iqr 0.681) probed=100000000 17.6x cpu
+  v6_dict           21.675 ms (iqr 0.903) probed=65536 54.5x cpu
+ D=1048576 sel=1% matches=1022023 ref=2509ms cpu_engine=2022.8ms
+  v6_np             89.816 ms (iqr 0.088) probed=100000000 22.5x cpu
+  v6_np_bloom       83.882 ms (iqr 0.068) probed=1022476 24.1x cpu
+  v6_part          101.550 ms (iqr 0.677) probed=100000000 19.9x cpu
+  v6_part_bloom    136.534 ms (iqr 0.068) probed=1022476 14.8x cpu
+  v6_dict           13.837 ms (iqr 0.237) probed=1048576 146.2x cpu
+ D=1048576 sel=10% matches=10032620 ref=4047ms cpu_engine=2369.6ms
+  v6_np            109.697 ms (iqr 0.077) probed=100000000 21.6x cpu
+  v6_np_bloom      105.942 ms (iqr 0.137) probed=10039903 22.4x cpu
+  v6_part          110.351 ms (iqr 1.317) probed=100000000 21.5x cpu
+  v6_part_bloom    141.344 ms (iqr 0.635) probed=10039903 16.8x cpu
+  v6_dict           17.566 ms (iqr 0.039) probed=1048576 134.9x cpu
+ D=1048576 sel=50% matches=50055968 ref=17945ms cpu_engine=3269.7ms
+  v6_np            155.170 ms (iqr 9.710) probed=100000000 21.1x cpu
+  v6_np_bloom      156.292 ms (iqr 3.253) probed=50143524 20.9x cpu
+  v6_part          116.034 ms (iqr 1.556) probed=100000000 28.2x cpu
+  v6_part_bloom    146.934 ms (iqr 1.729) probed=50143524 22.3x cpu
+  v6_dict           23.676 ms (iqr 0.717) probed=1048576 138.1x cpu
+ D=1048576 sel=100% matches=100000000 ref=38250ms cpu_engine=3674.8ms
+  v6_np            157.437 ms (iqr 11.778) probed=100000000 23.3x cpu
+  v6_np_bloom      192.952 ms (iqr 6.860) probed=100000000 19.0x cpu
+  v6_part          121.419 ms (iqr 0.952) probed=100000000 30.3x cpu
+  v6_part_bloom    180.072 ms (iqr 22.031) probed=100000000 20.4x cpu
+  v6_dict           25.896 ms (iqr 0.764) probed=1048576 141.9x cpu
+ D=16777216 sel=1% matches=1000722 ref=7385ms cpu_engine=4943.7ms
+  v6_np            105.639 ms (iqr 0.107) probed=100000000 46.8x cpu
+  v6_np_bloom      103.003 ms (iqr 0.054) probed=1001172 48.0x cpu
+  v6_part          178.161 ms (iqr 0.390) probed=100000000 27.7x cpu
+  v6_part_bloom    207.059 ms (iqr 0.045) probed=1001172 23.9x cpu
+  v6_dict           65.127 ms (iqr 1.144) probed=16777216 75.9x cpu
+ D=16777216 sel=10% matches=10020940 ref=11137ms cpu_engine=5349.0ms
+  v6_np            116.435 ms (iqr 0.657) probed=100000000 45.9x cpu
+  v6_np_bloom      150.712 ms (iqr 14.680) probed=10029240 35.5x cpu
+  v6_part          201.719 ms (iqr 5.271) probed=100000000 26.5x cpu
+  v6_part_bloom    245.949 ms (iqr 0.123) probed=10029240 21.7x cpu
+  v6_dict           91.087 ms (iqr 20.781) probed=16777216 58.7x cpu
+ D=16777216 sel=50% matches=50010992 ref=35974ms cpu_engine=7498.1ms
+  v6_np            160.086 ms (iqr 0.193) probed=100000000 46.8x cpu
+  v6_np_bloom      196.039 ms (iqr 2.979) probed=50104696 38.2x cpu
+  v6_part          222.556 ms (iqr 2.286) probed=100000000 33.7x cpu
+  v6_part_bloom    317.082 ms (iqr 0.357) probed=50104696 23.6x cpu
+  v6_dict          110.172 ms (iqr 22.347) probed=16777216 68.1x cpu
+ D=16777216 sel=100% matches=100000000 ref=67645ms cpu_engine=8730.3ms
+  v6_np            217.423 ms (iqr 0.528) probed=100000000 40.2x cpu
+  v6_np_bloom      297.891 ms (iqr 3.250) probed=100000000 29.3x cpu
+  v6_part          258.095 ms (iqr 3.093) probed=100000000 33.8x cpu
+  v6_part_bloom    417.486 ms (iqr 17.496) probed=100000000 20.9x cpu
+  v6_dict          127.500 ms (iqr 7.652) probed=16777216 68.5x cpu
+python3 scripts/tpch_prep.py /kaggle/tmp/tpch --sf 10
+dbgen sf=10.0: 62.0s
+returnflag.u8 (59986052,)
+linestatus.u8 (59986052,)
+shipdate.u16 (59986052,)
+extprice.i32 (59986052,)
+q1 duckdb 729.9451085000328 ms [('A', 'F', 14804077, 56606572779725, 90091, 10494700, 566065727797.2566), ('N', 'F', 385998, 1476743839917, 90398, 10479700, 14767438399.169966), ('N', 'O', 29144351, 111430228690188, 90091, 10494950, 1114302286901.8403), ('R', 'F', 14808183, 56643105497600, 90093, 10494900, 566431054976.0162)]
+q6 duckdb 30.65655549994517 ms [('-', '-', 9099165, 34807826781749, 90091, 10494700, 348078267817.4903)]
+Q1 over encoded shipdate == Q1 over the DATE column: ok
+Q1 cudf 109.97702000008758 ms
+Q6 cudf 23.609166000142068 ms
+build/bench tpch dir=/kaggle/tmp/tpch
+device: Tesla T4, 40 SMs, L2 4 MB, smem/SM 64 KB
+tpch lineitem rows=59986052
+shipdate RLE: 2526 runs (23747 rows/run)
+Q1: 4 groups, reference matches DuckDB: yes
+  Q1 v0_naive          175.866 ms    1.0% bw     1.1x cpu(199.8 ms)
+  Q1 v1_vec            174.545 ms    1.0% bw     1.1x cpu(199.8 ms)
+  Q1 v2_smem_aos512    158.347 ms    1.1% bw     1.3x cpu(199.8 ms)
+  Q1 v2_smem_soa512    158.733 ms    1.1% bw     1.3x cpu(199.8 ms)
+  Q1 v2_smem_soa       143.347 ms    1.2% bw     1.4x cpu(199.8 ms)
+  Q1 v3_warpagg          9.363 ms   18.5% bw    21.3x cpu(199.8 ms)
+  Q1 v4_radix_smem       9.362 ms   18.5% bw    21.3x cpu(199.8 ms)
+  Q1 v4_radix_l2         9.375 ms   18.5% bw    21.3x cpu(199.8 ms)
+  Q1 v4_sort            23.807 ms    7.3% bw     8.4x cpu(199.8 ms)
+Q6: 1 groups, reference matches DuckDB: yes
+  Q6 v0_naive           43.676 ms    2.5% bw     1.1x cpu(50.0 ms)
+  Q6 v1_vec             43.201 ms    2.5% bw     1.2x cpu(50.0 ms)
+  Q6 v2_smem_aos512     21.482 ms    5.0% bw     2.3x cpu(50.0 ms)
+  Q6 v2_smem_soa512     21.430 ms    5.0% bw     2.3x cpu(50.0 ms)
+  Q6 v2_smem_soa        21.674 ms    5.0% bw     2.3x cpu(50.0 ms)
+  Q6 v3_warpagg          3.351 ms   32.3% bw    14.9x cpu(50.0 ms)
+  Q6 v4_radix_smem       3.368 ms   32.1% bw    14.9x cpu(50.0 ms)
+  Q6 v4_radix_l2         3.367 ms   32.1% bw    14.9x cpu(50.0 ms)
+  Q6 v4_sort             4.780 ms   22.6% bw    10.5x cpu(50.0 ms)
+python3 scripts/cudf_sweep.py --rows 10M,100M
+{"exp": "cudf", "rows": 10000000, "card": 16, "skew": 0.0, "sel": 1, "correct": true, "median_ms": 4.881636999925831, "p25_ms": 4.835425999772269, "p75_ms": 4.950449999796547, "n_iter": 30, "groups": 16}
+{"exp": "cudf", "rows": 10000000, "card": 16, "skew": 0.0, "sel": 10, "correct": true, "median_ms": 6.899007999891182, "p25_ms": 6.751751000138029, "p75_ms": 8.418228000209638, "n_iter": 30, "groups": 16}
+{"exp": "cudf", "rows": 10000000, "card": 16, "skew": 0.0, "sel": 50, "correct": true, "median_ms": 15.315473999862661, "p25_ms": 15.224979999857169, "p75_ms": 15.50646699979552, "n_iter": 30, "groups": 16}
+{"exp": "cudf", "rows": 10000000, "card": 16, "skew": 0.0, "sel": 100, "correct": true, "median_ms": 24.185295000052065, "p25_ms": 23.865188999934617, "p75_ms": 24.779928000043583, "n_iter": 30, "groups": 16}
+{"exp": "cudf", "rows": 10000000, "card": 16, "skew": 0.5, "sel": 1, "correct": true, "median_ms": 4.134928499979651, "p25_ms": 4.0405139998256345, "p75_ms": 4.293342999972083, "n_iter": 30, "groups": 16}
+{"exp": "cudf", "rows": 10000000, "card": 16, "skew": 0.5, "sel": 10, "correct": true, "median_ms": 6.473051500051952, "p25_ms": 6.280131000039546, "p75_ms": 6.69687800018437, "n_iter": 30, "groups": 16}
+{"exp": "cudf", "rows": 10000000, "card": 16, "skew": 0.5, "sel": 50, "correct": true, "median_ms": 15.498086000206968, "p25_ms": 15.37852900037251, "p75_ms": 15.64198200003375, "n_iter": 30, "groups": 16}
+{"exp": "cudf", "rows": 10000000, "card": 16, "skew": 0.5, "sel": 100, "correct": true, "median_ms": 24.986046500089287, "p25_ms": 24.72935800005871, "p75_ms": 25.450286000250344, "n_iter": 30, "groups": 16}
+{"exp": "cudf", "rows": 10000000, "card": 16, "skew": 1.0, "sel": 1, "correct": true, "median_ms": 4.237418000002435, "p25_ms": 4.203913000310422, "p75_ms": 4.296288000205095, "n_iter": 30, "groups": 16}
+{"exp": "cudf", "rows": 10000000, "card": 16, "skew": 1.0, "sel": 10, "correct": true, "median_ms": 6.665008999789279, "p25_ms": 6.577024000307574, "p75_ms": 6.765958999949362, "n_iter": 30, "groups": 16}
+{"exp": "cudf", "rows": 10000000, "card": 16, "skew": 1.0, "sel": 50, "correct": true, "median_ms": 16.006341000093016, "p25_ms": 15.791586999966967, "p75_ms": 16.112364000036905, "n_iter": 30, "groups": 16}
+{"exp": "cudf", "rows": 10000000, "card": 16, "skew": 1.0, "sel": 100, "correct": true, "median_ms": 25.710889500032863, "p25_ms": 25.41323499963255, "p75_ms": 26.15511600015452, "n_iter": 30, "groups": 16}
+{"exp": "cudf", "rows": 10000000, "card": 16, "skew": 1.5, "sel": 1, "correct": true, "median_ms": 4.162961500014717, "p25_ms": 4.119396000078268, "p75_ms": 4.2322700001022895, "n_iter": 30, "groups": 16}
+{"exp": "cudf", "rows": 10000000, "card": 16, "skew": 1.5, "sel": 10, "correct": true, "median_ms": 6.749743999989732, "p25_ms": 6.681269999717188, "p75_ms": 6.900764999954845, "n_iter": 30, "groups": 16}
+{"exp": "cudf", "rows": 10000000, "card": 16, "skew": 1.5, "sel": 50, "correct": true, "median_ms": 16.3632039998447, "p25_ms": 16.19603700009975, "p75_ms": 16.5525370002797, "n_iter": 30, "groups": 16}
+{"exp": "cudf", "rows": 10000000, "card": 16, "skew": 1.5, "sel": 100, "correct": true, "median_ms": 26.515732500001832, "p25_ms": 26.24571400019704, "p75_ms": 27.022481000130938, "n_iter": 30, "groups": 16}
+{"exp": "cudf", "rows": 10000000, "card": 256, "skew": 0.0, "sel": 1, "correct": true, "median_ms": 3.787265000255502, "p25_ms": 3.7467859997377673, "p75_ms": 3.842157000235602, "n_iter": 30, "groups": 256}
+{"exp": "cudf", "rows": 10000000, "card": 256, "skew": 0.0, "sel": 10, "correct": true, "median_ms": 7.57154999996601, "p25_ms": 7.49047099998279, "p75_ms": 7.665997999993124, "n_iter": 30, "groups": 256}
+{"exp": "cudf", "rows": 10000000, "card": 256, "skew": 0.0, "sel": 50, "correct": true, "median_ms": 18.93298199979654, "p25_ms": 18.617165999785357, "p75_ms": 19.23989100032486, "n_iter": 30, "groups": 256}
+{"exp": "cudf", "rows": 10000000, "card": 256, "skew": 0.0, "sel": 100, "correct": true, "median_ms": 32.35698899993622, "p25_ms": 32.114266000007774, "p75_ms": 32.530180999856384, "n_iter": 30, "groups": 256}
+{"exp": "cudf", "rows": 10000000, "card": 256, "skew": 0.5, "sel": 1, "correct": true, "median_ms": 3.988183499814113, "p25_ms": 3.9255960000446066, "p75_ms": 4.0659709998180915, "n_iter": 30, "groups": 256}
+{"exp": "cudf", "rows": 10000000, "card": 256, "skew": 0.5, "sel": 10, "correct": true, "median_ms": 7.70390850016156, "p25_ms": 7.590864000121655, "p75_ms": 8.119197999803873, "n_iter": 30, "groups": 256}
+{"exp": "cudf", "rows": 10000000, "card": 256, "skew": 0.5, "sel": 50, "correct": true, "median_ms": 20.092639500035148, "p25_ms": 19.961550000061834, "p75_ms": 20.226628999807872, "n_iter": 30, "groups": 256}
+{"exp": "cudf", "rows": 10000000, "card": 256, "skew": 0.5, "sel": 100, "correct": true, "median_ms": 33.02340950017424, "p25_ms": 32.853243999852566, "p75_ms": 33.345909000217944, "n_iter": 30, "groups": 256}
+{"exp": "cudf", "rows": 10000000, "card": 256, "skew": 1.0, "sel": 1, "correct": true, "median_ms": 4.0595310001663165, "p25_ms": 4.023738999876514, "p75_ms": 4.267724999863276, "n_iter": 30, "groups": 256}
+{"exp": "cudf", "rows": 10000000, "card": 256, "skew": 1.0, "sel": 10, "correct": true, "median_ms": 7.828763999896182, "p25_ms": 7.791416000145546, "p75_ms": 7.896686000094633, "n_iter": 30, "groups": 256}
+{"exp": "cudf", "rows": 10000000, "card": 256, "skew": 1.0, "sel": 50, "correct": true, "median_ms": 22.17692650015124, "p25_ms": 21.913639000104013, "p75_ms": 22.363422000125865, "n_iter": 30, "groups": 256}
+{"exp": "cudf", "rows": 10000000, "card": 256, "skew": 1.0, "sel": 100, "correct": true, "median_ms": 39.67831399995703, "p25_ms": 39.404883999850426, "p75_ms": 40.030175000083545, "n_iter": 30, "groups": 256}
+{"exp": "cudf", "rows": 10000000, "card": 256, "skew": 1.5, "sel": 1, "correct": true, "median_ms": 4.279780500155539, "p25_ms": 4.248286999882112, "p75_ms": 4.325632000018231, "n_iter": 30, "groups": 256}
+{"exp": "cudf", "rows": 10000000, "card": 256, "skew": 1.5, "sel": 10, "correct": true, "median_ms": 8.550524999918707, "p25_ms": 8.511087999977462, "p75_ms": 8.606288000009954, "n_iter": 30, "groups": 256}
+{"exp": "cudf", "rows": 10000000, "card": 256, "skew": 1.5, "sel": 50, "correct": true, "median_ms": 26.85845099972539, "p25_ms": 26.654693000182306, "p75_ms": 27.03574299994216, "n_iter": 30, "groups": 256}
+{"exp": "cudf", "rows": 10000000, "card": 256, "skew": 1.5, "sel": 100, "correct": true, "median_ms": 50.96266850000575, "p25_ms": 50.8113119999507, "p75_ms": 51.39583700020012, "n_iter": 30, "groups": 256}
+{"exp": "cudf", "rows": 10000000, "card": 4096, "skew": 0.0, "sel": 1, "correct": true, "median_ms": 3.4954699997342686, "p25_ms": 3.4184410001216747, "p75_ms": 3.5297509998599708, "n_iter": 30, "groups": 4096}
+{"exp": "cudf", "rows": 10000000, "card": 4096, "skew": 0.0, "sel": 10, "correct": true, "median_ms": 6.834911499936425, "p25_ms": 6.788018999941414, "p75_ms": 6.892333999985567, "n_iter": 30, "groups": 4096}
+{"exp": "cudf", "rows": 10000000, "card": 4096, "skew": 0.0, "sel": 50, "correct": true, "median_ms": 17.43425450013092, "p25_ms": 17.141697000170097, "p75_ms": 17.665137000221875, "n_iter": 30, "groups": 4096}
+{"exp": "cudf", "rows": 10000000, "card": 4096, "skew": 0.0, "sel": 100, "correct": true, "median_ms": 28.487880999819026, "p25_ms": 28.16548199962199, "p75_ms": 28.843896000125824, "n_iter": 30, "groups": 4096}
+{"exp": "cudf", "rows": 10000000, "card": 4096, "skew": 0.5, "sel": 1, "correct": true, "median_ms": 4.178256999921359, "p25_ms": 4.0996220000124595, "p75_ms": 4.337829000178317, "n_iter": 30, "groups": 4096}
+{"exp": "cudf", "rows": 10000000, "card": 4096, "skew": 0.5, "sel": 10, "correct": true, "median_ms": 7.200870500128076, "p25_ms": 7.026039000265882, "p75_ms": 7.910860000265529, "n_iter": 30, "groups": 4096}
+{"exp": "cudf", "rows": 10000000, "card": 4096, "skew": 0.5, "sel": 50, "correct": true, "median_ms": 17.127994000020408, "p25_ms": 16.936734999944747, "p75_ms": 17.38636099980795, "n_iter": 30, "groups": 4096}
+{"exp": "cudf", "rows": 10000000, "card": 4096, "skew": 0.5, "sel": 100, "correct": true, "median_ms": 28.249563000144917, "p25_ms": 27.952685999935056, "p75_ms": 28.630613000132143, "n_iter": 30, "groups": 4096}
+{"exp": "cudf", "rows": 10000000, "card": 4096, "skew": 1.0, "sel": 1, "correct": true, "median_ms": 3.7774670001908817, "p25_ms": 3.7167330001466325, "p75_ms": 3.8737059999220946, "n_iter": 30, "groups": 4040}
+{"exp": "cudf", "rows": 10000000, "card": 4096, "skew": 1.0, "sel": 10, "correct": true, "median_ms": 7.019043499894906, "p25_ms": 6.952355000066746, "p75_ms": 7.060962000196014, "n_iter": 30, "groups": 4096}
+{"exp": "cudf", "rows": 10000000, "card": 4096, "skew": 1.0, "sel": 50, "correct": true, "median_ms": 19.152863000044817, "p25_ms": 18.904933000158053, "p75_ms": 19.523525000295194, "n_iter": 30, "groups": 4096}
+{"exp": "cudf", "rows": 10000000, "card": 4096, "skew": 1.0, "sel": 100, "correct": true, "median_ms": 30.72068799997396, "p25_ms": 30.449103999671934, "p75_ms": 31.089834999875166, "n_iter": 30, "groups": 4096}
+{"exp": "cudf", "rows": 10000000, "card": 4096, "skew": 1.5, "sel": 1, "correct": true, "median_ms": 4.077800000004572, "p25_ms": 4.027484000289405, "p75_ms": 4.152316999807226, "n_iter": 30, "groups": 1907}
+{"exp": "cudf", "rows": 10000000, "card": 4096, "skew": 1.5, "sel": 10, "correct": true, "median_ms": 8.668763000059698, "p25_ms": 8.53755700018155, "p75_ms": 8.762039999965054, "n_iter": 30, "groups": 3879}
+{"exp": "cudf", "rows": 10000000, "card": 4096, "skew": 1.5, "sel": 50, "correct": true, "median_ms": 26.17619200009358, "p25_ms": 25.92635600012727, "p75_ms": 26.35826100004124, "n_iter": 30, "groups": 4096}
+{"exp": "cudf", "rows": 10000000, "card": 4096, "skew": 1.5, "sel": 100, "correct": true, "median_ms": 44.70334349980476, "p25_ms": 44.47849600001064, "p75_ms": 44.80420799973217, "n_iter": 30, "groups": 4096}
+{"exp": "cudf", "rows": 10000000, "card": 65536, "skew": 0.0, "sel": 1, "correct": true, "median_ms": 4.399633000048198, "p25_ms": 4.341847999967285, "p75_ms": 4.492137999932311, "n_iter": 30, "groups": 51648}
+{"exp": "cudf", "rows": 10000000, "card": 65536, "skew": 0.0, "sel": 10, "correct": true, "median_ms": 7.467355499784389, "p25_ms": 7.391691000066203, "p75_ms": 7.683068000005733, "n_iter": 30, "groups": 65536}
+{"exp": "cudf", "rows": 10000000, "card": 65536, "skew": 0.0, "sel": 50, "correct": true, "median_ms": 20.274667999956364, "p25_ms": 20.092863000172656, "p75_ms": 20.47588599998562, "n_iter": 30, "groups": 65536}
+{"exp": "cudf", "rows": 10000000, "card": 65536, "skew": 0.0, "sel": 100, "correct": true, "median_ms": 34.66406300003655, "p25_ms": 34.49793800018597, "p75_ms": 34.8200800003724, "n_iter": 30, "groups": 65536}
+{"exp": "cudf", "rows": 10000000, "card": 65536, "skew": 0.5, "sel": 1, "correct": true, "median_ms": 4.055261500070628, "p25_ms": 3.960363999794936, "p75_ms": 4.156868000336544, "n_iter": 30, "groups": 46185}
+{"exp": "cudf", "rows": 10000000, "card": 65536, "skew": 0.5, "sel": 10, "correct": true, "median_ms": 7.579180999982782, "p25_ms": 7.371728999714833, "p75_ms": 7.7084489998924255, "n_iter": 30, "groups": 65530}
+{"exp": "cudf", "rows": 10000000, "card": 65536, "skew": 0.5, "sel": 50, "correct": true, "median_ms": 19.93040449997352, "p25_ms": 19.790393999755906, "p75_ms": 20.088494999981776, "n_iter": 30, "groups": 65536}
+{"exp": "cudf", "rows": 10000000, "card": 65536, "skew": 0.5, "sel": 100, "correct": true, "median_ms": 33.87923100012813, "p25_ms": 33.62964300004023, "p75_ms": 34.01675699979023, "n_iter": 30, "groups": 65536}
+{"exp": "cudf", "rows": 10000000, "card": 65536, "skew": 1.0, "sel": 1, "correct": true, "median_ms": 3.671771999734119, "p25_ms": 3.4844380002141406, "p75_ms": 3.7507100000766513, "n_iter": 30, "groups": 22003}
+{"exp": "cudf", "rows": 10000000, "card": 65536, "skew": 1.0, "sel": 10, "correct": true, "median_ms": 7.921503500028848, "p25_ms": 7.86188999973092, "p75_ms": 8.028142999592092, "n_iter": 30, "groups": 59400}
+{"exp": "cudf", "rows": 10000000, "card": 65536, "skew": 1.0, "sel": 50, "correct": true, "median_ms": 19.965277499977674, "p25_ms": 19.856397999774344, "p75_ms": 20.204938000006223, "n_iter": 30, "groups": 65520}
+{"exp": "cudf", "rows": 10000000, "card": 65536, "skew": 1.0, "sel": 100, "correct": true, "median_ms": 31.275100999891947, "p25_ms": 31.05818799986082, "p75_ms": 31.517282000095292, "n_iter": 30, "groups": 65536}
+{"exp": "cudf", "rows": 10000000, "card": 65536, "skew": 1.5, "sel": 1, "correct": true, "median_ms": 4.1026705000604125, "p25_ms": 4.0175179997277155, "p75_ms": 4.248181000093609, "n_iter": 30, "groups": 2761}
+{"exp": "cudf", "rows": 10000000, "card": 65536, "skew": 1.5, "sel": 10, "correct": true, "median_ms": 8.69235549998848, "p25_ms": 8.455892000256426, "p75_ms": 8.850938000250608, "n_iter": 30, "groups": 11190}
+{"exp": "cudf", "rows": 10000000, "card": 65536, "skew": 1.5, "sel": 50, "correct": true, "median_ms": 26.35959200006255, "p25_ms": 26.200369999969553, "p75_ms": 26.519215000007534, "n_iter": 30, "groups": 26321}
+{"exp": "cudf", "rows": 10000000, "card": 65536, "skew": 1.5, "sel": 100, "correct": true, "median_ms": 43.4881095000037, "p25_ms": 43.34032700035095, "p75_ms": 43.63141200019527, "n_iter": 30, "groups": 36330}
+{"exp": "cudf", "rows": 10000000, "card": 1048576, "skew": 0.0, "sel": 1, "correct": true, "median_ms": 5.975123999860443, "p25_ms": 5.669843999839941, "p75_ms": 6.11797800002023, "n_iter": 30, "groups": 97099}
+{"exp": "cudf", "rows": 10000000, "card": 1048576, "skew": 0.0, "sel": 10, "correct": true, "median_ms": 13.583657499793844, "p25_ms": 13.471533000029012, "p75_ms": 13.702046000162227, "n_iter": 30, "groups": 647389}
+{"exp": "cudf", "rows": 10000000, "card": 1048576, "skew": 0.0, "sel": 50, "correct": true, "median_ms": 46.82769400005782, "p25_ms": 46.61053500012713, "p75_ms": 46.93847300040943, "n_iter": 30, "groups": 1039575}
+{"exp": "cudf", "rows": 10000000, "card": 1048576, "skew": 0.0, "sel": 100, "correct": true, "median_ms": 84.60858049988929, "p25_ms": 84.35973299992838, "p75_ms": 84.8935829999391, "n_iter": 30, "groups": 1048507}
+{"exp": "cudf", "rows": 10000000, "card": 1048576, "skew": 0.5, "sel": 1, "correct": true, "median_ms": 5.856196999957319, "p25_ms": 5.72848999991038, "p75_ms": 6.018403999860311, "n_iter": 30, "groups": 92311}
+{"exp": "cudf", "rows": 10000000, "card": 1048576, "skew": 0.5, "sel": 10, "correct": true, "median_ms": 13.002448500174069, "p25_ms": 12.693733000105567, "p75_ms": 13.150966000011977, "n_iter": 30, "groups": 570764}
+{"exp": "cudf", "rows": 10000000, "card": 1048576, "skew": 0.5, "sel": 50, "correct": true, "median_ms": 45.331849999911356, "p25_ms": 45.152804999816, "p75_ms": 45.50791099973139, "n_iter": 30, "groups": 1009239}
+{"exp": "cudf", "rows": 10000000, "card": 1048576, "skew": 0.5, "sel": 100, "correct": true, "median_ms": 82.51210949993038, "p25_ms": 82.38479300007384, "p75_ms": 82.68269199970746, "n_iter": 30, "groups": 1046126}
+{"exp": "cudf", "rows": 10000000, "card": 1048576, "skew": 1.0, "sel": 1, "correct": true, "median_ms": 3.993450499820028, "p25_ms": 3.944805000173801, "p75_ms": 4.068498999913572, "n_iter": 30, "groups": 38414}
+{"exp": "cudf", "rows": 10000000, "card": 1048576, "skew": 1.0, "sel": 10, "correct": true, "median_ms": 9.15529200005949, "p25_ms": 9.03276700000788, "p75_ms": 9.253811000235146, "n_iter": 30, "groups": 220914}
+{"exp": "cudf", "rows": 10000000, "card": 1048576, "skew": 1.0, "sel": 50, "correct": true, "median_ms": 27.724294000108785, "p25_ms": 27.44156899962036, "p75_ms": 28.032039999743574, "n_iter": 30, "groups": 583789}
+{"exp": "cudf", "rows": 10000000, "card": 1048576, "skew": 1.0, "sel": 100, "correct": true, "median_ms": 53.61923500026933, "p25_ms": 53.42629200004012, "p75_ms": 54.11020500014274, "n_iter": 30, "groups": 786158}
+{"exp": "cudf", "rows": 10000000, "card": 1048576, "skew": 1.5, "sel": 1, "correct": true, "median_ms": 3.8415659998918272, "p25_ms": 3.7759039996672072, "p75_ms": 3.8888320000296517, "n_iter": 30, "groups": 2991}
+{"exp": "cudf", "rows": 10000000, "card": 1048576, "skew": 1.5, "sel": 10, "correct": true, "median_ms": 8.658817999730672, "p25_ms": 8.486651000112033, "p75_ms": 8.733362000384659, "n_iter": 30, "groups": 13459}
+{"exp": "cudf", "rows": 10000000, "card": 1048576, "skew": 1.5, "sel": 50, "correct": true, "median_ms": 25.276016500129117, "p25_ms": 25.138712999705604, "p75_ms": 25.455064000198036, "n_iter": 30, "groups": 37351}
+{"exp": "cudf", "rows": 10000000, "card": 1048576, "skew": 1.5, "sel": 100, "correct": true, "median_ms": 43.84461249992455, "p25_ms": 43.71076400002494, "p75_ms": 44.00405500018678, "n_iter": 30, "groups": 57568}
+{"exp": "cudf", "rows": 10000000, "card": 16777216, "skew": 0.0, "sel": 1, "correct": true, "median_ms": 6.345841999973345, "p25_ms": 6.2432509998870955, "p75_ms": 6.391978999999992, "n_iter": 30, "groups": 101572}
+{"exp": "cudf", "rows": 10000000, "card": 16777216, "skew": 0.0, "sel": 10, "correct": true, "median_ms": 17.077488500035543, "p25_ms": 16.873022000254423, "p75_ms": 17.527374000110285, "n_iter": 30, "groups": 976611}
+{"exp": "cudf", "rows": 10000000, "card": 16777216, "skew": 0.0, "sel": 50, "correct": true, "median_ms": 79.06803900004888, "p25_ms": 78.82275499969182, "p75_ms": 79.25345199964795, "n_iter": 30, "groups": 4318751}
+{"exp": "cudf", "rows": 10000000, "card": 16777216, "skew": 0.0, "sel": 100, "correct": true, "median_ms": 145.77902450014335, "p25_ms": 145.63328199983516, "p75_ms": 146.06698899979165, "n_iter": 30, "groups": 7531942}
+{"exp": "cudf", "rows": 10000000, "card": 16777216, "skew": 0.5, "sel": 1, "correct": true, "median_ms": 6.2430269999822485, "p25_ms": 6.148628000119061, "p75_ms": 6.310520000170072, "n_iter": 30, "groups": 100876}
+{"exp": "cudf", "rows": 10000000, "card": 16777216, "skew": 0.5, "sel": 10, "correct": true, "median_ms": 17.21132950001447, "p25_ms": 17.008214999805205, "p75_ms": 17.670792999979312, "n_iter": 30, "groups": 939713}
+{"exp": "cudf", "rows": 10000000, "card": 16777216, "skew": 0.5, "sel": 50, "correct": true, "median_ms": 76.03822800024318, "p25_ms": 75.88990500016735, "p75_ms": 76.30904499956159, "n_iter": 30, "groups": 3925473}
+{"exp": "cudf", "rows": 10000000, "card": 16777216, "skew": 0.5, "sel": 100, "correct": true, "median_ms": 140.11434150006608, "p25_ms": 139.8340890000327, "p75_ms": 140.3620050000427, "n_iter": 30, "groups": 6678547}
+{"exp": "cudf", "rows": 10000000, "card": 16777216, "skew": 1.0, "sel": 1, "correct": true, "median_ms": 5.352111499860257, "p25_ms": 5.254677999801061, "p75_ms": 5.419287999757216, "n_iter": 30, "groups": 49737}
+{"exp": "cudf", "rows": 10000000, "card": 16777216, "skew": 1.0, "sel": 10, "correct": true, "median_ms": 10.166513499825669, "p25_ms": 9.995617999720707, "p75_ms": 12.050079999880836, "n_iter": 30, "groups": 355695}
+{"exp": "cudf", "rows": 10000000, "card": 16777216, "skew": 1.0, "sel": 50, "correct": true, "median_ms": 37.6315319999776, "p25_ms": 37.42668800032334, "p75_ms": 37.919646999853285, "n_iter": 30, "groups": 1301359}
+{"exp": "cudf", "rows": 10000000, "card": 16777216, "skew": 1.0, "sel": 100, "correct": true, "median_ms": 72.35367649991531, "p25_ms": 72.25466999989294, "p75_ms": 72.61471399988295, "n_iter": 30, "groups": 2208834}
+{"exp": "cudf", "rows": 10000000, "card": 16777216, "skew": 1.5, "sel": 1, "correct": true, "median_ms": 4.642877500145914, "p25_ms": 4.578175000006013, "p75_ms": 4.696935000083613, "n_iter": 30, "groups": 3044}
+{"exp": "cudf", "rows": 10000000, "card": 16777216, "skew": 1.5, "sel": 10, "correct": true, "median_ms": 10.356883999975253, "p25_ms": 8.460379999633005, "p75_ms": 10.436840999773267, "n_iter": 30, "groups": 14161}
+{"exp": "cudf", "rows": 10000000, "card": 16777216, "skew": 1.5, "sel": 50, "correct": true, "median_ms": 25.31968199991752, "p25_ms": 25.060014000246156, "p75_ms": 25.48842499982129, "n_iter": 30, "groups": 40411}
+{"exp": "cudf", "rows": 10000000, "card": 16777216, "skew": 1.5, "sel": 100, "correct": true, "median_ms": 44.00098449991674, "p25_ms": 43.818373999783944, "p75_ms": 44.243006000215246, "n_iter": 30, "groups": 63598}
+{"exp": "cudf", "rows": 100000000, "card": 16, "skew": 0.0, "sel": 1, "correct": true, "median_ms": 15.907439500097098, "p25_ms": 15.841592000015225, "p75_ms": 17.91615100000854, "n_iter": 30, "groups": 16}
+{"exp": "cudf", "rows": 100000000, "card": 16, "skew": 0.0, "sel": 10, "correct": true, "median_ms": 32.021393499917394, "p25_ms": 31.917473999783397, "p75_ms": 32.56488499982879, "n_iter": 30, "groups": 16}
+{"exp": "cudf", "rows": 100000000, "card": 16, "skew": 0.0, "sel": 50, "correct": true, "median_ms": 101.45904549995066, "p25_ms": 100.7279729997208, "p75_ms": 102.11426199975904, "n_iter": 30, "groups": 16}
+{"exp": "cudf", "rows": 100000000, "card": 16, "skew": 0.0, "sel": 100, "correct": true, "median_ms": 178.0687415000557, "p25_ms": 177.51306299987846, "p75_ms": 178.61204500013628, "n_iter": 30, "groups": 16}
+{"exp": "cudf", "rows": 100000000, "card": 16, "skew": 0.5, "sel": 1, "correct": true, "median_ms": 15.823395499865, "p25_ms": 15.775885000039125, "p75_ms": 16.870050999841624, "n_iter": 30, "groups": 16}
+{"exp": "cudf", "rows": 100000000, "card": 16, "skew": 0.5, "sel": 10, "correct": true, "median_ms": 31.962533499836354, "p25_ms": 31.860067000252457, "p75_ms": 32.39618000043265, "n_iter": 30, "groups": 16}
+{"exp": "cudf", "rows": 100000000, "card": 16, "skew": 0.5, "sel": 50, "correct": true, "median_ms": 100.67616600008478, "p25_ms": 100.35156000003553, "p75_ms": 101.97531099993284, "n_iter": 30, "groups": 16}
+{"exp": "cudf", "rows": 100000000, "card": 16, "skew": 0.5, "sel": 100, "correct": true, "median_ms": 176.7897790000461, "p25_ms": 175.81784399999378, "p75_ms": 177.5157480001326, "n_iter": 30, "groups": 16}
+{"exp": "cudf", "rows": 100000000, "card": 16, "skew": 1.0, "sel": 1, "correct": true, "median_ms": 15.72305749982661, "p25_ms": 15.630671000053553, "p75_ms": 16.98011899998164, "n_iter": 30, "groups": 16}
+{"exp": "cudf", "rows": 100000000, "card": 16, "skew": 1.0, "sel": 10, "correct": true, "median_ms": 32.15911799998139, "p25_ms": 31.957596000211197, "p75_ms": 33.06127900032152, "n_iter": 30, "groups": 16}
+{"exp": "cudf", "rows": 100000000, "card": 16, "skew": 1.0, "sel": 50, "correct": true, "median_ms": 103.2981179998842, "p25_ms": 102.12394700010918, "p75_ms": 104.35090600003605, "n_iter": 30, "groups": 16}
+{"exp": "cudf", "rows": 100000000, "card": 16, "skew": 1.0, "sel": 100, "correct": true, "median_ms": 182.8229090001514, "p25_ms": 182.45922200003406, "p75_ms": 183.2180779997543, "n_iter": 30, "groups": 16}
+{"exp": "cudf", "rows": 100000000, "card": 16, "skew": 1.5, "sel": 1, "correct": true, "median_ms": 17.638852499885616, "p25_ms": 17.34547600017322, "p75_ms": 18.70230500026082, "n_iter": 30, "groups": 16}
+{"exp": "cudf", "rows": 100000000, "card": 16, "skew": 1.5, "sel": 10, "correct": true, "median_ms": 33.231075999992754, "p25_ms": 32.97632900012104, "p75_ms": 33.58858199999304, "n_iter": 30, "groups": 16}
+{"exp": "cudf", "rows": 100000000, "card": 16, "skew": 1.5, "sel": 50, "correct": true, "median_ms": 108.45847700011291, "p25_ms": 107.48513299995466, "p75_ms": 109.71482500008278, "n_iter": 30, "groups": 16}
+{"exp": "cudf", "rows": 100000000, "card": 16, "skew": 1.5, "sel": 100, "correct": true, "median_ms": 191.9740690002527, "p25_ms": 191.0734789998969, "p75_ms": 193.3099839998249, "n_iter": 30, "groups": 16}
+{"exp": "cudf", "rows": 100000000, "card": 256, "skew": 0.0, "sel": 1, "correct": true, "median_ms": 17.99441949992797, "p25_ms": 17.745331000242004, "p75_ms": 18.877139999858628, "n_iter": 30, "groups": 256}
+{"exp": "cudf", "rows": 100000000, "card": 256, "skew": 0.0, "sel": 10, "correct": true, "median_ms": 43.76174749995698, "p25_ms": 43.290834999879735, "p75_ms": 44.29796399972474, "n_iter": 30, "groups": 256}
+{"exp": "cudf", "rows": 100000000, "card": 256, "skew": 0.0, "sel": 50, "correct": true, "median_ms": 133.4930790001181, "p25_ms": 132.59768899979463, "p75_ms": 134.56845600012457, "n_iter": 30, "groups": 256}
+{"exp": "cudf", "rows": 100000000, "card": 256, "skew": 0.0, "sel": 100, "correct": true, "median_ms": 233.34793850017377, "p25_ms": 232.47091299981548, "p75_ms": 233.91852799977642, "n_iter": 30, "groups": 256}
+{"exp": "cudf", "rows": 100000000, "card": 256, "skew": 0.5, "sel": 1, "correct": true, "median_ms": 17.99066699982177, "p25_ms": 17.72389799998564, "p75_ms": 18.95223600013196, "n_iter": 30, "groups": 256}
+{"exp": "cudf", "rows": 100000000, "card": 256, "skew": 0.5, "sel": 10, "correct": true, "median_ms": 40.20810900010474, "p25_ms": 40.08336999959283, "p75_ms": 40.298459000041476, "n_iter": 30, "groups": 256}
+{"exp": "cudf", "rows": 100000000, "card": 256, "skew": 0.5, "sel": 50, "correct": true, "median_ms": 136.87288649998663, "p25_ms": 136.23958500011213, "p75_ms": 137.6200869999593, "n_iter": 30, "groups": 256}
+{"exp": "cudf", "rows": 100000000, "card": 256, "skew": 0.5, "sel": 100, "correct": true, "median_ms": 236.9708300000184, "p25_ms": 235.8626070003993, "p75_ms": 237.89949000001798, "n_iter": 30, "groups": 256}
+{"exp": "cudf", "rows": 100000000, "card": 256, "skew": 1.0, "sel": 1, "correct": true, "median_ms": 17.832265999913943, "p25_ms": 17.539190000206872, "p75_ms": 19.374356999833253, "n_iter": 30, "groups": 256}
+{"exp": "cudf", "rows": 100000000, "card": 256, "skew": 1.0, "sel": 10, "correct": true, "median_ms": 45.38986049988125, "p25_ms": 44.67898499979128, "p75_ms": 46.03980699994281, "n_iter": 30, "groups": 256}
+{"exp": "cudf", "rows": 100000000, "card": 256, "skew": 1.0, "sel": 50, "correct": true, "median_ms": 153.47655050027242, "p25_ms": 153.0081060000157, "p75_ms": 154.51473599978272, "n_iter": 30, "groups": 256}
+{"exp": "cudf", "rows": 100000000, "card": 256, "skew": 1.0, "sel": 100, "correct": true, "median_ms": 270.4346364998855, "p25_ms": 269.8830790000102, "p75_ms": 271.6969410003003, "n_iter": 30, "groups": 256}
+{"exp": "cudf", "rows": 100000000, "card": 256, "skew": 1.5, "sel": 1, "correct": true, "median_ms": 18.34438550008599, "p25_ms": 17.894945000080043, "p75_ms": 19.170690000009927, "n_iter": 30, "groups": 256}
+{"exp": "cudf", "rows": 100000000, "card": 256, "skew": 1.5, "sel": 10, "correct": true, "median_ms": 56.4600430000155, "p25_ms": 55.96100299999307, "p75_ms": 56.90375499989386, "n_iter": 30, "groups": 256}
+{"exp": "cudf", "rows": 100000000, "card": 256, "skew": 1.5, "sel": 50, "correct": true, "median_ms": 199.96860499986724, "p25_ms": 198.73900400034472, "p75_ms": 200.913109999874, "n_iter": 30, "groups": 256}
+{"exp": "cudf", "rows": 100000000, "card": 256, "skew": 1.5, "sel": 100, "correct": true, "median_ms": 363.66205000012997, "p25_ms": 363.06068700014293, "p75_ms": 364.7483849999844, "n_iter": 30, "groups": 256}
+{"exp": "cudf", "rows": 100000000, "card": 4096, "skew": 0.0, "sel": 1, "correct": true, "median_ms": 17.838014999824736, "p25_ms": 17.729821000102675, "p75_ms": 17.992759999742702, "n_iter": 30, "groups": 4096}
+{"exp": "cudf", "rows": 100000000, "card": 4096, "skew": 0.0, "sel": 10, "correct": true, "median_ms": 35.17419299987523, "p25_ms": 34.18970900020213, "p75_ms": 35.62498900009814, "n_iter": 30, "groups": 4096}
+{"exp": "cudf", "rows": 100000000, "card": 4096, "skew": 0.0, "sel": 50, "correct": true, "median_ms": 108.18605300005402, "p25_ms": 107.86369700008436, "p75_ms": 108.79333100001531, "n_iter": 30, "groups": 4096}
+{"exp": "cudf", "rows": 100000000, "card": 4096, "skew": 0.0, "sel": 100, "correct": true, "median_ms": 192.47827100002723, "p25_ms": 191.34572899974955, "p75_ms": 199.7434710001471, "n_iter": 30, "groups": 4096}
+{"exp": "cudf", "rows": 100000000, "card": 4096, "skew": 0.5, "sel": 1, "correct": true, "median_ms": 17.931085500094923, "p25_ms": 17.81534300016574, "p75_ms": 18.09222200017757, "n_iter": 30, "groups": 4096}
+{"exp": "cudf", "rows": 100000000, "card": 4096, "skew": 0.5, "sel": 10, "correct": true, "median_ms": 34.55328500012911, "p25_ms": 34.08506699997815, "p75_ms": 35.541381999792065, "n_iter": 30, "groups": 4096}
+{"exp": "cudf", "rows": 100000000, "card": 4096, "skew": 0.5, "sel": 50, "correct": true, "median_ms": 106.90433850027148, "p25_ms": 106.19299300014973, "p75_ms": 108.38850499976616, "n_iter": 30, "groups": 4096}
+{"exp": "cudf", "rows": 100000000, "card": 4096, "skew": 0.5, "sel": 100, "correct": true, "median_ms": 190.8616619998611, "p25_ms": 190.20271099998354, "p75_ms": 210.21599000005153, "n_iter": 30, "groups": 4096}
+{"exp": "cudf", "rows": 100000000, "card": 4096, "skew": 1.0, "sel": 1, "correct": true, "median_ms": 18.018185999835623, "p25_ms": 17.644803000166576, "p75_ms": 18.39563800012911, "n_iter": 30, "groups": 4096}
+{"exp": "cudf", "rows": 100000000, "card": 4096, "skew": 1.0, "sel": 10, "correct": true, "median_ms": 37.23997850033811, "p25_ms": 36.62255200015352, "p75_ms": 38.23816100020849, "n_iter": 30, "groups": 4096}
+{"exp": "cudf", "rows": 100000000, "card": 4096, "skew": 1.0, "sel": 50, "correct": true, "median_ms": 124.3412604999321, "p25_ms": 123.39012799975535, "p75_ms": 125.05499799999598, "n_iter": 30, "groups": 4096}
+{"exp": "cudf", "rows": 100000000, "card": 4096, "skew": 1.0, "sel": 100, "correct": true, "median_ms": 217.52582500016615, "p25_ms": 216.8859380003596, "p75_ms": 218.13311000005342, "n_iter": 30, "groups": 4096}
+{"exp": "cudf", "rows": 100000000, "card": 4096, "skew": 1.5, "sel": 1, "correct": true, "median_ms": 18.017246499994144, "p25_ms": 17.70070599968676, "p75_ms": 19.668396999804827, "n_iter": 30, "groups": 3891}
+{"exp": "cudf", "rows": 100000000, "card": 4096, "skew": 1.5, "sel": 10, "correct": true, "median_ms": 51.4964140002121, "p25_ms": 51.23081400006413, "p75_ms": 52.43626600031348, "n_iter": 30, "groups": 4096}
+{"exp": "cudf", "rows": 100000000, "card": 4096, "skew": 1.5, "sel": 50, "correct": true, "median_ms": 193.93518099991525, "p25_ms": 192.78449000012188, "p75_ms": 194.5336949997909, "n_iter": 30, "groups": 4096}
+{"exp": "cudf", "rows": 100000000, "card": 4096, "skew": 1.5, "sel": 100, "correct": true, "median_ms": 347.65213549985674, "p25_ms": 347.10994499982917, "p75_ms": 348.1260490002569, "n_iter": 30, "groups": 4096}
+{"exp": "cudf", "rows": 100000000, "card": 65536, "skew": 0.0, "sel": 1, "correct": true, "median_ms": 18.261099500023192, "p25_ms": 17.92162899982941, "p75_ms": 18.506080999941332, "n_iter": 30, "groups": 65536}
+{"exp": "cudf", "rows": 100000000, "card": 65536, "skew": 0.0, "sel": 10, "correct": true, "median_ms": 42.460617000187995, "p25_ms": 42.23890700041011, "p75_ms": 42.766578999817284, "n_iter": 30, "groups": 65536}
+{"exp": "cudf", "rows": 100000000, "card": 65536, "skew": 0.0, "sel": 50, "correct": true, "median_ms": 142.3496569998406, "p25_ms": 141.61056399962035, "p75_ms": 143.08357000027172, "n_iter": 30, "groups": 65536}
+{"exp": "cudf", "rows": 100000000, "card": 65536, "skew": 0.0, "sel": 100, "correct": true, "median_ms": 261.47342100011883, "p25_ms": 260.2181760003077, "p75_ms": 262.2325759998603, "n_iter": 30, "groups": 65536}
+{"exp": "cudf", "rows": 100000000, "card": 65536, "skew": 0.5, "sel": 1, "correct": true, "median_ms": 18.318782999813266, "p25_ms": 17.950479999853997, "p75_ms": 20.011348000025464, "n_iter": 30, "groups": 65531}
+{"exp": "cudf", "rows": 100000000, "card": 65536, "skew": 0.5, "sel": 10, "correct": true, "median_ms": 40.068439499918895, "p25_ms": 39.812196000184485, "p75_ms": 40.37322200019844, "n_iter": 30, "groups": 65536}
+{"exp": "cudf", "rows": 100000000, "card": 65536, "skew": 0.5, "sel": 50, "correct": true, "median_ms": 138.28958299995975, "p25_ms": 137.24224600036905, "p75_ms": 139.05125199971735, "n_iter": 30, "groups": 65536}
+{"exp": "cudf", "rows": 100000000, "card": 65536, "skew": 0.5, "sel": 100, "correct": true, "median_ms": 253.84508400020422, "p25_ms": 253.28119000005245, "p75_ms": 254.6736110002712, "n_iter": 30, "groups": 65536}
+{"exp": "cudf", "rows": 100000000, "card": 65536, "skew": 1.0, "sel": 1, "correct": true, "median_ms": 18.24029900012647, "p25_ms": 17.900931999975, "p75_ms": 18.73288400020101, "n_iter": 30, "groups": 59395}
+{"exp": "cudf", "rows": 100000000, "card": 65536, "skew": 1.0, "sel": 10, "correct": true, "median_ms": 37.91071249997913, "p25_ms": 37.2852469999998, "p75_ms": 38.15369499989174, "n_iter": 30, "groups": 65536}
+{"exp": "cudf", "rows": 100000000, "card": 65536, "skew": 1.0, "sel": 50, "correct": true, "median_ms": 128.2232285000191, "p25_ms": 127.33868699979212, "p75_ms": 128.8867449998179, "n_iter": 30, "groups": 65536}
+{"exp": "cudf", "rows": 100000000, "card": 65536, "skew": 1.0, "sel": 100, "correct": true, "median_ms": 233.2480929999292, "p25_ms": 232.3373089998313, "p75_ms": 233.72955500008175, "n_iter": 30, "groups": 65536}
+{"exp": "cudf", "rows": 100000000, "card": 65536, "skew": 1.5, "sel": 1, "correct": true, "median_ms": 17.91386400009287, "p25_ms": 17.665919000137364, "p75_ms": 18.620961000124225, "n_iter": 30, "groups": 11211}
+{"exp": "cudf", "rows": 100000000, "card": 65536, "skew": 1.5, "sel": 10, "correct": true, "median_ms": 51.550949000102264, "p25_ms": 51.249860000098124, "p75_ms": 51.954173000012815, "n_iter": 30, "groups": 36617}
+{"exp": "cudf", "rows": 100000000, "card": 65536, "skew": 1.5, "sel": 50, "correct": true, "median_ms": 199.25012999988212, "p25_ms": 198.603140999694, "p75_ms": 199.69020100006674, "n_iter": 30, "groups": 59618}
+{"exp": "cudf", "rows": 100000000, "card": 65536, "skew": 1.5, "sel": 100, "correct": true, "median_ms": 355.3413234999425, "p25_ms": 354.61743300038506, "p75_ms": 355.73847599971486, "n_iter": 30, "groups": 64272}
+{"exp": "cudf", "rows": 100000000, "card": 1048576, "skew": 0.0, "sel": 1, "correct": true, "median_ms": 21.287513499828492, "p25_ms": 20.92891700021937, "p75_ms": 21.60656799969729, "n_iter": 30, "groups": 647869}
+{"exp": "cudf", "rows": 100000000, "card": 1048576, "skew": 0.0, "sel": 10, "correct": true, "median_ms": 90.86692099981519, "p25_ms": 90.62068499997622, "p75_ms": 91.10576500006573, "n_iter": 30, "groups": 1048503}
+{"exp": "cudf", "rows": 100000000, "card": 1048576, "skew": 0.0, "sel": 50, "correct": true, "median_ms": 360.87653400022646, "p25_ms": 360.3275630002827, "p75_ms": 361.7499030001454, "n_iter": 30, "groups": 1048576}
+{"exp": "cudf", "rows": 100000000, "card": 1048576, "skew": 0.0, "sel": 100, "correct": true, "median_ms": 685.492896499909, "p25_ms": 684.733395999956, "p75_ms": 686.448874999769, "n_iter": 30, "groups": 1048576}
+{"exp": "cudf", "rows": 100000000, "card": 1048576, "skew": 0.5, "sel": 1, "correct": true, "median_ms": 20.778715999995256, "p25_ms": 20.52392499990674, "p75_ms": 21.062839000023814, "n_iter": 30, "groups": 570795}
+{"exp": "cudf", "rows": 100000000, "card": 1048576, "skew": 0.5, "sel": 10, "correct": true, "median_ms": 89.04783550019602, "p25_ms": 88.82199700019555, "p75_ms": 89.2475759997069, "n_iter": 30, "groups": 1046248}
+{"exp": "cudf", "rows": 100000000, "card": 1048576, "skew": 0.5, "sel": 50, "correct": true, "median_ms": 353.8719704997675, "p25_ms": 353.19563200027915, "p75_ms": 354.46897700012414, "n_iter": 30, "groups": 1048576}
+{"exp": "cudf", "rows": 100000000, "card": 1048576, "skew": 0.5, "sel": 100, "correct": true, "median_ms": 664.254331499933, "p25_ms": 662.4889830000029, "p75_ms": 664.846271999977, "n_iter": 30, "groups": 1048576}
+{"exp": "cudf", "rows": 100000000, "card": 1048576, "skew": 1.0, "sel": 1, "correct": true, "median_ms": 18.499419000136186, "p25_ms": 18.224558999918372, "p75_ms": 18.802385999606486, "n_iter": 30, "groups": 221133}
+{"exp": "cudf", "rows": 100000000, "card": 1048576, "skew": 1.0, "sel": 10, "correct": true, "median_ms": 60.718119500052126, "p25_ms": 60.53012900019894, "p75_ms": 61.046882000027836, "n_iter": 30, "groups": 785267}
+{"exp": "cudf", "rows": 100000000, "card": 1048576, "skew": 1.0, "sel": 50, "correct": true, "median_ms": 241.0916169999382, "p25_ms": 240.5548239999007, "p75_ms": 242.3585919996185, "n_iter": 30, "groups": 1040672}
+{"exp": "cudf", "rows": 100000000, "card": 1048576, "skew": 1.0, "sel": 100, "correct": true, "median_ms": 446.2915440001325, "p25_ms": 445.8506219998526, "p75_ms": 446.95725699966715, "n_iter": 30, "groups": 1048401}
+{"exp": "cudf", "rows": 100000000, "card": 1048576, "skew": 1.5, "sel": 1, "correct": true, "median_ms": 17.998181499933708, "p25_ms": 17.69297300006656, "p75_ms": 18.29286200018032, "n_iter": 30, "groups": 13625}
+{"exp": "cudf", "rows": 100000000, "card": 1048576, "skew": 1.5, "sel": 10, "correct": true, "median_ms": 52.15480449987808, "p25_ms": 51.73964599998726, "p75_ms": 52.49361500000305, "n_iter": 30, "groups": 58180}
+{"exp": "cudf", "rows": 100000000, "card": 1048576, "skew": 1.5, "sel": 50, "correct": true, "median_ms": 198.86244500003158, "p25_ms": 198.48452599990196, "p75_ms": 199.1417320000437, "n_iter": 30, "groups": 154159}
+{"exp": "cudf", "rows": 100000000, "card": 1048576, "skew": 1.5, "sel": 100, "correct": true, "median_ms": 382.27198749996205, "p25_ms": 381.7855940001209, "p75_ms": 382.8245780000543, "n_iter": 30, "groups": 229248}
+{"exp": "cudf", "rows": 100000000, "card": 16777216, "skew": 0.0, "sel": 1, "correct": true, "median_ms": 23.443516000270392, "p25_ms": 23.208310999962123, "p75_ms": 23.598279999987426, "n_iter": 30, "groups": 978571}
+{"exp": "cudf", "rows": 100000000, "card": 16777216, "skew": 0.0, "sel": 10, "correct": true, "median_ms": 150.69476249982472, "p25_ms": 150.45996499975445, "p75_ms": 151.24873800004934, "n_iter": 30, "groups": 7524385}
+{"exp": "cudf", "rows": 100000000, "card": 16777216, "skew": 0.0, "sel": 50, "correct": true, "median_ms": 596.1820079999143, "p25_ms": 593.8965690002078, "p75_ms": 598.1495579999319, "n_iter": 30, "groups": 15922867}
+{"exp": "cudf", "rows": 100000000, "card": 16777216, "skew": 0.0, "sel": 100, "correct": true, "median_ms": 1098.3433970000078, "p25_ms": 1094.7038499998598, "p75_ms": 1103.8258210001004, "n_iter": 30, "groups": 16733965}
+{"exp": "cudf", "rows": 100000000, "card": 16777216, "skew": 0.5, "sel": 1, "correct": true, "median_ms": 23.344456499899024, "p25_ms": 23.190660000182106, "p75_ms": 23.443808000138233, "n_iter": 30, "groups": 941336}
+{"exp": "cudf", "rows": 100000000, "card": 16777216, "skew": 0.5, "sel": 10, "correct": true, "median_ms": 145.48138600002858, "p25_ms": 145.2946519998477, "p75_ms": 145.74766499981706, "n_iter": 30, "groups": 6672481}
+{"exp": "cudf", "rows": 100000000, "card": 16777216, "skew": 0.5, "sel": 50, "correct": true, "median_ms": 583.8408984998296, "p25_ms": 582.2100810000848, "p75_ms": 585.8470019998094, "n_iter": 30, "groups": 14845222}
+{"exp": "cudf", "rows": 100000000, "card": 16777216, "skew": 0.5, "sel": 100, "correct": true, "median_ms": 1086.5451239999402, "p25_ms": 1082.3425970002063, "p75_ms": 1091.8215929996222, "n_iter": 30, "groups": 16470720}
+{"exp": "cudf", "rows": 100000000, "card": 16777216, "skew": 1.0, "sel": 1, "correct": true, "median_ms": 19.166204500152162, "p25_ms": 18.979903999934322, "p75_ms": 19.44410300029631, "n_iter": 30, "groups": 357038}
+{"exp": "cudf", "rows": 100000000, "card": 16777216, "skew": 1.0, "sel": 10, "correct": true, "median_ms": 77.83248800001275, "p25_ms": 77.64572299993233, "p75_ms": 77.9437730002428, "n_iter": 30, "groups": 2204859}
+{"exp": "cudf", "rows": 100000000, "card": 16777216, "skew": 1.0, "sel": 50, "correct": true, "median_ms": 318.12800499983496, "p25_ms": 317.5023050002892, "p75_ms": 318.79366999964986, "n_iter": 30, "groups": 6562262}
+{"exp": "cudf", "rows": 100000000, "card": 16777216, "skew": 1.0, "sel": 100, "correct": true, "median_ms": 613.4839094997915, "p25_ms": 610.6864750004206, "p75_ms": 615.2457529997264, "n_iter": 30, "groups": 9569053}
+{"exp": "cudf", "rows": 100000000, "card": 16777216, "skew": 1.5, "sel": 1, "correct": true, "median_ms": 18.11316400016949, "p25_ms": 17.6233330003015, "p75_ms": 18.369489000178874, "n_iter": 30, "groups": 14017}
+{"exp": "cudf", "rows": 100000000, "card": 16777216, "skew": 1.5, "sel": 10, "correct": true, "median_ms": 51.83485349994044, "p25_ms": 51.591827000265766, "p75_ms": 52.233900999908656, "n_iter": 30, "groups": 63741}
+{"exp": "cudf", "rows": 100000000, "card": 16777216, "skew": 1.5, "sel": 50, "correct": true, "median_ms": 205.112148499893, "p25_ms": 204.68646200015428, "p75_ms": 205.6768419997752, "n_iter": 30, "groups": 182395}
+{"exp": "cudf", "rows": 100000000, "card": 16777216, "skew": 1.5, "sel": 100, "correct": true, "median_ms": 381.2435929999083, "p25_ms": 380.26489100002436, "p75_ms": 382.61660799980746, "n_iter": 30, "groups": 285239}
+EXIT_CODE=0

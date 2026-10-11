@@ -3,11 +3,13 @@
 //   FE_VEC          four rows per lane, int4/uint4 vector loads          (V1-nocompact, partition passes)
 //   FE_VEC_COMPACT  FE_VEC + ballot/popc stream compaction into a warp ring buffer so the
 //                   aggregation step always runs with 32 active lanes  (V1..V4)
+//   FE_VEC_COMPACT_LATE  same, but the RLE predicate is decoded first and a lane loads its codes and
+//                   values only if one of its 4 rows survives (late materialisation)  (v3_latemat)
 #pragma once
 #include "../encoding/rle.cuh"
 #include "procs.cuh"
 
-enum FEMode { FE_SCALAR = 0, FE_VEC = 1, FE_VEC_COMPACT = 2 };
+enum FEMode { FE_SCALAR = 0, FE_VEC = 1, FE_VEC_COMPACT = 2, FE_VEC_COMPACT_LATE = 3 };
 
 template <class KD, class P>
 struct DirectSink {
@@ -102,7 +104,7 @@ __device__ void fe_scalar(const Cols<KD>& C, Sink& sink) {
   }
 }
 
-template <class KD, class Sink>
+template <class KD, class Sink, bool LATE = false>
 __device__ void fe_vec(const Cols<KD>& C, Sink& sink) {
   const u32 lane = lane_id();
   const u64 gw = (blockIdx.x * (u64)blockDim.x + threadIdx.x) >> 5, nw = ((u64)gridDim.x * blockDim.x) >> 5;
@@ -114,7 +116,7 @@ __device__ void fe_vec(const Cols<KD>& C, Sink& sink) {
       const u64 r = b + 4 * lane;
       u32 code[4] = {0, 0, 0, 0};
       i32 v[4] = {0, 0, 0, 0};
-      if (r < te) {
+      if (!LATE && r < te) {
         C.kd.code4(r, code);
         int4 w = *reinterpret_cast<const int4*>(C.vals + r);
         v[0] = w.x; v[1] = w.y; v[2] = w.z; v[3] = w.w;
@@ -132,6 +134,11 @@ __device__ void fe_vec(const Cols<KD>& C, Sink& sink) {
         }
       }
       cur = __shfl_sync(FULL, run, 31);
+      if (LATE && (ok[0] | ok[1] | ok[2] | ok[3])) {  // untouched sectors are never fetched
+        C.kd.code4(r, code);
+        int4 w = *reinterpret_cast<const int4*>(C.vals + r);
+        v[0] = w.x; v[1] = w.y; v[2] = w.z; v[3] = w.w;
+      }
       sink.push4(ok, code, v);
     }
   }
@@ -151,7 +158,7 @@ __global__ void __launch_bounds__(256) k_agg(Cols<KD> C, typename P::Params prm)
     fe_vec(C, s);
   } else {
     CompactSink<KD, P> s(C.kd, p, reinterpret_cast<WarpBuf*>(smem + P::SMEM) + (threadIdx.x >> 5));
-    fe_vec(C, s);
+    fe_vec<KD, CompactSink<KD, P>, MODE == FE_VEC_COMPACT_LATE>(C, s);
     s.flush();
   }
   __syncthreads();
@@ -171,7 +178,7 @@ LaunchInfo launch_agg(const Cols<KD>& C, const typename P::Params& prm, cudaStre
   auto kern = k_agg<KD, P, MODE>;
   LaunchInfo L;
   L.block = block;
-  L.smem = P::SMEM + (MODE == FE_VEC_COMPACT ? (block / 32) * sizeof(WarpBuf) : 0);
+  L.smem = P::SMEM + (MODE >= FE_VEC_COMPACT ? (block / 32) * sizeof(WarpBuf) : 0);
   static bool attr_set = false;
   if (!attr_set) {
     CK(cudaFuncSetAttribute(kern, cudaFuncAttributeMaxDynamicSharedMemorySize, 64 * 1024));

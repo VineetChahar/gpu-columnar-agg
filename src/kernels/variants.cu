@@ -14,6 +14,7 @@ std::vector<Variant> all_variants() {
       {"v3_warpagg1024", run_v3_warpagg<1024>, true},
       {"v3_warpagg512", run_v3_warpagg<512>, true},
       {"v3_global", run_v3_global, true},
+      {"v3_latemat", run_v3_latemat, true},
       {"v4_radix_smem", [](RunCtx& c) { run_v4_radix(c, false, false); }},
       {"v4_radix_l2", [](RunCtx& c) { run_v4_radix(c, true, false); }},
       {"v4_radix_1pass", [](RunCtx& c) { run_v4_radix(c, false, true); }, true},

@@ -1,0 +1,372 @@
+Start (ns),Duration (ns),CorrId,GrdX,GrdY,GrdZ,BlkX,BlkY,BlkZ,Reg/Trd,StcSMem (MB),DymSMem (MB),Bytes (MB),Throughput (MB/s),SrcMemKd,DstMemKd,Device,Ctx,GreenCtx,Strm,Name
+715731611,4651947,236,,,,,,,,,,1073.742,229780.750,Device,,Tesla T4 (0),1,,7,[CUDA memset]
+721570568,3891486,239,320,1,1,256,1,1,16,0.000,0.000,,,,,Tesla T4 (0),1,,7,"k_read(const int4 *, unsigned long, int *)"
+725463398,3877182,240,320,1,1,256,1,1,16,0.000,0.000,,,,,Tesla T4 (0),1,,7,"k_read(const int4 *, unsigned long, int *)"
+729341636,3875967,241,320,1,1,256,1,1,16,0.000,0.000,,,,,Tesla T4 (0),1,,7,"k_read(const int4 *, unsigned long, int *)"
+734321159,3878943,246,320,1,1,256,1,1,16,0.000,0.000,,,,,Tesla T4 (0),1,,7,"k_read(const int4 *, unsigned long, int *)"
+738876117,3875806,251,320,1,1,256,1,1,16,0.000,0.000,,,,,Tesla T4 (0),1,,7,"k_read(const int4 *, unsigned long, int *)"
+742771250,3873343,256,320,1,1,256,1,1,16,0.000,0.000,,,,,Tesla T4 (0),1,,7,"k_read(const int4 *, unsigned long, int *)"
+746662736,3875583,261,320,1,1,256,1,1,16,0.000,0.000,,,,,Tesla T4 (0),1,,7,"k_read(const int4 *, unsigned long, int *)"
+750554415,3877662,266,320,1,1,256,1,1,16,0.000,0.000,,,,,Tesla T4 (0),1,,7,"k_read(const int4 *, unsigned long, int *)"
+754448012,3873887,271,320,1,1,256,1,1,16,0.000,0.000,,,,,Tesla T4 (0),1,,7,"k_read(const int4 *, unsigned long, int *)"
+758338026,3878943,276,320,1,1,256,1,1,16,0.000,0.000,,,,,Tesla T4 (0),1,,7,"k_read(const int4 *, unsigned long, int *)"
+762234376,3878399,281,320,1,1,256,1,1,16,0.000,0.000,,,,,Tesla T4 (0),1,,7,"k_read(const int4 *, unsigned long, int *)"
+766139430,3872639,286,320,1,1,256,1,1,16,0.000,0.000,,,,,Tesla T4 (0),1,,7,"k_read(const int4 *, unsigned long, int *)"
+770031620,3875774,291,320,1,1,256,1,1,16,0.000,0.000,,,,,Tesla T4 (0),1,,7,"k_read(const int4 *, unsigned long, int *)"
+773924706,3875711,296,320,1,1,256,1,1,16,0.000,0.000,,,,,Tesla T4 (0),1,,7,"k_read(const int4 *, unsigned long, int *)"
+777818304,3877566,301,320,1,1,256,1,1,16,0.000,0.000,,,,,Tesla T4 (0),1,,7,"k_read(const int4 *, unsigned long, int *)"
+781712990,3883870,306,320,1,1,256,1,1,16,0.000,0.000,,,,,Tesla T4 (0),1,,7,"k_read(const int4 *, unsigned long, int *)"
+785638139,3879263,311,320,1,1,256,1,1,16,0.000,0.000,,,,,Tesla T4 (0),1,,7,"k_read(const int4 *, unsigned long, int *)"
+789542489,3879806,316,320,1,1,256,1,1,16,0.000,0.000,,,,,Tesla T4 (0),1,,7,"k_read(const int4 *, unsigned long, int *)"
+793445303,3859966,322,640,1,1,256,1,1,16,0.000,0.000,,,,,Tesla T4 (0),1,,7,"k_read(const int4 *, unsigned long, int *)"
+797306421,3873119,323,640,1,1,256,1,1,16,0.000,0.000,,,,,Tesla T4 (0),1,,7,"k_read(const int4 *, unsigned long, int *)"
+801180852,3864255,324,640,1,1,256,1,1,16,0.000,0.000,,,,,Tesla T4 (0),1,,7,"k_read(const int4 *, unsigned long, int *)"
+805065106,3865663,329,640,1,1,256,1,1,16,0.000,0.000,,,,,Tesla T4 (0),1,,7,"k_read(const int4 *, unsigned long, int *)"
+808949360,3865599,334,640,1,1,256,1,1,16,0.000,0.000,,,,,Tesla T4 (0),1,,7,"k_read(const int4 *, unsigned long, int *)"
+812832270,3860384,339,640,1,1,256,1,1,16,0.000,0.000,,,,,Tesla T4 (0),1,,7,"k_read(const int4 *, unsigned long, int *)"
+816709165,3867007,344,640,1,1,256,1,1,16,0.000,0.000,,,,,Tesla T4 (0),1,,7,"k_read(const int4 *, unsigned long, int *)"
+820602059,3861055,349,640,1,1,256,1,1,16,0.000,0.000,,,,,Tesla T4 (0),1,,7,"k_read(const int4 *, unsigned long, int *)"
+824488553,3869087,354,640,1,1,256,1,1,16,0.000,0.000,,,,,Tesla T4 (0),1,,7,"k_read(const int4 *, unsigned long, int *)"
+828376263,3867935,359,640,1,1,256,1,1,16,0.000,0.000,,,,,Tesla T4 (0),1,,7,"k_read(const int4 *, unsigned long, int *)"
+832260294,3865246,364,640,1,1,256,1,1,16,0.000,0.000,,,,,Tesla T4 (0),1,,7,"k_read(const int4 *, unsigned long, int *)"
+836141700,3865342,369,640,1,1,256,1,1,16,0.000,0.000,,,,,Tesla T4 (0),1,,7,"k_read(const int4 *, unsigned long, int *)"
+840051745,3869439,374,640,1,1,256,1,1,16,0.000,0.000,,,,,Tesla T4 (0),1,,7,"k_read(const int4 *, unsigned long, int *)"
+843962687,3867998,379,640,1,1,256,1,1,16,0.000,0.000,,,,,Tesla T4 (0),1,,7,"k_read(const int4 *, unsigned long, int *)"
+847855645,3869150,384,640,1,1,256,1,1,16,0.000,0.000,,,,,Tesla T4 (0),1,,7,"k_read(const int4 *, unsigned long, int *)"
+851744155,3873855,389,640,1,1,256,1,1,16,0.000,0.000,,,,,Tesla T4 (0),1,,7,"k_read(const int4 *, unsigned long, int *)"
+855634329,3865919,394,640,1,1,256,1,1,16,0.000,0.000,,,,,Tesla T4 (0),1,,7,"k_read(const int4 *, unsigned long, int *)"
+859515287,3860479,399,640,1,1,256,1,1,16,0.000,0.000,,,,,Tesla T4 (0),1,,7,"k_read(const int4 *, unsigned long, int *)"
+863394006,3856159,405,1280,1,1,256,1,1,16,0.000,0.000,,,,,Tesla T4 (0),1,,7,"k_read(const int4 *, unsigned long, int *)"
+867250933,3851967,406,1280,1,1,256,1,1,16,0.000,0.000,,,,,Tesla T4 (0),1,,7,"k_read(const int4 *, unsigned long, int *)"
+871103636,3854622,407,1280,1,1,256,1,1,16,0.000,0.000,,,,,Tesla T4 (0),1,,7,"k_read(const int4 *, unsigned long, int *)"
+874976594,3860895,412,1280,1,1,256,1,1,16,0.000,0.000,,,,,Tesla T4 (0),1,,7,"k_read(const int4 *, unsigned long, int *)"
+878852497,3856766,417,1280,1,1,256,1,1,16,0.000,0.000,,,,,Tesla T4 (0),1,,7,"k_read(const int4 *, unsigned long, int *)"
+882724687,3850335,422,1280,1,1,256,1,1,16,0.000,0.000,,,,,Tesla T4 (0),1,,7,"k_read(const int4 *, unsigned long, int *)"
+886590958,3857726,427,1280,1,1,256,1,1,16,0.000,0.000,,,,,Tesla T4 (0),1,,7,"k_read(const int4 *, unsigned long, int *)"
+890464140,3853631,432,1280,1,1,256,1,1,16,0.000,0.000,,,,,Tesla T4 (0),1,,7,"k_read(const int4 *, unsigned long, int *)"
+894335179,3852639,437,1280,1,1,256,1,1,16,0.000,0.000,,,,,Tesla T4 (0),1,,7,"k_read(const int4 *, unsigned long, int *)"
+898201769,3856479,442,1280,1,1,256,1,1,16,0.000,0.000,,,,,Tesla T4 (0),1,,7,"k_read(const int4 *, unsigned long, int *)"
+902073544,3851999,447,1280,1,1,256,1,1,16,0.000,0.000,,,,,Tesla T4 (0),1,,7,"k_read(const int4 *, unsigned long, int *)"
+905940071,3852767,452,1280,1,1,256,1,1,16,0.000,0.000,,,,,Tesla T4 (0),1,,7,"k_read(const int4 *, unsigned long, int *)"
+909808197,3847775,457,1280,1,1,256,1,1,16,0.000,0.000,,,,,Tesla T4 (0),1,,7,"k_read(const int4 *, unsigned long, int *)"
+913670756,3853023,462,1280,1,1,256,1,1,16,0.000,0.000,,,,,Tesla T4 (0),1,,7,"k_read(const int4 *, unsigned long, int *)"
+917539011,3856894,467,1280,1,1,256,1,1,16,0.000,0.000,,,,,Tesla T4 (0),1,,7,"k_read(const int4 *, unsigned long, int *)"
+921410017,3855391,472,1280,1,1,256,1,1,16,0.000,0.000,,,,,Tesla T4 (0),1,,7,"k_read(const int4 *, unsigned long, int *)"
+925280096,3856446,477,1280,1,1,256,1,1,16,0.000,0.000,,,,,Tesla T4 (0),1,,7,"k_read(const int4 *, unsigned long, int *)"
+929151646,3857951,482,1280,1,1,256,1,1,16,0.000,0.000,,,,,Tesla T4 (0),1,,7,"k_read(const int4 *, unsigned long, int *)"
+2285947284,704,512,,,,,,,,,,0.000,181.818,Pageable,Device,Tesla T4 (0),1,,7,[CUDA memcpy Host-to-Device]
+2289817171,4576,532,320,1,1,256,1,1,16,0.000,0.000,,,,,Tesla T4 (0),1,,14,"k_table_init(GT, unsigned long)"
+2290407844,1310591,538,,,,,,,,,,16.000,12208.000,Pinned,Device,Tesla T4 (0),1,,14,[CUDA memcpy Host-to-Device]
+2291720035,5247068,539,,,,,,,,,,64.000,12160.000,Pinned,Device,Tesla T4 (0),1,,14,[CUDA memcpy Host-to-Device]
+2296969983,169404,540,,,,,,,,,,2.000,11807.417,Pinned,Device,Tesla T4 (0),1,,14,[CUDA memcpy Host-to-Device]
+2297141019,84734,541,,,,,,,,,,1.000,11802.416,Pinned,Device,Tesla T4 (0),1,,14,[CUDA memcpy Host-to-Device]
+2297558128,1917552,544,80,1,1,256,1,1,44,0.000,0.026,,,,,Tesla T4 (0),1,,14,"void k_agg<KD1<unsigned char>, PSmem<LSoA<(int)256>, (int)256, (bool)1>, (int)2>(Cols<T1>, T2::Params)"
+2297576431,1566649,546,,,,,,,,,,16.000,10208.000,Pinned,Device,Tesla T4 (0),1,,15,[CUDA memcpy Host-to-Device]
+2299145288,6171077,547,,,,,,,,,,64.000,10368.000,Pinned,Device,Tesla T4 (0),1,,15,[CUDA memcpy Host-to-Device]
+2305318669,197691,548,,,,,,,,,,2.002,10125.934,Pinned,Device,Tesla T4 (0),1,,15,[CUDA memcpy Host-to-Device]
+2305518664,99453,549,,,,,,,,,,1.001,10064.874,Pinned,Device,Tesla T4 (0),1,,15,[CUDA memcpy Host-to-Device]
+2305621413,1536730,553,,,,,,,,,,16.000,10400.000,Pinned,Device,Tesla T4 (0),1,,16,[CUDA memcpy Host-to-Device]
+2305623429,1924016,551,80,1,1,256,1,1,44,0.000,0.026,,,,,Tesla T4 (0),1,,15,"void k_agg<KD1<unsigned char>, PSmem<LSoA<(int)256>, (int)256, (bool)1>, (int)2>(Cols<T1>, T2::Params)"
+2307160415,6016968,554,,,,,,,,,,64.000,10624.000,Pinned,Device,Tesla T4 (0),1,,16,[CUDA memcpy Host-to-Device]
+2313179783,191675,555,,,,,,,,,,1.999,10429.659,Pinned,Device,Tesla T4 (0),1,,16,[CUDA memcpy Host-to-Device]
+2313373730,96158,556,,,,,,,,,,1.000,10394.674,Pinned,Device,Tesla T4 (0),1,,16,[CUDA memcpy Host-to-Device]
+2313472544,1473274,560,,,,,,,,,,16.000,10848.000,Pinned,Device,Tesla T4 (0),1,,14,[CUDA memcpy Host-to-Device]
+2313474080,1919503,558,80,1,1,256,1,1,44,0.000,0.026,,,,,Tesla T4 (0),1,,16,"void k_agg<KD1<unsigned char>, PSmem<LSoA<(int)256>, (int)256, (bool)1>, (int)2>(Cols<T1>, T2::Params)"
+2314947738,5863597,561,,,,,,,,,,64.000,10880.000,Pinned,Device,Tesla T4 (0),1,,14,[CUDA memcpy Host-to-Device]
+2320814183,201083,562,,,,,,,,,,1.997,9933.369,Pinned,Device,Tesla T4 (0),1,,14,[CUDA memcpy Host-to-Device]
+2321017506,92989,563,,,,,,,,,,0.999,10739.344,Pinned,Device,Tesla T4 (0),1,,14,[CUDA memcpy Host-to-Device]
+2321113183,1463836,567,,,,,,,,,,16.000,10928.000,Pinned,Device,Tesla T4 (0),1,,15,[CUDA memcpy Host-to-Device]
+2321114943,1920912,565,80,1,1,256,1,1,44,0.000,0.026,,,,,Tesla T4 (0),1,,14,"void k_agg<KD1<unsigned char>, PSmem<LSoA<(int)256>, (int)256, (bool)1>, (int)2>(Cols<T1>, T2::Params)"
+2322580090,5815886,568,,,,,,,,,,64.000,10944.000,Pinned,Device,Tesla T4 (0),1,,15,[CUDA memcpy Host-to-Device]
+2328398376,184923,569,,,,,,,,,,1.996,10794.081,Pinned,Device,Tesla T4 (0),1,,15,[CUDA memcpy Host-to-Device]
+2328585603,92830,570,,,,,,,,,,0.998,10752.158,Pinned,Device,Tesla T4 (0),1,,15,[CUDA memcpy Host-to-Device]
+2328681601,1440252,574,,,,,,,,,,16.000,11104.000,Pinned,Device,Tesla T4 (0),1,,16,[CUDA memcpy Host-to-Device]
+2328682945,1921584,572,80,1,1,256,1,1,44,0.000,0.026,,,,,Tesla T4 (0),1,,15,"void k_agg<KD1<unsigned char>, PSmem<LSoA<(int)256>, (int)256, (bool)1>, (int)2>(Cols<T1>, T2::Params)"
+2330125021,5841741,575,,,,,,,,,,64.000,10944.000,Pinned,Device,Tesla T4 (0),1,,16,[CUDA memcpy Host-to-Device]
+2335969002,185147,576,,,,,,,,,,2.002,10814.790,Pinned,Device,Tesla T4 (0),1,,16,[CUDA memcpy Host-to-Device]
+2336156421,94334,577,,,,,,,,,,1.001,10612.550,Pinned,Device,Tesla T4 (0),1,,16,[CUDA memcpy Host-to-Device]
+2336253379,364886,581,,,,,,,,,,4.000,10960.000,Pinned,Device,Tesla T4 (0),1,,14,[CUDA memcpy Host-to-Device]
+2336254979,1916111,579,80,1,1,256,1,1,44,0.000,0.026,,,,,Tesla T4 (0),1,,16,"void k_agg<KD1<unsigned char>, PSmem<LSoA<(int)256>, (int)256, (bool)1>, (int)2>(Cols<T1>, T2::Params)"
+2336620569,1460507,582,,,,,,,,,,16.000,10944.000,Pinned,Device,Tesla T4 (0),1,,14,[CUDA memcpy Host-to-Device]
+2338083732,49279,583,,,,,,,,,,0.499,10129.766,Pinned,Device,Tesla T4 (0),1,,14,[CUDA memcpy Host-to-Device]
+2338135059,24639,584,,,,,,,,,,0.250,10130.266,Pinned,Device,Tesla T4 (0),1,,14,[CUDA memcpy Host-to-Device]
+2338163090,569490,586,80,1,1,256,1,1,44,0.000,0.026,,,,,Tesla T4 (0),1,,14,"void k_agg<KD1<unsigned char>, PSmem<LSoA<(int)256>, (int)256, (bool)1>, (int)2>(Cols<T1>, T2::Params)"
+2338737092,1408,603,,,,,,,,,,0.000,2.841,Device,,Tesla T4 (0),1,,14,[CUDA memset]
+2338749092,2496,604,80,1,1,256,1,1,30,0.000,0.000,,,,,Tesla T4 (0),1,,14,"<unnamed>::k_extract_slice(GT, unsigned long, ResV)"
+2338759811,1984,606,,,,,,,,,,0.008,4129.030,Device,Pinned,Tesla T4 (0),1,,14,[CUDA memcpy Device-to-Host]
+2338763971,1696,607,,,,,,,,,,0.008,4830.183,Device,Pinned,Tesla T4 (0),1,,14,[CUDA memcpy Device-to-Host]
+2338767875,1760,608,,,,,,,,,,0.008,4654.539,Device,Pinned,Tesla T4 (0),1,,14,[CUDA memcpy Device-to-Host]
+2338771139,1696,609,,,,,,,,,,0.008,4830.183,Device,Pinned,Tesla T4 (0),1,,14,[CUDA memcpy Device-to-Host]
+2338774371,1504,610,,,,,,,,,,0.004,2723.402,Device,Pinned,Tesla T4 (0),1,,14,[CUDA memcpy Device-to-Host]
+2338777347,1536,611,,,,,,,,,,0.004,2666.664,Device,Pinned,Tesla T4 (0),1,,14,[CUDA memcpy Device-to-Host]
+2338780323,1152,612,,,,,,,,,,0.000,3.472,Device,Pinned,Tesla T4 (0),1,,14,[CUDA memcpy Device-to-Host]
+2338865601,4384,630,320,1,1,256,1,1,16,0.000,0.000,,,,,Tesla T4 (0),1,,14,"k_table_init(GT, unsigned long)"
+2338894752,1371294,636,,,,,,,,,,16.000,11664.000,Pinned,Device,Tesla T4 (0),1,,14,[CUDA memcpy Host-to-Device]
+2340267294,5547348,637,,,,,,,,,,64.000,11520.000,Pinned,Device,Tesla T4 (0),1,,14,[CUDA memcpy Host-to-Device]
+2345817298,178139,638,,,,,,,,,,2.000,11227.347,Pinned,Device,Tesla T4 (0),1,,14,[CUDA memcpy Host-to-Device]
+2345997773,89662,639,,,,,,,,,,1.000,11153.338,Pinned,Device,Tesla T4 (0),1,,14,[CUDA memcpy Host-to-Device]
+2346089355,1371614,643,,,,,,,,,,16.000,11664.000,Pinned,Device,Tesla T4 (0),1,,15,[CUDA memcpy Host-to-Device]
+2346091083,1915792,641,80,1,1,256,1,1,44,0.000,0.026,,,,,Tesla T4 (0),1,,14,"void k_agg<KD1<unsigned char>, PSmem<LSoA<(int)256>, (int)256, (bool)1>, (int)2>(Cols<T1>, T2::Params)"
+2347462761,5486550,644,,,,,,,,,,64.000,11648.000,Pinned,Device,Tesla T4 (0),1,,15,[CUDA memcpy Host-to-Device]
+2352950943,176923,645,,,,,,,,,,2.002,11315.101,Pinned,Device,Tesla T4 (0),1,,15,[CUDA memcpy Host-to-Device]
+2353129498,88605,646,,,,,,,,,,1.001,11297.083,Pinned,Device,Tesla T4 (0),1,,15,[CUDA memcpy Host-to-Device]
+2353221399,1400477,650,,,,,,,,,,16.000,11424.000,Pinned,Device,Tesla T4 (0),1,,16,[CUDA memcpy Host-to-Device]
+2353229335,1919024,648,80,1,1,256,1,1,44,0.000,0.026,,,,,Tesla T4 (0),1,,15,"void k_agg<KD1<unsigned char>, PSmem<LSoA<(int)256>, (int)256, (bool)1>, (int)2>(Cols<T1>, T2::Params)"
+2354623156,5500182,651,,,,,,,,,,64.000,11584.000,Pinned,Device,Tesla T4 (0),1,,16,[CUDA memcpy Host-to-Device]
+2360125738,175579,652,,,,,,,,,,1.999,11385.262,Pinned,Device,Tesla T4 (0),1,,16,[CUDA memcpy Host-to-Device]
+2360302917,87870,653,,,,,,,,,,1.000,11375.266,Pinned,Device,Tesla T4 (0),1,,16,[CUDA memcpy Host-to-Device]
+2360392707,1360510,657,,,,,,,,,,16.000,11760.000,Pinned,Device,Tesla T4 (0),1,,14,[CUDA memcpy Host-to-Device]
+2360394947,1928752,655,80,1,1,256,1,1,44,0.000,0.026,,,,,Tesla T4 (0),1,,16,"void k_agg<KD1<unsigned char>, PSmem<LSoA<(int)256>, (int)256, (bool)1>, (int)2>(Cols<T1>, T2::Params)"
+2361754817,5454295,658,,,,,,,,,,64.000,11712.000,Pinned,Device,Tesla T4 (0),1,,14,[CUDA memcpy Host-to-Device]
+2367211384,174459,659,,,,,,,,,,1.997,11449.441,Pinned,Device,Tesla T4 (0),1,,14,[CUDA memcpy Host-to-Device]
+2367388147,88606,660,,,,,,,,,,0.999,11270.668,Pinned,Device,Tesla T4 (0),1,,14,[CUDA memcpy Host-to-Device]
+2367478673,1338430,664,,,,,,,,,,16.000,11952.000,Pinned,Device,Tesla T4 (0),1,,15,[CUDA memcpy Host-to-Device]
+2367479857,1912880,662,80,1,1,256,1,1,44,0.000,0.026,,,,,Tesla T4 (0),1,,14,"void k_agg<KD1<unsigned char>, PSmem<LSoA<(int)256>, (int)256, (bool)1>, (int)2>(Cols<T1>, T2::Params)"
+2368819119,5364377,665,,,,,,,,,,64.000,11904.000,Pinned,Device,Tesla T4 (0),1,,15,[CUDA memcpy Host-to-Device]
+2374185768,172124,666,,,,,,,,,,1.996,11596.600,Pinned,Device,Tesla T4 (0),1,,15,[CUDA memcpy Host-to-Device]
+2374359492,85630,667,,,,,,,,,,0.998,11656.489,Pinned,Device,Tesla T4 (0),1,,15,[CUDA memcpy Host-to-Device]
+2374447042,1378749,671,,,,,,,,,,16.000,11600.000,Pinned,Device,Tesla T4 (0),1,,16,[CUDA memcpy Host-to-Device]
+2374453250,1920175,669,80,1,1,256,1,1,44,0.000,0.026,,,,,Tesla T4 (0),1,,15,"void k_agg<KD1<unsigned char>, PSmem<LSoA<(int)256>, (int)256, (bool)1>, (int)2>(Cols<T1>, T2::Params)"
+2375828063,5433143,672,,,,,,,,,,64.000,11776.000,Pinned,Device,Tesla T4 (0),1,,16,[CUDA memcpy Host-to-Device]
+2381264022,173787,673,,,,,,,,,,2.002,11521.625,Pinned,Device,Tesla T4 (0),1,,16,[CUDA memcpy Host-to-Device]
+2381440241,86654,674,,,,,,,,,,1.001,11553.663,Pinned,Device,Tesla T4 (0),1,,16,[CUDA memcpy Host-to-Device]
+2381529487,339800,678,,,,,,,,,,4.000,11768.000,Pinned,Device,Tesla T4 (0),1,,14,[CUDA memcpy Host-to-Device]
+2381531215,1943535,676,80,1,1,256,1,1,44,0.000,0.026,,,,,Tesla T4 (0),1,,16,"void k_agg<KD1<unsigned char>, PSmem<LSoA<(int)256>, (int)256, (bool)1>, (int)2>(Cols<T1>, T2::Params)"
+2381872199,1369597,679,,,,,,,,,,16.000,11680.000,Pinned,Device,Tesla T4 (0),1,,14,[CUDA memcpy Host-to-Device]
+2383244196,44191,680,,,,,,,,,,0.499,11296.397,Pinned,Device,Tesla T4 (0),1,,14,[CUDA memcpy Host-to-Device]
+2383290307,23455,681,,,,,,,,,,0.250,10641.446,Pinned,Device,Tesla T4 (0),1,,14,[CUDA memcpy Host-to-Device]
+2383317410,562322,683,80,1,1,256,1,1,44,0.000,0.026,,,,,Tesla T4 (0),1,,14,"void k_agg<KD1<unsigned char>, PSmem<LSoA<(int)256>, (int)256, (bool)1>, (int)2>(Cols<T1>, T2::Params)"
+2383883444,352,700,,,,,,,,,,0.000,11.364,Device,,Tesla T4 (0),1,,14,[CUDA memset]
+2383884564,3872,701,80,1,1,256,1,1,30,0.000,0.000,,,,,Tesla T4 (0),1,,14,"<unnamed>::k_extract_slice(GT, unsigned long, ResV)"
+2383894100,1984,703,,,,,,,,,,0.008,4129.030,Device,Pinned,Tesla T4 (0),1,,14,[CUDA memcpy Device-to-Host]
+2383898292,1664,704,,,,,,,,,,0.008,4923.073,Device,Pinned,Tesla T4 (0),1,,14,[CUDA memcpy Device-to-Host]
+2383902196,1664,705,,,,,,,,,,0.008,4923.073,Device,Pinned,Tesla T4 (0),1,,14,[CUDA memcpy Device-to-Host]
+2383905332,1696,706,,,,,,,,,,0.008,4830.183,Device,Pinned,Tesla T4 (0),1,,14,[CUDA memcpy Device-to-Host]
+2383908531,1504,707,,,,,,,,,,0.004,2723.402,Device,Pinned,Tesla T4 (0),1,,14,[CUDA memcpy Device-to-Host]
+2383911443,1472,708,,,,,,,,,,0.004,2782.605,Device,Pinned,Tesla T4 (0),1,,14,[CUDA memcpy Device-to-Host]
+2383914323,1184,709,,,,,,,,,,0.000,3.378,Device,Pinned,Tesla T4 (0),1,,14,[CUDA memcpy Device-to-Host]
+2383979666,4320,727,320,1,1,256,1,1,16,0.000,0.000,,,,,Tesla T4 (0),1,,14,"k_table_init(GT, unsigned long)"
+2384004273,1384445,733,,,,,,,,,,16.000,11552.000,Pinned,Device,Tesla T4 (0),1,,14,[CUDA memcpy Host-to-Device]
+2385390318,5574484,734,,,,,,,,,,64.000,11456.000,Pinned,Device,Tesla T4 (0),1,,14,[CUDA memcpy Host-to-Device]
+2390967298,178780,735,,,,,,,,,,2.000,11187.342,Pinned,Device,Tesla T4 (0),1,,14,[CUDA memcpy Host-to-Device]
+2391147677,89022,736,,,,,,,,,,1.000,11234.348,Pinned,Device,Tesla T4 (0),1,,14,[CUDA memcpy Host-to-Device]
+2391238843,1363774,740,,,,,,,,,,16.000,11728.000,Pinned,Device,Tesla T4 (0),1,,15,[CUDA memcpy Host-to-Device]
+2391240987,1918160,738,80,1,1,256,1,1,44,0.000,0.026,,,,,Tesla T4 (0),1,,14,"void k_agg<KD1<unsigned char>, PSmem<LSoA<(int)256>, (int)256, (bool)1>, (int)2>(Cols<T1>, T2::Params)"
+2392604664,5483255,741,,,,,,,,,,64.000,11648.000,Pinned,Device,Tesla T4 (0),1,,15,[CUDA memcpy Host-to-Device]
+2398090190,175900,742,,,,,,,,,,2.002,11381.165,Pinned,Device,Tesla T4 (0),1,,15,[CUDA memcpy Host-to-Device]
+2398267722,87710,743,,,,,,,,,,1.001,11412.196,Pinned,Device,Tesla T4 (0),1,,15,[CUDA memcpy Host-to-Device]
+2398357384,1384317,747,,,,,,,,,,16.000,11552.000,Pinned,Device,Tesla T4 (0),1,,16,[CUDA memcpy Host-to-Device]
+2398359848,1918736,745,80,1,1,256,1,1,44,0.000,0.026,,,,,Tesla T4 (0),1,,15,"void k_agg<KD1<unsigned char>, PSmem<LSoA<(int)256>, (int)256, (bool)1>, (int)2>(Cols<T1>, T2::Params)"
+2399744645,5512245,748,,,,,,,,,,64.000,11584.000,Pinned,Device,Tesla T4 (0),1,,16,[CUDA memcpy Host-to-Device]
+2405258490,172988,749,,,,,,,,,,1.999,11555.191,Pinned,Device,Tesla T4 (0),1,,16,[CUDA memcpy Host-to-Device]
+2405433078,87454,750,,,,,,,,,,1.000,11429.243,Pinned,Device,Tesla T4 (0),1,,16,[CUDA memcpy Host-to-Device]
+2405522452,1365437,754,,,,,,,,,,16.000,11712.000,Pinned,Device,Tesla T4 (0),1,,14,[CUDA memcpy Host-to-Device]
+2405524564,1915024,752,80,1,1,256,1,1,44,0.000,0.026,,,,,Tesla T4 (0),1,,16,"void k_agg<KD1<unsigned char>, PSmem<LSoA<(int)256>, (int)256, (bool)1>, (int)2>(Cols<T1>, T2::Params)"
+2406889137,5432600,755,,,,,,,,,,64.000,11776.000,Pinned,Device,Tesla T4 (0),1,,14,[CUDA memcpy Host-to-Device]
+2412324009,174011,756,,,,,,,,,,1.997,11477.405,Pinned,Device,Tesla T4 (0),1,,14,[CUDA memcpy Host-to-Device]
+2412499620,87070,757,,,,,,,,,,0.999,11470.414,Pinned,Device,Tesla T4 (0),1,,14,[CUDA memcpy Host-to-Device]
+2412588610,1339966,761,,,,,,,,,,16.000,11936.000,Pinned,Device,Tesla T4 (0),1,,15,[CUDA memcpy Host-to-Device]
+2412590018,1917871,759,80,1,1,256,1,1,44,0.000,0.026,,,,,Tesla T4 (0),1,,14,"void k_agg<KD1<unsigned char>, PSmem<LSoA<(int)256>, (int)256, (bool)1>, (int)2>(Cols<T1>, T2::Params)"
+2413930176,5355610,762,,,,,,,,,,64.000,11904.000,Pinned,Device,Tesla T4 (0),1,,15,[CUDA memcpy Host-to-Device]
+2419288058,172763,763,,,,,,,,,,1.996,11554.677,Pinned,Device,Tesla T4 (0),1,,15,[CUDA memcpy Host-to-Device]
+2419462421,85790,764,,,,,,,,,,0.998,11634.530,Pinned,Device,Tesla T4 (0),1,,15,[CUDA memcpy Host-to-Device]
+2419550131,1358909,768,,,,,,,,,,16.000,11760.000,Pinned,Device,Tesla T4 (0),1,,16,[CUDA memcpy Host-to-Device]
+2419553171,1919663,766,80,1,1,256,1,1,44,0.000,0.026,,,,,Tesla T4 (0),1,,15,"void k_agg<KD1<unsigned char>, PSmem<LSoA<(int)256>, (int)256, (bool)1>, (int)2>(Cols<T1>, T2::Params)"
+2420911472,5389529,769,,,,,,,,,,64.000,11840.000,Pinned,Device,Tesla T4 (0),1,,16,[CUDA memcpy Host-to-Device]
+2426303465,173371,770,,,,,,,,,,2.002,11547.656,Pinned,Device,Tesla T4 (0),1,,16,[CUDA memcpy Host-to-Device]
+2426478756,85854,771,,,,,,,,,,1.001,11660.790,Pinned,Device,Tesla T4 (0),1,,16,[CUDA memcpy Host-to-Device]
+2426566978,343575,775,,,,,,,,,,4.000,11640.000,Pinned,Device,Tesla T4 (0),1,,14,[CUDA memcpy Host-to-Device]
+2426567842,1940559,773,80,1,1,256,1,1,44,0.000,0.026,,,,,Tesla T4 (0),1,,16,"void k_agg<KD1<unsigned char>, PSmem<LSoA<(int)256>, (int)256, (bool)1>, (int)2>(Cols<T1>, T2::Params)"
+2426912761,1348671,776,,,,,,,,,,16.000,11856.000,Pinned,Device,Tesla T4 (0),1,,14,[CUDA memcpy Host-to-Device]
+2428263640,43998,777,,,,,,,,,,0.499,11345.818,Pinned,Device,Tesla T4 (0),1,,14,[CUDA memcpy Host-to-Device]
+2428309590,23392,778,,,,,,,,,,0.250,10670.150,Pinned,Device,Tesla T4 (0),1,,14,[CUDA memcpy Host-to-Device]
+2428336950,563730,780,80,1,1,256,1,1,44,0.000,0.026,,,,,Tesla T4 (0),1,,14,"void k_agg<KD1<unsigned char>, PSmem<LSoA<(int)256>, (int)256, (bool)1>, (int)2>(Cols<T1>, T2::Params)"
+2428904455,352,797,,,,,,,,,,0.000,11.364,Device,,Tesla T4 (0),1,,14,[CUDA memset]
+2428905575,3616,798,80,1,1,256,1,1,30,0.000,0.000,,,,,Tesla T4 (0),1,,14,"<unnamed>::k_extract_slice(GT, unsigned long, ResV)"
+2428914151,1984,800,,,,,,,,,,0.008,4129.030,Device,Pinned,Tesla T4 (0),1,,14,[CUDA memcpy Device-to-Host]
+2428918855,1696,801,,,,,,,,,,0.008,4830.183,Device,Pinned,Tesla T4 (0),1,,14,[CUDA memcpy Device-to-Host]
+2428922791,1696,802,,,,,,,,,,0.008,4830.183,Device,Pinned,Tesla T4 (0),1,,14,[CUDA memcpy Device-to-Host]
+2428926023,1696,803,,,,,,,,,,0.008,4830.183,Device,Pinned,Tesla T4 (0),1,,14,[CUDA memcpy Device-to-Host]
+2428929223,1504,804,,,,,,,,,,0.004,2723.402,Device,Pinned,Tesla T4 (0),1,,14,[CUDA memcpy Device-to-Host]
+2428932167,1792,805,,,,,,,,,,0.004,2285.711,Device,Pinned,Tesla T4 (0),1,,14,[CUDA memcpy Device-to-Host]
+2428935367,1280,806,,,,,,,,,,0.000,3.125,Device,Pinned,Tesla T4 (0),1,,14,[CUDA memcpy Device-to-Host]
+2429006373,4352,824,320,1,1,256,1,1,16,0.000,0.000,,,,,Tesla T4 (0),1,,14,"k_table_init(GT, unsigned long)"
+2429034948,1373950,830,,,,,,,,,,16.000,11632.000,Pinned,Device,Tesla T4 (0),1,,14,[CUDA memcpy Host-to-Device]
+2430410818,5531764,831,,,,,,,,,,64.000,11520.000,Pinned,Device,Tesla T4 (0),1,,14,[CUDA memcpy Host-to-Device]
+2435944182,179164,832,,,,,,,,,,2.000,11163.339,Pinned,Device,Tesla T4 (0),1,,14,[CUDA memcpy Host-to-Device]
+2436125618,89790,833,,,,,,,,,,1.000,11138.336,Pinned,Device,Tesla T4 (0),1,,14,[CUDA memcpy Host-to-Device]
+2436216976,1371773,837,,,,,,,,,,16.000,11648.000,Pinned,Device,Tesla T4 (0),1,,15,[CUDA memcpy Host-to-Device]
+2436219248,1928879,835,80,1,1,256,1,1,44,0.000,0.026,,,,,Tesla T4 (0),1,,14,"void k_agg<KD1<unsigned char>, PSmem<LSoA<(int)256>, (int)256, (bool)1>, (int)2>(Cols<T1>, T2::Params)"
+2437590349,5475990,838,,,,,,,,,,64.000,11648.000,Pinned,Device,Tesla T4 (0),1,,15,[CUDA memcpy Host-to-Device]
+2443067971,188027,839,,,,,,,,,,2.002,10646.445,Pinned,Device,Tesla T4 (0),1,,15,[CUDA memcpy Host-to-Device]
+2443258238,89214,840,,,,,,,,,,1.001,11220.007,Pinned,Device,Tesla T4 (0),1,,15,[CUDA memcpy Host-to-Device]
+2443349372,1363870,844,,,,,,,,,,16.000,11728.000,Pinned,Device,Tesla T4 (0),1,,16,[CUDA memcpy Host-to-Device]
+2443351228,1919120,842,80,1,1,256,1,1,44,0.000,0.026,,,,,Tesla T4 (0),1,,15,"void k_agg<KD1<unsigned char>, PSmem<LSoA<(int)256>, (int)256, (bool)1>, (int)2>(Cols<T1>, T2::Params)"
+2444716058,5497941,845,,,,,,,,,,64.000,11584.000,Pinned,Device,Tesla T4 (0),1,,16,[CUDA memcpy Host-to-Device]
+2450215631,175132,846,,,,,,,,,,1.999,11413.250,Pinned,Device,Tesla T4 (0),1,,16,[CUDA memcpy Host-to-Device]
+2450393227,87358,847,,,,,,,,,,1.000,11442.238,Pinned,Device,Tesla T4 (0),1,,16,[CUDA memcpy Host-to-Device]
+2450482504,1352671,851,,,,,,,,,,16.000,11824.000,Pinned,Device,Tesla T4 (0),1,,14,[CUDA memcpy Host-to-Device]
+2450488456,1916272,849,80,1,1,256,1,1,44,0.000,0.026,,,,,Tesla T4 (0),1,,16,"void k_agg<KD1<unsigned char>, PSmem<LSoA<(int)256>, (int)256, (bool)1>, (int)2>(Cols<T1>, T2::Params)"
+2451836775,5456598,852,,,,,,,,,,64.000,11712.000,Pinned,Device,Tesla T4 (0),1,,14,[CUDA memcpy Host-to-Device]
+2457294973,174908,853,,,,,,,,,,1.997,11419.479,Pinned,Device,Tesla T4 (0),1,,14,[CUDA memcpy Host-to-Device]
+2457471481,87294,854,,,,,,,,,,0.999,11440.452,Pinned,Device,Tesla T4 (0),1,,14,[CUDA memcpy Host-to-Device]
+2457560695,1371357,858,,,,,,,,,,16.000,11664.000,Pinned,Device,Tesla T4 (0),1,,15,[CUDA memcpy Host-to-Device]
+2457561943,1917295,856,80,1,1,256,1,1,44,0.000,0.026,,,,,Tesla T4 (0),1,,14,"void k_agg<KD1<unsigned char>, PSmem<LSoA<(int)256>, (int)256, (bool)1>, (int)2>(Cols<T1>, T2::Params)"
+2458933652,5372345,859,,,,,,,,,,64.000,11904.000,Pinned,Device,Tesla T4 (0),1,,15,[CUDA memcpy Host-to-Device]
+2464308269,171227,860,,,,,,,,,,1.996,11658.485,Pinned,Device,Tesla T4 (0),1,,15,[CUDA memcpy Host-to-Device]
+2464480744,85694,861,,,,,,,,,,0.998,11647.506,Pinned,Device,Tesla T4 (0),1,,15,[CUDA memcpy Host-to-Device]
+2464568358,1357694,865,,,,,,,,,,16.000,11776.000,Pinned,Device,Tesla T4 (0),1,,16,[CUDA memcpy Host-to-Device]
+2464575270,1917392,863,80,1,1,256,1,1,44,0.000,0.026,,,,,Tesla T4 (0),1,,15,"void k_agg<KD1<unsigned char>, PSmem<LSoA<(int)256>, (int)256, (bool)1>, (int)2>(Cols<T1>, T2::Params)"
+2465928324,5398520,866,,,,,,,,,,64.000,11840.000,Pinned,Device,Tesla T4 (0),1,,16,[CUDA memcpy Host-to-Device]
+2471329660,173244,867,,,,,,,,,,2.002,11557.668,Pinned,Device,Tesla T4 (0),1,,16,[CUDA memcpy Host-to-Device]
+2471504855,86398,868,,,,,,,,,,1.001,11587.704,Pinned,Device,Tesla T4 (0),1,,16,[CUDA memcpy Host-to-Device]
+2471593813,350775,872,,,,,,,,,,4.000,11400.000,Pinned,Device,Tesla T4 (0),1,,14,[CUDA memcpy Host-to-Device]
+2471595573,1941488,870,80,1,1,256,1,1,44,0.000,0.026,,,,,Tesla T4 (0),1,,16,"void k_agg<KD1<unsigned char>, PSmem<LSoA<(int)256>, (int)256, (bool)1>, (int)2>(Cols<T1>, T2::Params)"
+2471947852,1351358,873,,,,,,,,,,16.000,11824.000,Pinned,Device,Tesla T4 (0),1,,14,[CUDA memcpy Host-to-Device]
+2473301482,50111,874,,,,,,,,,,0.499,9961.536,Pinned,Device,Tesla T4 (0),1,,14,[CUDA memcpy Host-to-Device]
+2473353513,23296,875,,,,,,,,,,0.250,10714.080,Pinned,Device,Tesla T4 (0),1,,14,[CUDA memcpy Host-to-Device]
+2473380808,563570,877,80,1,1,256,1,1,44,0.000,0.026,,,,,Tesla T4 (0),1,,14,"void k_agg<KD1<unsigned char>, PSmem<LSoA<(int)256>, (int)256, (bool)1>, (int)2>(Cols<T1>, T2::Params)"
+2473948538,352,894,,,,,,,,,,0.000,11.364,Device,,Tesla T4 (0),1,,14,[CUDA memset]
+2473949690,3552,895,80,1,1,256,1,1,30,0.000,0.000,,,,,Tesla T4 (0),1,,14,"<unnamed>::k_extract_slice(GT, unsigned long, ResV)"
+2473955706,1984,897,,,,,,,,,,0.008,4129.030,Device,Pinned,Tesla T4 (0),1,,14,[CUDA memcpy Device-to-Host]
+2473960410,1696,898,,,,,,,,,,0.008,4830.183,Device,Pinned,Tesla T4 (0),1,,14,[CUDA memcpy Device-to-Host]
+2473964314,1696,899,,,,,,,,,,0.008,4830.183,Device,Pinned,Tesla T4 (0),1,,14,[CUDA memcpy Device-to-Host]
+2473967482,1696,900,,,,,,,,,,0.008,4830.183,Device,Pinned,Tesla T4 (0),1,,14,[CUDA memcpy Device-to-Host]
+2473970970,1504,901,,,,,,,,,,0.004,2723.402,Device,Pinned,Tesla T4 (0),1,,14,[CUDA memcpy Device-to-Host]
+2473973882,1472,902,,,,,,,,,,0.004,2782.605,Device,Pinned,Tesla T4 (0),1,,14,[CUDA memcpy Device-to-Host]
+2473976761,1184,903,,,,,,,,,,0.000,3.378,Device,Pinned,Tesla T4 (0),1,,14,[CUDA memcpy Device-to-Host]
+2474049720,4320,921,320,1,1,256,1,1,16,0.000,0.000,,,,,Tesla T4 (0),1,,14,"k_table_init(GT, unsigned long)"
+2474078423,1375645,927,,,,,,,,,,16.000,11616.000,Pinned,Device,Tesla T4 (0),1,,14,[CUDA memcpy Host-to-Device]
+2475456308,5560277,928,,,,,,,,,,64.000,11456.000,Pinned,Device,Tesla T4 (0),1,,14,[CUDA memcpy Host-to-Device]
+2481018984,188507,929,,,,,,,,,,2.000,10609.273,Pinned,Device,Tesla T4 (0),1,,14,[CUDA memcpy Host-to-Device]
+2481209347,89022,930,,,,,,,,,,1.000,11234.348,Pinned,Device,Tesla T4 (0),1,,14,[CUDA memcpy Host-to-Device]
+2481301473,1369470,934,,,,,,,,,,16.000,11680.000,Pinned,Device,Tesla T4 (0),1,,15,[CUDA memcpy Host-to-Device]
+2481311073,1923599,932,80,1,1,256,1,1,44,0.000,0.026,,,,,Tesla T4 (0),1,,14,"void k_agg<KD1<unsigned char>, PSmem<LSoA<(int)256>, (int)256, (bool)1>, (int)2>(Cols<T1>, T2::Params)"
+2482672222,5495254,935,,,,,,,,,,64.000,11584.000,Pinned,Device,Tesla T4 (0),1,,15,[CUDA memcpy Host-to-Device]
+2488168756,176732,936,,,,,,,,,,2.002,11327.112,Pinned,Device,Tesla T4 (0),1,,15,[CUDA memcpy Host-to-Device]
+2488346736,88190,937,,,,,,,,,,1.001,11350.135,Pinned,Device,Tesla T4 (0),1,,15,[CUDA memcpy Host-to-Device]
+2488436493,1363742,941,,,,,,,,,,16.000,11728.000,Pinned,Device,Tesla T4 (0),1,,16,[CUDA memcpy Host-to-Device]
+2488438861,1921872,939,80,1,1,256,1,1,44,0.000,0.026,,,,,Tesla T4 (0),1,,15,"void k_agg<KD1<unsigned char>, PSmem<LSoA<(int)256>, (int)256, (bool)1>, (int)2>(Cols<T1>, T2::Params)"
+2489803019,5474614,942,,,,,,,,,,64.000,11648.000,Pinned,Device,Tesla T4 (0),1,,16,[CUDA memcpy Host-to-Device]
+2495279233,176700,943,,,,,,,,,,1.999,11313.292,Pinned,Device,Tesla T4 (0),1,,16,[CUDA memcpy Host-to-Device]
+2495458237,87838,944,,,,,,,,,,1.000,11379.264,Pinned,Device,Tesla T4 (0),1,,16,[CUDA memcpy Host-to-Device]
+2495548251,1350302,948,,,,,,,,,,16.000,11840.000,Pinned,Device,Tesla T4 (0),1,,14,[CUDA memcpy Host-to-Device]
+2495550363,1921039,946,80,1,1,256,1,1,44,0.000,0.026,,,,,Tesla T4 (0),1,,16,"void k_agg<KD1<unsigned char>, PSmem<LSoA<(int)256>, (int)256, (bool)1>, (int)2>(Cols<T1>, T2::Params)"
+2496900153,5410776,949,,,,,,,,,,64.000,11776.000,Pinned,Device,Tesla T4 (0),1,,14,[CUDA memcpy Host-to-Device]
+2502314065,174395,950,,,,,,,,,,1.997,11453.436,Pinned,Device,Tesla T4 (0),1,,14,[CUDA memcpy Host-to-Device]
+2502490092,87710,951,,,,,,,,,,0.999,11386.521,Pinned,Device,Tesla T4 (0),1,,14,[CUDA memcpy Host-to-Device]
+2502579722,1338846,955,,,,,,,,,,16.000,11936.000,Pinned,Device,Tesla T4 (0),1,,15,[CUDA memcpy Host-to-Device]
+2502580906,1923023,953,80,1,1,256,1,1,44,0.000,0.026,,,,,Tesla T4 (0),1,,14,"void k_agg<KD1<unsigned char>, PSmem<LSoA<(int)256>, (int)256, (bool)1>, (int)2>(Cols<T1>, T2::Params)"
+2503920200,5396376,956,,,,,,,,,,64.000,11840.000,Pinned,Device,Tesla T4 (0),1,,15,[CUDA memcpy Host-to-Device]
+2509318848,172092,957,,,,,,,,,,1.996,11598.596,Pinned,Device,Tesla T4 (0),1,,15,[CUDA memcpy Host-to-Device]
+2509492540,85501,958,,,,,,,,,,0.998,11673.458,Pinned,Device,Tesla T4 (0),1,,15,[CUDA memcpy Host-to-Device]
+2509579993,1360638,962,,,,,,,,,,16.000,11744.000,Pinned,Device,Tesla T4 (0),1,,16,[CUDA memcpy Host-to-Device]
+2509586137,1922032,960,80,1,1,256,1,1,44,0.000,0.026,,,,,Tesla T4 (0),1,,15,"void k_agg<KD1<unsigned char>, PSmem<LSoA<(int)256>, (int)256, (bool)1>, (int)2>(Cols<T1>, T2::Params)"
+2510942903,5400440,963,,,,,,,,,,64.000,11840.000,Pinned,Device,Tesla T4 (0),1,,16,[CUDA memcpy Host-to-Device]
+2516346159,173404,964,,,,,,,,,,2.002,11545.654,Pinned,Device,Tesla T4 (0),1,,16,[CUDA memcpy Host-to-Device]
+2516521483,86270,965,,,,,,,,,,1.001,11604.724,Pinned,Device,Tesla T4 (0),1,,16,[CUDA memcpy Host-to-Device]
+2516610313,339927,969,,,,,,,,,,4.000,11764.000,Pinned,Device,Tesla T4 (0),1,,14,[CUDA memcpy Host-to-Device]
+2516612073,1947183,967,80,1,1,256,1,1,44,0.000,0.026,,,,,Tesla T4 (0),1,,16,"void k_agg<KD1<unsigned char>, PSmem<LSoA<(int)256>, (int)256, (bool)1>, (int)2>(Cols<T1>, T2::Params)"
+2516952704,1359870,970,,,,,,,,,,16.000,11760.000,Pinned,Device,Tesla T4 (0),1,,14,[CUDA memcpy Host-to-Device]
+2518314846,44703,971,,,,,,,,,,0.499,11166.605,Pinned,Device,Tesla T4 (0),1,,14,[CUDA memcpy Host-to-Device]
+2518361469,23263,972,,,,,,,,,,0.250,10729.306,Pinned,Device,Tesla T4 (0),1,,14,[CUDA memcpy Host-to-Device]
+2518388316,565138,974,80,1,1,256,1,1,44,0.000,0.026,,,,,Tesla T4 (0),1,,14,"void k_agg<KD1<unsigned char>, PSmem<LSoA<(int)256>, (int)256, (bool)1>, (int)2>(Cols<T1>, T2::Params)"
+2518957614,352,991,,,,,,,,,,0.000,11.364,Device,,Tesla T4 (0),1,,14,[CUDA memset]
+2518958734,3552,992,80,1,1,256,1,1,30,0.000,0.000,,,,,Tesla T4 (0),1,,14,"<unnamed>::k_extract_slice(GT, unsigned long, ResV)"
+2518963470,1984,994,,,,,,,,,,0.008,4129.030,Device,Pinned,Tesla T4 (0),1,,14,[CUDA memcpy Device-to-Host]
+2518968174,1664,995,,,,,,,,,,0.008,4923.073,Device,Pinned,Tesla T4 (0),1,,14,[CUDA memcpy Device-to-Host]
+2518972045,1728,996,,,,,,,,,,0.008,4740.735,Device,Pinned,Tesla T4 (0),1,,14,[CUDA memcpy Device-to-Host]
+2518975245,1664,997,,,,,,,,,,0.008,4923.073,Device,Pinned,Tesla T4 (0),1,,14,[CUDA memcpy Device-to-Host]
+2518978445,1504,998,,,,,,,,,,0.004,2723.402,Device,Pinned,Tesla T4 (0),1,,14,[CUDA memcpy Device-to-Host]
+2518981357,1440,999,,,,,,,,,,0.004,2844.443,Device,Pinned,Tesla T4 (0),1,,14,[CUDA memcpy Device-to-Host]
+2518984205,1152,1000,,,,,,,,,,0.000,3.472,Device,Pinned,Tesla T4 (0),1,,14,[CUDA memcpy Device-to-Host]
+2519096970,4320,1018,320,1,1,256,1,1,16,0.000,0.000,,,,,Tesla T4 (0),1,,14,"k_table_init(GT, unsigned long)"
+2519136521,1375101,1024,,,,,,,,,,16.000,11632.000,Pinned,Device,Tesla T4 (0),1,,14,[CUDA memcpy Host-to-Device]
+2520513542,5575956,1025,,,,,,,,,,64.000,11456.000,Pinned,Device,Tesla T4 (0),1,,14,[CUDA memcpy Host-to-Device]
+2526091098,179451,1026,,,,,,,,,,2.000,11145.337,Pinned,Device,Tesla T4 (0),1,,14,[CUDA memcpy Host-to-Device]
+2526272181,89662,1027,,,,,,,,,,1.000,11153.338,Pinned,Device,Tesla T4 (0),1,,14,[CUDA memcpy Host-to-Device]
+2526364531,1368574,1031,,,,,,,,,,16.000,11680.000,Pinned,Device,Tesla T4 (0),1,,15,[CUDA memcpy Host-to-Device]
+2526374035,1920432,1029,80,1,1,256,1,1,44,0.000,0.026,,,,,Tesla T4 (0),1,,14,"void k_agg<KD1<unsigned char>, PSmem<LSoA<(int)256>, (int)256, (bool)1>, (int)2>(Cols<T1>, T2::Params)"
+2527734353,5504789,1032,,,,,,,,,,64.000,11584.000,Pinned,Device,Tesla T4 (0),1,,15,[CUDA memcpy Host-to-Device]
+2533240774,177468,1033,,,,,,,,,,2.002,11279.065,Pinned,Device,Tesla T4 (0),1,,15,[CUDA memcpy Host-to-Device]
+2533419874,100445,1034,,,,,,,,,,1.001,9964.776,Pinned,Device,Tesla T4 (0),1,,15,[CUDA memcpy Host-to-Device]
+2533522239,1372126,1038,,,,,,,,,,16.000,11648.000,Pinned,Device,Tesla T4 (0),1,,16,[CUDA memcpy Host-to-Device]
+2533528735,1916272,1036,80,1,1,256,1,1,44,0.000,0.026,,,,,Tesla T4 (0),1,,15,"void k_agg<KD1<unsigned char>, PSmem<LSoA<(int)256>, (int)256, (bool)1>, (int)2>(Cols<T1>, T2::Params)"
+2534895645,5509813,1039,,,,,,,,,,64.000,11584.000,Pinned,Device,Tesla T4 (0),1,,16,[CUDA memcpy Host-to-Device]
+2540407090,175580,1040,,,,,,,,,,1.999,11385.262,Pinned,Device,Tesla T4 (0),1,,16,[CUDA memcpy Host-to-Device]
+2540584558,87453,1041,,,,,,,,,,1.000,11429.243,Pinned,Device,Tesla T4 (0),1,,16,[CUDA memcpy Host-to-Device]
+2540674635,1365470,1045,,,,,,,,,,16.000,11712.000,Pinned,Device,Tesla T4 (0),1,,14,[CUDA memcpy Host-to-Device]
+2540680107,1916688,1043,80,1,1,256,1,1,44,0.000,0.026,,,,,Tesla T4 (0),1,,16,"void k_agg<KD1<unsigned char>, PSmem<LSoA<(int)256>, (int)256, (bool)1>, (int)2>(Cols<T1>, T2::Params)"
+2542042601,5439031,1046,,,,,,,,,,64.000,11712.000,Pinned,Device,Tesla T4 (0),1,,14,[CUDA memcpy Host-to-Device]
+2547483904,174460,1047,,,,,,,,,,1.997,11447.443,Pinned,Device,Tesla T4 (0),1,,14,[CUDA memcpy Host-to-Device]
+2547660636,86718,1048,,,,,,,,,,0.999,11516.356,Pinned,Device,Tesla T4 (0),1,,14,[CUDA memcpy Host-to-Device]
+2547749274,1339837,1052,,,,,,,,,,16.000,11936.000,Pinned,Device,Tesla T4 (0),1,,15,[CUDA memcpy Host-to-Device]
+2547752697,1915184,1050,80,1,1,256,1,1,44,0.000,0.026,,,,,Tesla T4 (0),1,,14,"void k_agg<KD1<unsigned char>, PSmem<LSoA<(int)256>, (int)256, (bool)1>, (int)2>(Cols<T1>, T2::Params)"
+2549090711,5375673,1053,,,,,,,,,,64.000,11904.000,Pinned,Device,Tesla T4 (0),1,,15,[CUDA memcpy Host-to-Device]
+2554468656,171324,1054,,,,,,,,,,1.996,11650.500,Pinned,Device,Tesla T4 (0),1,,15,[CUDA memcpy Host-to-Device]
+2554641580,85630,1055,,,,,,,,,,0.998,11656.489,Pinned,Device,Tesla T4 (0),1,,15,[CUDA memcpy Host-to-Device]
+2554729162,1374525,1059,,,,,,,,,,16.000,11632.000,Pinned,Device,Tesla T4 (0),1,,16,[CUDA memcpy Host-to-Device]
+2554736233,1923216,1057,80,1,1,256,1,1,44,0.000,0.026,,,,,Tesla T4 (0),1,,15,"void k_agg<KD1<unsigned char>, PSmem<LSoA<(int)256>, (int)256, (bool)1>, (int)2>(Cols<T1>, T2::Params)"
+2556107079,5416664,1060,,,,,,,,,,64.000,11776.000,Pinned,Device,Tesla T4 (0),1,,16,[CUDA memcpy Host-to-Device]
+2561526207,173627,1061,,,,,,,,,,2.002,11531.637,Pinned,Device,Tesla T4 (0),1,,16,[CUDA memcpy Host-to-Device]
+2561701786,86174,1062,,,,,,,,,,1.001,11617.739,Pinned,Device,Tesla T4 (0),1,,16,[CUDA memcpy Host-to-Device]
+2561790552,338840,1066,,,,,,,,,,4.000,11804.000,Pinned,Device,Tesla T4 (0),1,,14,[CUDA memcpy Host-to-Device]
+2561791832,1939375,1064,80,1,1,256,1,1,44,0.000,0.026,,,,,Tesla T4 (0),1,,16,"void k_agg<KD1<unsigned char>, PSmem<LSoA<(int)256>, (int)256, (bool)1>, (int)2>(Cols<T1>, T2::Params)"
+2562131663,1364798,1067,,,,,,,,,,16.000,11712.000,Pinned,Device,Tesla T4 (0),1,,14,[CUDA memcpy Host-to-Device]
+2563499053,44127,1068,,,,,,,,,,0.499,11312.371,Pinned,Device,Tesla T4 (0),1,,14,[CUDA memcpy Host-to-Device]
+2563545132,23423,1069,,,,,,,,,,0.250,10656.173,Pinned,Device,Tesla T4 (0),1,,14,[CUDA memcpy Host-to-Device]
+2563572203,563826,1071,80,1,1,256,1,1,44,0.000,0.026,,,,,Tesla T4 (0),1,,14,"void k_agg<KD1<unsigned char>, PSmem<LSoA<(int)256>, (int)256, (bool)1>, (int)2>(Cols<T1>, T2::Params)"
+2564139549,384,1088,,,,,,,,,,0.000,10.417,Device,,Tesla T4 (0),1,,14,[CUDA memset]
+2564140701,3552,1089,80,1,1,256,1,1,30,0.000,0.000,,,,,Tesla T4 (0),1,,14,"<unnamed>::k_extract_slice(GT, unsigned long, ResV)"
+2564147357,2016,1091,,,,,,,,,,0.008,4063.486,Device,Pinned,Tesla T4 (0),1,,14,[CUDA memcpy Device-to-Host]
+2564152093,1824,1092,,,,,,,,,,0.008,4491.223,Device,Pinned,Tesla T4 (0),1,,14,[CUDA memcpy Device-to-Host]
+2564156157,1760,1093,,,,,,,,,,0.008,4654.539,Device,Pinned,Tesla T4 (0),1,,14,[CUDA memcpy Device-to-Host]
+2564159421,1696,1094,,,,,,,,,,0.008,4830.183,Device,Pinned,Tesla T4 (0),1,,14,[CUDA memcpy Device-to-Host]
+2564162589,1504,1095,,,,,,,,,,0.004,2723.402,Device,Pinned,Tesla T4 (0),1,,14,[CUDA memcpy Device-to-Host]
+2564165500,1472,1096,,,,,,,,,,0.004,2782.605,Device,Pinned,Tesla T4 (0),1,,14,[CUDA memcpy Device-to-Host]
+2564168348,1152,1097,,,,,,,,,,0.000,3.472,Device,Pinned,Tesla T4 (0),1,,14,[CUDA memcpy Device-to-Host]
+2599729309,4320,1118,320,1,1,256,1,1,16,0.000,0.000,,,,,Tesla T4 (0),1,,14,"k_table_init(GT, unsigned long)"
+2599774780,1375262,1128,,,,,,,,,,16.000,11632.000,Pinned,Device,Tesla T4 (0),1,,14,[CUDA memcpy Host-to-Device]
+2601152410,5618002,1129,,,,,,,,,,64.000,11328.000,Pinned,Device,Tesla T4 (0),1,,14,[CUDA memcpy Host-to-Device]
+2606772012,180444,1130,,,,,,,,,,2.000,11083.330,Pinned,Device,Tesla T4 (0),1,,14,[CUDA memcpy Host-to-Device]
+2606954056,90430,1131,,,,,,,,,,1.000,11059.327,Pinned,Device,Tesla T4 (0),1,,14,[CUDA memcpy Host-to-Device]
+2607051333,1428029,1143,,,,,,,,,,16.000,11200.000,Pinned,Device,Tesla T4 (0),1,,15,[CUDA memcpy Host-to-Device]
+2607058149,1923888,1137,80,1,1,256,1,1,44,0.000,0.026,,,,,Tesla T4 (0),1,,14,"void k_agg<KD1<unsigned char>, PSmem<LSoA<(int)256>, (int)256, (bool)1>, (int)2>(Cols<T1>, T2::Params)"
+2608482657,5529397,1144,,,,,,,,,,64.000,11520.000,Pinned,Device,Tesla T4 (0),1,,15,[CUDA memcpy Host-to-Device]
+2614014326,177084,1145,,,,,,,,,,2.002,11305.091,Pinned,Device,Tesla T4 (0),1,,15,[CUDA memcpy Host-to-Device]
+2614192658,88542,1146,,,,,,,,,,1.001,11305.091,Pinned,Device,Tesla T4 (0),1,,15,[CUDA memcpy Host-to-Device]
+2614287087,1398333,1158,,,,,,,,,,16.000,11440.000,Pinned,Device,Tesla T4 (0),1,,16,[CUDA memcpy Host-to-Device]
+2614293615,1923952,1152,80,1,1,256,1,1,44,0.000,0.026,,,,,Tesla T4 (0),1,,15,"void k_agg<KD1<unsigned char>, PSmem<LSoA<(int)256>, (int)256, (bool)1>, (int)2>(Cols<T1>, T2::Params)"
+2615687724,5563828,1159,,,,,,,,,,64.000,11456.000,Pinned,Device,Tesla T4 (0),1,,16,[CUDA memcpy Host-to-Device]
+2621254112,174395,1160,,,,,,,,,,1.999,11463.229,Pinned,Device,Tesla T4 (0),1,,16,[CUDA memcpy Host-to-Device]
+2621430107,88446,1161,,,,,,,,,,1.000,11301.297,Pinned,Device,Tesla T4 (0),1,,16,[CUDA memcpy Host-to-Device]
+2621525497,1401245,1173,,,,,,,,,,16.000,11408.000,Pinned,Device,Tesla T4 (0),1,,14,[CUDA memcpy Host-to-Device]
+2621531833,1920432,1167,80,1,1,256,1,1,44,0.000,0.026,,,,,Tesla T4 (0),1,,16,"void k_agg<KD1<unsigned char>, PSmem<LSoA<(int)256>, (int)256, (bool)1>, (int)2>(Cols<T1>, T2::Params)"
+2622929014,5510229,1174,,,,,,,,,,64.000,11584.000,Pinned,Device,Tesla T4 (0),1,,14,[CUDA memcpy Host-to-Device]
+2628440875,175292,1175,,,,,,,,,,1.997,11393.512,Pinned,Device,Tesla T4 (0),1,,14,[CUDA memcpy Host-to-Device]
+2628617767,87613,1176,,,,,,,,,,0.999,11398.505,Pinned,Device,Tesla T4 (0),1,,14,[CUDA memcpy Host-to-Device]
+2628712740,1377886,1188,,,,,,,,,,16.000,11600.000,Pinned,Device,Tesla T4 (0),1,,15,[CUDA memcpy Host-to-Device]
+2628717316,1915856,1182,80,1,1,256,1,1,44,0.000,0.026,,,,,Tesla T4 (0),1,,14,"void k_agg<KD1<unsigned char>, PSmem<LSoA<(int)256>, (int)256, (bool)1>, (int)2>(Cols<T1>, T2::Params)"
+2630093602,5429527,1189,,,,,,,,,,64.000,11776.000,Pinned,Device,Tesla T4 (0),1,,15,[CUDA memcpy Host-to-Device]
+2635525401,173212,1190,,,,,,,,,,1.996,11524.732,Pinned,Device,Tesla T4 (0),1,,15,[CUDA memcpy Host-to-Device]
+2635700213,85885,1191,,,,,,,,,,0.998,11621.554,Pinned,Device,Tesla T4 (0),1,,15,[CUDA memcpy Host-to-Device]
+2635792082,1394749,1203,,,,,,,,,,16.000,11456.000,Pinned,Device,Tesla T4 (0),1,,16,[CUDA memcpy Host-to-Device]
+2635794002,1922960,1197,80,1,1,256,1,1,44,0.000,0.026,,,,,Tesla T4 (0),1,,15,"void k_agg<KD1<unsigned char>, PSmem<LSoA<(int)256>, (int)256, (bool)1>, (int)2>(Cols<T1>, T2::Params)"
+2637189231,5461174,1204,,,,,,,,,,64.000,11712.000,Pinned,Device,Tesla T4 (0),1,,16,[CUDA memcpy Host-to-Device]
+2642652677,173372,1205,,,,,,,,,,2.002,11547.656,Pinned,Device,Tesla T4 (0),1,,16,[CUDA memcpy Host-to-Device]
+2642828289,86974,1206,,,,,,,,,,1.001,11510.612,Pinned,Device,Tesla T4 (0),1,,16,[CUDA memcpy Host-to-Device]
+2642922207,342551,1218,,,,,,,,,,4.000,11676.000,Pinned,Device,Tesla T4 (0),1,,14,[CUDA memcpy Host-to-Device]
+2642923487,1942127,1212,80,1,1,256,1,1,44,0.000,0.026,,,,,Tesla T4 (0),1,,16,"void k_agg<KD1<unsigned char>, PSmem<LSoA<(int)256>, (int)256, (bool)1>, (int)2>(Cols<T1>, T2::Params)"
+2643267062,1380061,1219,,,,,,,,,,16.000,11584.000,Pinned,Device,Tesla T4 (0),1,,14,[CUDA memcpy Host-to-Device]
+2644649427,44287,1220,,,,,,,,,,0.499,11271.437,Pinned,Device,Tesla T4 (0),1,,14,[CUDA memcpy Host-to-Device]
+2644695634,23488,1221,,,,,,,,,,0.250,10626.470,Pinned,Device,Tesla T4 (0),1,,14,[CUDA memcpy Host-to-Device]
+2644727345,561554,1227,80,1,1,256,1,1,44,0.000,0.026,,,,,Tesla T4 (0),1,,14,"void k_agg<KD1<unsigned char>, PSmem<LSoA<(int)256>, (int)256, (bool)1>, (int)2>(Cols<T1>, T2::Params)"
+2645296611,352,1248,,,,,,,,,,0.000,11.364,Device,,Tesla T4 (0),1,,14,[CUDA memset]
+2645297763,3520,1249,80,1,1,256,1,1,30,0.000,0.000,,,,,Tesla T4 (0),1,,14,"<unnamed>::k_extract_slice(GT, unsigned long, ResV)"
+2645308579,1984,1255,,,,,,,,,,0.008,4129.030,Device,Pinned,Tesla T4 (0),1,,14,[CUDA memcpy Device-to-Host]
+2645312803,1696,1256,,,,,,,,,,0.008,4830.183,Device,Pinned,Tesla T4 (0),1,,14,[CUDA memcpy Device-to-Host]
+2645317219,1695,1257,,,,,,,,,,0.008,4833.034,Device,Pinned,Tesla T4 (0),1,,14,[CUDA memcpy Device-to-Host]
+2645320418,1696,1258,,,,,,,,,,0.008,4830.183,Device,Pinned,Tesla T4 (0),1,,14,[CUDA memcpy Device-to-Host]
+2645323586,1472,1259,,,,,,,,,,0.004,2782.605,Device,Pinned,Tesla T4 (0),1,,14,[CUDA memcpy Device-to-Host]
+2645326498,1600,1260,,,,,,,,,,0.004,2560.000,Device,Pinned,Tesla T4 (0),1,,14,[CUDA memcpy Device-to-Host]
+2645329346,1184,1261,,,,,,,,,,0.000,3.378,Device,Pinned,Tesla T4 (0),1,,14,[CUDA memcpy Device-to-Host]

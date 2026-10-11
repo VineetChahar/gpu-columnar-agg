@@ -41,6 +41,7 @@ template <int S> void run_v2_aos(RunCtx&);
 template <int S> void run_v2_soa(RunCtx&);
 template <int S> void run_v3_warpagg(RunCtx&);
 void run_v3_global(RunCtx&);
+void run_v3_latemat(RunCtx&);
 void run_v4_radix(RunCtx&, bool l2_mode, bool force_1pass, bool nostage = false);
 void run_v4_sort(RunCtx&);
 void release_v4_scratch();

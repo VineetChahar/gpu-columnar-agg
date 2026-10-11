@@ -29,3 +29,15 @@ void run_v3_global(RunCtx& c) {
   });
   table_extract(*c.T, *c.R, c.st);
 }
+
+// V3 + late materialisation: decode the RLE predicate first, load codes/values only for lanes with a
+// surviving row (the GPU analogue of the CPU engine skipping unselected runs).
+void run_v3_latemat(RunCtx& c) {
+  table_init(*c.T, c.st);
+  with_kd(*c.D, [&](auto kd) {
+    auto C = make_cols(*c.D, kd, c.lo, c.hi);
+    auto L = launch_agg<decltype(kd), PSmem<LSoA<DEFAULT_SLOTS>, DEFAULT_SLOTS, true>, FE_VEC_COMPACT_LATE>(C, {c.T->t}, c.st, c.block);
+    c.info["grid"] = L.grid; c.info["occupancy"] = L.occupancy;
+  });
+  table_extract(*c.T, *c.R, c.st);
+}

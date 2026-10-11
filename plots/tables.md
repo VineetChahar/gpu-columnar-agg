@@ -684,146 +684,167 @@
 | smem_probe_read_u64_aos64_cycles_per_warp_op | 603.606 | cycles |
 | smem_probe_read_u64_soa_cycles_per_warp_op | 192.002 | cycles |
 
+## Roofline points (100M, uniform, sel 100%)
+
+| variant | card | analytic GB | GB/s achieved | % of DRAM BW |
+|---|---|---|---|---|
+| v0_naive | 4K | 0.62 | 15 | 5% |
+| v0_naive | 1M | 16.97 | 78 | 28% |
+| v0_naive | 16M | 19.23 | 71 | 26% |
+| v1_vec | 4K | 0.62 | 15 | 6% |
+| v1_vec | 1M | 16.97 | 78 | 28% |
+| v1_vec | 16M | 19.23 | 72 | 26% |
+| v2_smem_soa | 4K | 0.62 | 10 | 4% |
+| v2_smem_soa | 1M | 16.97 | 77 | 28% |
+| v2_smem_soa | 16M | 19.23 | 75 | 27% |
+| v3_warpagg | 4K | 0.62 | 10 | 4% |
+| v3_warpagg | 1M | 16.97 | 79 | 28% |
+| v3_warpagg | 16M | 19.23 | 75 | 27% |
+| v4_radix_smem | 4K | 3.64 | 60 | 22% |
+| v4_radix_smem | 1M | 13.12 | 81 | 29% |
+| v4_radix_smem | 16M | 17.40 | 58 | 21% |
+| v4_radix_l2 | 4K | 0.62 | 10 | 4% |
+| v4_radix_l2 | 1M | 10.72 | 75 | 27% |
+| v4_radix_l2 | 16M | 17.40 | 54 | 19% |
+| v4_sort | 4K | 5.42 | 96 | 34% |
+| v4_sort | 1M | 7.29 | 107 | 38% |
+| v4_sort | 16M | 8.43 | 108 | 39% |
+
 ## V5 streaming / PCIe wall
 
 | query | mode | streams | chunk rows | ms | eff. PCIe GB/s | CPU engine ms | correct |
 |---|---|---|---|---|---|---|---|
-| global_agg | cpu_engine_host_resident | 0 | 0 | 38.6 | 10.8 | 38.6 | True |
-| global_agg | gpu_resident_kernel_only | 1 | 0 | 21.2 | 19.7 | 38.6 | True |
-| global_agg | gpu_stream_pageable_overlap | 2 | 16000000 | 91.1 | 4.6 | 38.6 | True |
-| global_agg | gpu_stream_pageable_overlap | 3 | 16000000 | 90.8 | 4.6 | 38.6 | True |
-| global_agg | gpu_stream_pageable_overlap | 4 | 16000000 | 93.6 | 4.5 | 38.6 | True |
-| global_agg | gpu_stream_pageable_serial | 1 | 16000000 | 107.7 | 3.9 | 38.6 | True |
-| global_agg | gpu_stream_pinned_overlap | 2 | 16000000 | 43.8 | 9.6 | 38.6 | True |
-| global_agg | gpu_stream_pinned_overlap | 3 | 16000000 | 44.9 | 9.3 | 38.6 | True |
-| global_agg | gpu_stream_pinned_overlap | 4 | 16000000 | 45.3 | 9.2 | 38.6 | True |
-| global_agg | gpu_stream_pinned_serial | 1 | 16000000 | 60.5 | 6.9 | 38.6 | True |
-| global_agg | host_register_cost |  |  | 26.9 | nan | nan |  |
-| groupby_card16 | cpu_engine_host_resident | 0 | 0 | 238.5 | 2.2 | 238.5 | True |
-| groupby_card16 | cpu_engine_host_resident | 0 | 0 | 263.9 | 2.0 | 263.9 | True |
-| groupby_card16 | gpu_resident_kernel_only | 1 | 0 | 22.5 | 23.0 | 238.5 | True |
-| groupby_card16 | gpu_resident_kernel_only | 1 | 0 | 16.1 | 32.2 | 263.9 | True |
-| groupby_card16 | gpu_stream_pageable_overlap | 2 | 16000000 | 117.5 | 4.4 | 238.5 | True |
-| groupby_card16 | gpu_stream_pageable_overlap | 2 | 16000000 | 117.1 | 4.4 | 263.9 | True |
-| groupby_card16 | gpu_stream_pageable_overlap | 3 | 16000000 | 115.9 | 4.5 | 238.5 | True |
-| groupby_card16 | gpu_stream_pageable_overlap | 3 | 16000000 | 118.2 | 4.4 | 263.9 | True |
-| groupby_card16 | gpu_stream_pageable_overlap | 4 | 16000000 | 115.3 | 4.5 | 238.5 | True |
-| groupby_card16 | gpu_stream_pageable_overlap | 4 | 16000000 | 119.1 | 4.4 | 263.9 | True |
-| groupby_card16 | gpu_stream_pageable_serial | 1 | 16000000 | 133.1 | 3.9 | 238.5 | True |
-| groupby_card16 | gpu_stream_pageable_serial | 1 | 16000000 | 130.3 | 4.0 | 263.9 | True |
-| groupby_card16 | gpu_stream_pinned_overlap | 2 | 16000000 | 55.7 | 9.3 | 238.5 | True |
-| groupby_card16 | gpu_stream_pinned_overlap | 2 | 16000000 | 43.1 | 12.0 | 263.9 | True |
-| groupby_card16 | gpu_stream_pinned_overlap | 3 | 16000000 | 56.9 | 9.1 | 238.5 | True |
-| groupby_card16 | gpu_stream_pinned_overlap | 3 | 16000000 | 44.7 | 11.6 | 263.9 | True |
-| groupby_card16 | gpu_stream_pinned_overlap | 4 | 16000000 | 58.4 | 8.9 | 238.5 | True |
-| groupby_card16 | gpu_stream_pinned_overlap | 4 | 16000000 | 45.7 | 11.3 | 263.9 | True |
-| groupby_card16 | gpu_stream_pinned_overlap_chunk | 3 | 1048576 | 61.9 | 8.4 | 238.5 | True |
-| groupby_card16 | gpu_stream_pinned_overlap_chunk | 3 | 1048576 | 51.8 | 10.0 | 263.9 | True |
-| groupby_card16 | gpu_stream_pinned_overlap_chunk | 3 | 4194304 | 58.4 | 8.9 | 238.5 | True |
-| groupby_card16 | gpu_stream_pinned_overlap_chunk | 3 | 4194304 | 47.7 | 10.9 | 263.9 | True |
-| groupby_card16 | gpu_stream_pinned_overlap_chunk | 3 | 67108864 | 60.5 | 8.6 | 238.5 | True |
-| groupby_card16 | gpu_stream_pinned_overlap_chunk | 3 | 67108864 | 47.2 | 11.0 | 263.9 | True |
-| groupby_card16 | gpu_stream_pinned_serial | 1 | 16000000 | 74.1 | 7.0 | 238.5 | True |
-| groupby_card16 | gpu_stream_pinned_serial | 1 | 16000000 | 54.7 | 9.5 | 263.9 | True |
-| groupby_card16 | host_register_cost |  |  | 35.1 | nan | nan |  |
-| groupby_card16 | host_register_cost |  |  | 41.2 | nan | nan |  |
-| groupby_card16M | cpu_engine_host_resident | 0 | 0 | 8358.4 | 0.1 | 8358.4 | True |
-| groupby_card16M | gpu_resident_kernel_only | 1 | 0 | 832.4 | 1.0 | 8358.4 | True |
-| groupby_card16M | gpu_stream_pageable_overlap | 2 | 16000000 | 940.2 | 0.9 | 8358.4 | True |
-| groupby_card16M | gpu_stream_pageable_overlap | 3 | 16000000 | 937.4 | 0.9 | 8358.4 | True |
-| groupby_card16M | gpu_stream_pageable_overlap | 4 | 16000000 | 938.2 | 0.9 | 8358.4 | True |
-| groupby_card16M | gpu_stream_pageable_serial | 1 | 16000000 | 1107.7 | 0.7 | 8358.4 | True |
-| groupby_card16M | gpu_stream_pinned_overlap | 2 | 16000000 | 928.8 | 0.9 | 8358.4 | True |
-| groupby_card16M | gpu_stream_pinned_overlap | 3 | 16000000 | 935.8 | 0.9 | 8358.4 | True |
-| groupby_card16M | gpu_stream_pinned_overlap | 4 | 16000000 | 942.2 | 0.9 | 8358.4 | True |
-| groupby_card16M | gpu_stream_pinned_serial | 1 | 16000000 | 994.7 | 0.8 | 8358.4 | True |
-| groupby_card16M | host_register_cost |  |  | 56.3 | nan | nan |  |
+| global_agg | cpu_engine_host_resident | 0 | 0 | 76.6 | 10.9 | 76.6 | True |
+| global_agg | gpu_resident_kernel_only | 1 | 0 | 31.1 | 27.0 | 76.6 | True |
+| global_agg | gpu_stream_pageable_overlap | 2 | 16000000 | 190.3 | 4.4 | 76.6 | True |
+| global_agg | gpu_stream_pageable_overlap | 3 | 16000000 | 191.7 | 4.4 | 76.6 | True |
+| global_agg | gpu_stream_pageable_overlap | 4 | 16000000 | 190.0 | 4.4 | 76.6 | True |
+| global_agg | gpu_stream_pageable_serial | 1 | 16000000 | 208.4 | 4.0 | 76.6 | True |
+| global_agg | gpu_stream_pinned_overlap | 2 | 16000000 | 88.5 | 9.5 | 76.6 | True |
+| global_agg | gpu_stream_pinned_overlap | 3 | 16000000 | 92.0 | 9.1 | 76.6 | True |
+| global_agg | gpu_stream_pinned_overlap | 4 | 16000000 | 93.0 | 9.0 | 76.6 | True |
+| global_agg | gpu_stream_pinned_serial | 1 | 16000000 | 110.2 | 7.6 | 76.6 | True |
+| global_agg | host_register_cost |  |  | 58.6 | nan | nan |  |
+| groupby_card16 | cpu_engine_host_resident | 0 | 0 | 564.7 | 1.8 | 564.7 | True |
+| groupby_card16 | gpu_resident_kernel_only | 1 | 0 | 32.2 | 32.3 | 564.7 | True |
+| groupby_card16 | gpu_stream_pageable_overlap | 2 | 16000000 | 234.1 | 4.4 | 564.7 | True |
+| groupby_card16 | gpu_stream_pageable_overlap | 3 | 16000000 | 230.8 | 4.5 | 564.7 | True |
+| groupby_card16 | gpu_stream_pageable_overlap | 4 | 16000000 | 229.0 | 4.5 | 564.7 | True |
+| groupby_card16 | gpu_stream_pageable_serial | 1 | 16000000 | 256.7 | 4.0 | 564.7 | True |
+| groupby_card16 | gpu_stream_pinned_overlap | 2 | 16000000 | 112.1 | 9.3 | 564.7 | True |
+| groupby_card16 | gpu_stream_pinned_overlap | 3 | 16000000 | 116.5 | 8.9 | 564.7 | True |
+| groupby_card16 | gpu_stream_pinned_overlap | 4 | 16000000 | 117.4 | 8.8 | 564.7 | True |
+| groupby_card16 | gpu_stream_pinned_overlap_chunk | 3 | 1048576 | 128.7 | 8.1 | 564.7 | True |
+| groupby_card16 | gpu_stream_pinned_overlap_chunk | 3 | 4194304 | 124.6 | 8.3 | 564.7 | True |
+| groupby_card16 | gpu_stream_pinned_overlap_chunk | 3 | 67108864 | 120.3 | 8.6 | 564.7 | True |
+| groupby_card16 | gpu_stream_pinned_serial | 1 | 16000000 | 135.2 | 7.7 | 564.7 | True |
+| groupby_card16 | host_register_cost |  |  | 73.7 | nan | nan |  |
+| groupby_card16M | cpu_engine_host_resident | 0 | 0 | 16651.3 | 0.1 | 16651.3 | True |
+| groupby_card16M | gpu_resident_kernel_only | 1 | 0 | 483.2 | 3.4 | 16651.3 | True |
+| groupby_card16M | gpu_stream_pageable_overlap | 2 | 16000000 | 611.4 | 2.7 | 16651.3 | True |
+| groupby_card16M | gpu_stream_pageable_overlap | 3 | 16000000 | 598.0 | 2.7 | 16651.3 | True |
+| groupby_card16M | gpu_stream_pageable_overlap | 4 | 16000000 | 596.5 | 2.7 | 16651.3 | True |
+| groupby_card16M | gpu_stream_pageable_serial | 1 | 16000000 | 944.8 | 1.7 | 16651.3 | True |
+| groupby_card16M | gpu_stream_pinned_overlap | 2 | 16000000 | 590.7 | 2.8 | 16651.3 | True |
+| groupby_card16M | gpu_stream_pinned_overlap | 3 | 16000000 | 585.2 | 2.8 | 16651.3 | True |
+| groupby_card16M | gpu_stream_pinned_overlap | 4 | 16000000 | 587.3 | 2.8 | 16651.3 | True |
+| groupby_card16M | gpu_stream_pinned_serial | 1 | 16000000 | 740.5 | 2.2 | 16651.3 | True |
+| groupby_card16M | host_register_cost |  |  | 107.3 | nan | nan |  |
 
 ## V6 join (ms; probed = rows that reached the hash table)
 
 | D | sel | variant | ms | probed | bloom FPR | CPU ms | speedup |
 |---|---|---|---|---|---|---|---|
-| 65,536 | 1 | v6_dict | 2.13 | 65,536 | nan | 157.9 | 74.0 |
-| 65,536 | 1 | v6_np | 4.84 | 20,000,000 | nan | 157.9 | 32.6 |
-| 65,536 | 1 | v6_np_bloom | 3.48 | 200,531 | 0.0000 | 157.9 | 45.3 |
-| 65,536 | 1 | v6_part | 8.75 | 20,000,000 | nan | 157.9 | 18.1 |
-| 65,536 | 1 | v6_part_bloom | 4.31 | 200,531 | 0.0000 | 157.9 | 36.6 |
-| 65,536 | 10 | v6_dict | 2.70 | 65,536 | nan | 192.1 | 71.0 |
-| 65,536 | 10 | v6_np | 6.00 | 20,000,000 | nan | 192.1 | 32.0 |
-| 65,536 | 10 | v6_np_bloom | 4.00 | 1,989,147 | 0.0001 | 192.1 | 48.1 |
-| 65,536 | 10 | v6_part | 10.92 | 20,000,000 | nan | 192.1 | 17.6 |
-| 65,536 | 10 | v6_part_bloom | 5.38 | 1,989,147 | 0.0001 | 192.1 | 35.7 |
-| 65,536 | 50 | v6_dict | 3.83 | 65,536 | nan | 255.6 | 66.8 |
-| 65,536 | 50 | v6_np | 8.41 | 20,000,000 | nan | 255.6 | 30.4 |
-| 65,536 | 50 | v6_np_bloom | 5.38 | 10,058,458 | 0.0018 | 255.6 | 47.5 |
-| 65,536 | 50 | v6_part | 14.67 | 20,000,000 | nan | 255.6 | 17.4 |
-| 65,536 | 50 | v6_part_bloom | 10.36 | 10,058,458 | 0.0018 | 255.6 | 24.7 |
-| 65,536 | 100 | v6_dict | 3.66 | 65,536 | nan | 230.7 | 63.0 |
-| 65,536 | 100 | v6_np | 8.63 | 20,000,000 | nan | 230.7 | 26.7 |
-| 65,536 | 100 | v6_np_bloom | 7.59 | 20,000,000 | nan | 230.7 | 30.4 |
-| 65,536 | 100 | v6_part | 16.08 | 20,000,000 | nan | 230.7 | 14.4 |
-| 65,536 | 100 | v6_part_bloom | 17.65 | 20,000,000 | nan | 230.7 | 13.1 |
-| 1,048,576 | 1 | v6_dict | 2.59 | 1,048,576 | nan | 403.7 | 155.9 |
-| 1,048,576 | 1 | v6_dict | 2.39 | 1,048,576 | nan | 440.8 | 184.5 |
-| 1,048,576 | 1 | v6_dict | 2.88 | 1,048,576 | nan | 383.0 | 133.1 |
-| 1,048,576 | 1 | v6_np | 17.10 | 20,000,000 | nan | 403.7 | 23.6 |
-| 1,048,576 | 1 | v6_np | 16.65 | 20,000,000 | nan | 440.8 | 26.5 |
-| 1,048,576 | 1 | v6_np | 18.32 | 20,000,000 | nan | 383.0 | 20.9 |
-| 1,048,576 | 1 | v6_np_bloom | 11.12 | 204,606 | 0.0000 | 403.7 | 36.3 |
-| 1,048,576 | 1 | v6_np_bloom | 10.53 | 204,606 | 0.0000 | 440.8 | 41.9 |
-| 1,048,576 | 1 | v6_np_bloom | 17.27 | 204,606 | 0.0000 | 383.0 | 22.2 |
-| 1,048,576 | 1 | v6_part | 22.88 | 20,000,000 | nan | 403.7 | 17.6 |
-| 1,048,576 | 1 | v6_part | 21.70 | 20,000,000 | nan | 440.8 | 20.3 |
-| 1,048,576 | 1 | v6_part | 21.02 | 20,000,000 | nan | 383.0 | 18.2 |
-| 1,048,576 | 1 | v6_part_bloom | 21.98 | 204,606 | 0.0000 | 403.7 | 18.4 |
-| 1,048,576 | 1 | v6_part_bloom | 21.15 | 204,606 | 0.0000 | 440.8 | 20.8 |
-| 1,048,576 | 1 | v6_part_bloom | 21.11 | 204,606 | 0.0000 | 383.0 | 18.1 |
-| 1,048,576 | 10 | v6_dict | 3.46 | 1,048,576 | nan | 472.1 | 136.5 |
-| 1,048,576 | 10 | v6_np | 18.33 | 20,000,000 | nan | 472.1 | 25.8 |
-| 1,048,576 | 10 | v6_np_bloom | 13.93 | 2,006,237 | 0.0001 | 472.1 | 33.9 |
-| 1,048,576 | 10 | v6_part | 37.09 | 20,000,000 | nan | 472.1 | 12.7 |
-| 1,048,576 | 10 | v6_part_bloom | 28.07 | 2,006,237 | 0.0001 | 472.1 | 16.8 |
-| 1,048,576 | 50 | v6_dict | 5.62 | 1,048,576 | nan | 634.7 | 113.0 |
-| 1,048,576 | 50 | v6_np | 22.61 | 20,000,000 | nan | 634.7 | 28.1 |
-| 1,048,576 | 50 | v6_np_bloom | 24.37 | 10,027,381 | 0.0017 | 634.7 | 26.0 |
-| 1,048,576 | 50 | v6_part | 63.15 | 20,000,000 | nan | 634.7 | 10.1 |
-| 1,048,576 | 50 | v6_part_bloom | 49.61 | 10,027,381 | 0.0017 | 634.7 | 12.8 |
-| 1,048,576 | 100 | v6_dict | 7.24 | 1,048,576 | nan | 729.3 | 100.7 |
-| 1,048,576 | 100 | v6_dict | 6.36 | 1,048,576 | nan | 777.8 | 122.2 |
-| 1,048,576 | 100 | v6_dict | 6.95 | 1,048,576 | nan | 676.7 | 97.4 |
-| 1,048,576 | 100 | v6_np | 27.70 | 20,000,000 | nan | 729.3 | 26.3 |
-| 1,048,576 | 100 | v6_np | 25.19 | 20,000,000 | nan | 777.8 | 30.9 |
-| 1,048,576 | 100 | v6_np | 26.80 | 20,000,000 | nan | 676.7 | 25.3 |
-| 1,048,576 | 100 | v6_np_bloom | 36.67 | 20,000,000 | nan | 729.3 | 19.9 |
-| 1,048,576 | 100 | v6_np_bloom | 33.46 | 20,000,000 | nan | 777.8 | 23.2 |
-| 1,048,576 | 100 | v6_np_bloom | 35.67 | 20,000,000 | nan | 676.7 | 19.0 |
-| 1,048,576 | 100 | v6_part | 71.20 | 20,000,000 | nan | 729.3 | 10.2 |
-| 1,048,576 | 100 | v6_part | 68.39 | 20,000,000 | nan | 777.8 | 11.4 |
-| 1,048,576 | 100 | v6_part | 25.22 | 20,000,000 | nan | 676.7 | 26.8 |
-| 1,048,576 | 100 | v6_part_bloom | 81.06 | 20,000,000 | nan | 729.3 | 9.0 |
-| 1,048,576 | 100 | v6_part_bloom | 76.53 | 20,000,000 | nan | 777.8 | 10.2 |
-| 1,048,576 | 100 | v6_part_bloom | 35.46 | 20,000,000 | nan | 676.7 | 19.1 |
-| 16,777,216 | 1 | v6_dict | 19.30 | 16,777,216 | nan | 1574.5 | 81.6 |
-| 16,777,216 | 1 | v6_dict | 19.38 | 16,777,216 | nan | 1539.0 | 79.4 |
-| 16,777,216 | 1 | v6_np | 22.83 | 20,000,000 | nan | 1574.5 | 69.0 |
-| 16,777,216 | 1 | v6_np | 22.85 | 20,000,000 | nan | 1539.0 | 67.4 |
-| 16,777,216 | 1 | v6_np_bloom | 22.41 | 200,708 | 0.0000 | 1574.5 | 70.2 |
-| 16,777,216 | 1 | v6_np_bloom | 22.51 | 200,708 | 0.0000 | 1539.0 | 68.4 |
-| 16,777,216 | 1 | v6_part | 54.00 | 20,000,000 | nan | 1574.5 | 29.2 |
-| 16,777,216 | 1 | v6_part | 46.31 | 20,000,000 | nan | 1539.0 | 33.2 |
-| 16,777,216 | 1 | v6_part_bloom | 42.49 | 200,708 | 0.0000 | 1574.5 | 37.1 |
-| 16,777,216 | 1 | v6_part_bloom | 43.32 | 200,708 | 0.0000 | 1539.0 | 35.5 |
-| 16,777,216 | 100 | v6_dict | 81.80 | 16,777,216 | nan | 2634.0 | 32.2 |
-| 16,777,216 | 100 | v6_dict | 84.50 | 16,777,216 | nan | 2572.6 | 30.4 |
-| 16,777,216 | 100 | v6_np | 86.33 | 20,000,000 | nan | 2634.0 | 30.5 |
-| 16,777,216 | 100 | v6_np | 89.93 | 20,000,000 | nan | 2572.6 | 28.6 |
-| 16,777,216 | 100 | v6_np_bloom | 122.24 | 20,000,000 | nan | 2634.0 | 21.5 |
-| 16,777,216 | 100 | v6_np_bloom | 126.44 | 20,000,000 | nan | 2572.6 | 20.3 |
-| 16,777,216 | 100 | v6_part | 129.97 | 20,000,000 | nan | 2634.0 | 20.3 |
-| 16,777,216 | 100 | v6_part | 109.32 | 20,000,000 | nan | 2572.6 | 23.5 |
-| 16,777,216 | 100 | v6_part_bloom | 169.90 | 20,000,000 | nan | 2634.0 | 15.5 |
-| 16,777,216 | 100 | v6_part_bloom | 156.64 | 20,000,000 | nan | 2572.6 | 16.4 |
+| 65,536 | 1 | v6_dict | 13.22 | 65,536 | nan | 773.0 | 58.5 |
+| 65,536 | 1 | v6_np | 17.57 | 100,000,000 | nan | 773.0 | 44.0 |
+| 65,536 | 1 | v6_np_bloom | 16.93 | 1,005,538 | 0.0000 | 773.0 | 45.7 |
+| 65,536 | 1 | v6_part | 43.43 | 100,000,000 | nan | 773.0 | 17.8 |
+| 65,536 | 1 | v6_part_bloom | 22.96 | 1,005,538 | 0.0000 | 773.0 | 33.7 |
+| 65,536 | 10 | v6_dict | 16.64 | 65,536 | nan | 957.6 | 57.5 |
+| 65,536 | 10 | v6_np | 20.55 | 100,000,000 | nan | 957.6 | 46.6 |
+| 65,536 | 10 | v6_np_bloom | 20.48 | 9,945,245 | 0.0001 | 957.6 | 46.8 |
+| 65,536 | 10 | v6_part | 47.76 | 100,000,000 | nan | 957.6 | 20.1 |
+| 65,536 | 10 | v6_part_bloom | 27.86 | 9,945,245 | 0.0001 | 957.6 | 34.4 |
+| 65,536 | 50 | v6_dict | 21.74 | 65,536 | nan | 1313.6 | 60.4 |
+| 65,536 | 50 | v6_np | 27.57 | 100,000,000 | nan | 1313.6 | 47.7 |
+| 65,536 | 50 | v6_np_bloom | 28.52 | 50,277,988 | 0.0017 | 1313.6 | 46.1 |
+| 65,536 | 50 | v6_part | 55.02 | 100,000,000 | nan | 1313.6 | 23.9 |
+| 65,536 | 50 | v6_part_bloom | 45.04 | 50,277,988 | 0.0017 | 1313.6 | 29.2 |
+| 65,536 | 100 | v6_dict | 21.68 | 65,536 | nan | 1181.4 | 54.5 |
+| 65,536 | 100 | v6_np | 32.40 | 100,000,000 | nan | 1181.4 | 36.5 |
+| 65,536 | 100 | v6_np_bloom | 36.64 | 100,000,000 | nan | 1181.4 | 32.2 |
+| 65,536 | 100 | v6_part | 56.26 | 100,000,000 | nan | 1181.4 | 21.0 |
+| 65,536 | 100 | v6_part_bloom | 66.94 | 100,000,000 | nan | 1181.4 | 17.6 |
+| 1,048,576 | 1 | v6_dict | 13.84 | 1,048,576 | nan | 2022.8 | 146.2 |
+| 1,048,576 | 1 | v6_np | 89.82 | 100,000,000 | nan | 2022.8 | 22.5 |
+| 1,048,576 | 1 | v6_np_bloom | 83.88 | 1,022,476 | 0.0000 | 2022.8 | 24.1 |
+| 1,048,576 | 1 | v6_part | 101.55 | 100,000,000 | nan | 2022.8 | 19.9 |
+| 1,048,576 | 1 | v6_part_bloom | 136.53 | 1,022,476 | 0.0000 | 2022.8 | 14.8 |
+| 1,048,576 | 10 | v6_dict | 17.57 | 1,048,576 | nan | 2369.6 | 134.9 |
+| 1,048,576 | 10 | v6_np | 109.70 | 100,000,000 | nan | 2369.6 | 21.6 |
+| 1,048,576 | 10 | v6_np_bloom | 105.94 | 10,039,903 | 0.0001 | 2369.6 | 22.4 |
+| 1,048,576 | 10 | v6_part | 110.35 | 100,000,000 | nan | 2369.6 | 21.5 |
+| 1,048,576 | 10 | v6_part_bloom | 141.34 | 10,039,903 | 0.0001 | 2369.6 | 16.8 |
+| 1,048,576 | 50 | v6_dict | 23.68 | 1,048,576 | nan | 3269.7 | 138.1 |
+| 1,048,576 | 50 | v6_np | 155.17 | 100,000,000 | nan | 3269.7 | 21.1 |
+| 1,048,576 | 50 | v6_np_bloom | 156.29 | 50,143,524 | 0.0018 | 3269.7 | 20.9 |
+| 1,048,576 | 50 | v6_part | 116.03 | 100,000,000 | nan | 3269.7 | 28.2 |
+| 1,048,576 | 50 | v6_part_bloom | 146.93 | 50,143,524 | 0.0018 | 3269.7 | 22.3 |
+| 1,048,576 | 100 | v6_dict | 25.90 | 1,048,576 | nan | 3674.8 | 141.9 |
+| 1,048,576 | 100 | v6_np | 157.44 | 100,000,000 | nan | 3674.8 | 23.3 |
+| 1,048,576 | 100 | v6_np_bloom | 192.95 | 100,000,000 | nan | 3674.8 | 19.0 |
+| 1,048,576 | 100 | v6_part | 121.42 | 100,000,000 | nan | 3674.8 | 30.3 |
+| 1,048,576 | 100 | v6_part_bloom | 180.07 | 100,000,000 | nan | 3674.8 | 20.4 |
+| 16,777,216 | 1 | v6_dict | 65.13 | 16,777,216 | nan | 4943.7 | 75.9 |
+| 16,777,216 | 1 | v6_np | 105.64 | 100,000,000 | nan | 4943.7 | 46.8 |
+| 16,777,216 | 1 | v6_np_bloom | 103.00 | 1,001,172 | 0.0000 | 4943.7 | 48.0 |
+| 16,777,216 | 1 | v6_part | 178.16 | 100,000,000 | nan | 4943.7 | 27.7 |
+| 16,777,216 | 1 | v6_part_bloom | 207.06 | 1,001,172 | 0.0000 | 4943.7 | 23.9 |
+| 16,777,216 | 10 | v6_dict | 91.09 | 16,777,216 | nan | 5349.0 | 58.7 |
+| 16,777,216 | 10 | v6_np | 116.43 | 100,000,000 | nan | 5349.0 | 45.9 |
+| 16,777,216 | 10 | v6_np_bloom | 150.71 | 10,029,240 | 0.0001 | 5349.0 | 35.5 |
+| 16,777,216 | 10 | v6_part | 201.72 | 100,000,000 | nan | 5349.0 | 26.5 |
+| 16,777,216 | 10 | v6_part_bloom | 245.95 | 10,029,240 | 0.0001 | 5349.0 | 21.7 |
+| 16,777,216 | 50 | v6_dict | 110.17 | 16,777,216 | nan | 7498.1 | 68.1 |
+| 16,777,216 | 50 | v6_np | 160.09 | 100,000,000 | nan | 7498.1 | 46.8 |
+| 16,777,216 | 50 | v6_np_bloom | 196.04 | 50,104,696 | 0.0019 | 7498.1 | 38.2 |
+| 16,777,216 | 50 | v6_part | 222.56 | 100,000,000 | nan | 7498.1 | 33.7 |
+| 16,777,216 | 50 | v6_part_bloom | 317.08 | 50,104,696 | 0.0019 | 7498.1 | 23.6 |
+| 16,777,216 | 100 | v6_dict | 127.50 | 16,777,216 | nan | 8730.3 | 68.5 |
+| 16,777,216 | 100 | v6_np | 217.42 | 100,000,000 | nan | 8730.3 | 40.2 |
+| 16,777,216 | 100 | v6_np_bloom | 297.89 | 100,000,000 | nan | 8730.3 | 29.3 |
+| 16,777,216 | 100 | v6_part | 258.10 | 100,000,000 | nan | 8730.3 | 33.8 |
+| 16,777,216 | 100 | v6_part_bloom | 417.49 | 100,000,000 | nan | 8730.3 | 20.9 |
+
+## TPC-H SF-10 lineitem
+
+| query | engine | ms | % DRAM BW | speedup vs CPU engine |
+|---|---|---|---|---|
+| Q1 | v4_radix_smem | 9.36 | 18% | 21.3 |
+| Q1 | v3_warpagg | 9.36 | 18% | 21.3 |
+| Q1 | v4_radix_l2 | 9.37 | 18% | 21.3 |
+| Q1 | v4_sort | 23.81 | 7% | 8.4 |
+| Q1 | v2_smem_soa | 143.35 | 1% | 1.4 |
+| Q1 | v2_smem_aos512 | 158.35 | 1% | 1.3 |
+| Q1 | v2_smem_soa512 | 158.73 | 1% | 1.3 |
+| Q1 | v1_vec | 174.54 | 1% | 1.1 |
+| Q1 | v0_naive | 175.87 | 1% | 1.1 |
+| Q6 | v3_warpagg | 3.35 | 32% | 14.9 |
+| Q6 | v4_radix_l2 | 3.37 | 32% | 14.9 |
+| Q6 | v4_radix_smem | 3.37 | 32% | 14.9 |
+| Q6 | v4_sort | 4.78 | 23% | 10.5 |
+| Q6 | v2_smem_soa512 | 21.43 | 5% | 2.3 |
+| Q6 | v2_smem_aos512 | 21.48 | 5% | 2.3 |
+| Q6 | v2_smem_soa | 21.67 | 5% | 2.3 |
+| Q6 | v1_vec | 43.20 | 3% | 1.2 |
+| Q6 | v0_naive | 43.68 | 2% | 1.1 |
+| Q1 | CPU engine (4 thr) | 199.8 | | 1.0 |
+| Q6 | CPU engine (4 thr) | 50.0 | | 1.0 |
+| Q1 | duckdb (external) | 729.95 | | |
+| Q6 | duckdb (external) | 30.66 | | |
+| Q1 | cudf (external) | 109.98 | | |
+| Q6 | cudf (external) | 23.61 | | |
 
 ## nsys (3-stream V5 pipeline)
 
-kernel time hidden under H2D copies: 93.2%; H2D time with a kernel running concurrently: 26.6%
+kernel time hidden under H2D copies: 94.0%; H2D time with a kernel running concurrently: 25.4%

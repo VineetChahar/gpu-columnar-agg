@@ -65,14 +65,37 @@ python3 scripts/plot_all.py   # plots/*.png + plots/tables.md from results.json
 
 ```bash
 python3 -m venv .venv && .venv/bin/pip install kaggle numpy matplotlib
-# Kaggle API token in ~/.kaggle/access_token (or kaggle.json)
-.venv/bin/python scripts/kaggle_run.py --cmd "make verify"        # correctness gate
-.venv/bin/python scripts/kaggle_run.py --cmd "make bench-part1"   # 10M + 100M sweeps, micro, ablations
-.venv/bin/python scripts/kaggle_run.py --cmd "make bench-part2"   # 500M sweep
-.venv/bin/python scripts/kaggle_run.py --cmd "make bench-part3"   # stream, join, TPC-H, cuDF
-.venv/bin/python scripts/plot_all.py                              # merges runs/*/results.json
+# Kaggle API token in ~/.kaggle/access_token (or ~/.kaggle/kaggle.json)
+.venv/bin/python scripts/kaggle_run.py --cpu --cmd "bash scripts/compile_check.sh"   # compile check, no GPU quota
+.venv/bin/python scripts/kaggle_run.py --slug gca-part1a --cmd "make verify && make bench-part1a"
+.venv/bin/python scripts/kaggle_run.py --slug gca-part1b --cmd "make bench-part1b"
+.venv/bin/python scripts/kaggle_run.py --slug gca-part2a --cmd "make bench-part2a"
+.venv/bin/python scripts/kaggle_run.py --slug gca-part2b --cmd "make bench-part2b"
+.venv/bin/python scripts/kaggle_run.py --slug gca-part3  --cmd "make bench-part3"
+.venv/bin/python scripts/plot_all.py      # merges runs/*/results.json -> results.json, plots/, plots/tables.md
 ```
 
-`kaggle_run.py` packs the source into a private GPU script kernel (T4 x2), polls it every 30 s,
-downloads the outputs into `runs/<UTC timestamp>/`, and exits non-zero on failure. The `make bench`
-targets are split in three because Kaggle sessions are capped at 9–12 h.
+| target | contents | ~GPU time |
+|---|---|---|
+| `make verify` | every variant vs CPU reference on edge cases, checker self-test, joins, memcheck, racecheck | 10 min |
+| `bench-part1a` | microbenchmarks + main sweep at 10M and 100M rows (6 cardinalities × 4 skews × 4 selectivities × 9 variants) | 1.5 h |
+| `bench-part1b` | nsys trace, ablations, composite keys, V5 streaming, V6 joins, TPC-H SF-10 (+DuckDB), cuDF | 1 h |
+| `bench-part2a/2b` | main sweep at 500M rows | 2–5 h |
+| `bench-part3` | capacity-policy experiment, late materialisation | 0.5 h |
+
+`kaggle_run.py` packs the source into a private GPU script kernel (T4 x2), queues if the account's
+two GPU sessions are busy, polls every 30–60 s, downloads the outputs into `runs/<UTC timestamp>/`,
+and exits non-zero (printing the last 100 log lines) on failure. Splitting the targets lets two
+sessions run in parallel and keeps each one under Kaggle's session limit. `make bench` runs all of
+them in sequence on a local CUDA machine.
+
+## Deviations from the brief (deliberate, documented)
+
+- **Value column** is plain int32 (fixed-point cents). Keys are dictionary-encoded and the predicate is
+  RLE-encoded. SUM is exact in int64, and the floating aggregate is `SUM(v*0.01)` in double.
+- **Q6** keeps the l_shipdate range predicate but drops the discount/quantity predicates (the engine
+  supports one RLE predicate column). Q1's composite key and date predicate are exact.
+- **Multi-GPU stretch** not attempted: GPU-session availability (2 concurrent sessions shared with
+  another project) was the binding constraint, and the brief says to cut the stretch first.
+- **ncu** is blocked on Kaggle (`ERR_NVGPUCTRPERM`). Occupancy comes from the occupancy API, bytes are
+  analytic, bandwidth is from our own microbenchmark. **nsys** is installed at run time from NVIDIA's apt repo.

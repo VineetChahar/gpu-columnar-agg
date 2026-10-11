@@ -238,6 +238,8 @@ static int run_sweep(const Args& a) {
         }
         emit(j);
         fflush(stdout);
+        // partition / sort buffers are per variant: free them so the next variant has the memory
+        release_v4_scratch(); release_sort_scratch(); release_ablation_tables();
       }
       dref.release();
     }

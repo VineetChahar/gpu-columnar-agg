@@ -279,6 +279,7 @@ int run_stream(const Args& a) {
   int fails = 0;
   struct Q { const char* name; u32 card; bool global; };
   auto only = a.slist("queries", "global_agg,groupby_card16,groupby_card16M");
+  const bool nsys_only = a.num("nsys_only", 0) != 0;  // trace exactly one config: pinned, 3 streams
   for (Q q : {Q{"global_agg", 16, true}, Q{"groupby_card16", 16, false}, Q{"groupby_card16M", 1u << 24, false}}) {
     if (std::find(only.begin(), only.end(), q.name) == only.end()) continue;
     HostData H;
@@ -300,7 +301,7 @@ int run_stream(const Args& a) {
     }
     // ---- CPU engine on host-resident data ----
     std::vector<double> cms;
-    for (int i = 0; i < 1 + std::min(iters, 10); ++i) {
+    for (int i = 0; i < (nsys_only ? 0 : 1 + std::min(iters, 10)); ++i) {
       double t0 = now_ms();
       std::vector<GroupRow> r;
       if (q.global) r = {cpu_global(H, lo, hi, T)}; else r = cpu_engine(H, lo, hi, T);
@@ -312,7 +313,7 @@ int run_stream(const Args& a) {
       }
     }
     Stat cpu = stats(cms);
-    double cbw = cpu_read_bw(H, T);
+    double cbw = nsys_only ? 0 : cpu_read_bw(H, T);
     auto emit_row = [&](const std::string& mode, const Stat& s, bool ok, double extra_ms, int ns, u64 chunk) {
       Json j;
       j.s("exp", tag).s("query", q.name).s("mode", mode).n("rows", (double)rows).n("pcie_bytes", bytes)
@@ -330,7 +331,7 @@ int run_stream(const Args& a) {
     printf("  CPU read bandwidth (%d threads): %.1f GB/s\n", T, cbw);
 
     // ---- GPU, data already resident in device memory (kernel-only lower bound) ----
-    {
+    if (!nsys_only) {
       DevData D; D.upload(H);
       GTable Tb; Tb.alloc(table_capacity(q.global ? 1 : q.card));
       Results R; R.alloc(Tb.cap);
@@ -358,7 +359,7 @@ int run_stream(const Args& a) {
     }
     // ---- GPU streaming from host memory ----
     u64 chunk = (u64)a.num("chunk", 16e6);
-    for (int pinned = 0; pinned < 2; ++pinned) {
+    for (int pinned = nsys_only ? 1 : 0; pinned < 2; ++pinned) {
       double reg_ms = 0;
       if (pinned) {
         double t0 = now_ms();
@@ -368,8 +369,8 @@ int run_stream(const Args& a) {
         CK(cudaHostRegister(H.run_val.data(), H.run_val.size() * 2, cudaHostRegisterDefault));
         reg_ms = now_ms() - t0;
       }
-      for (int overlap = 0; overlap < 2; ++overlap) {
-        for (int ns : overlap ? std::vector<int>{2, 3, 4} : std::vector<int>{1}) {
+      for (int overlap = nsys_only ? 1 : 0; overlap < 2; ++overlap) {
+        for (int ns : nsys_only ? std::vector<int>{3} : overlap ? std::vector<int>{2, 3, 4} : std::vector<int>{1}) {
           Pipeline P(H, q.global, ns, chunk);
           double first = P.run(lo, hi, overlap, nullptr);
           (void)first;
@@ -407,7 +408,7 @@ int run_stream(const Args& a) {
       }
     }
     // chunk-size sensitivity (pinned, 3 streams)
-    if (q.card == 16 && !q.global) {
+    if (q.card == 16 && !q.global && !nsys_only) {
       CK(cudaHostRegister(H.codes.data(), H.codes.size(), cudaHostRegisterDefault));
       CK(cudaHostRegister(H.vals.data(), H.vals.size() * 4, cudaHostRegisterDefault));
       CK(cudaHostRegister(H.run_end.data(), H.run_end.size() * 4, cudaHostRegisterDefault));

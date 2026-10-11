@@ -11,7 +11,7 @@
 
 constexpr int STAGE_PMAX = 256;   // fan-out per staged pass
 constexpr int STAGE_ITEMS = 4;    // items per thread per round
-constexpr int STAGE_THREADS = 256;
+constexpr int STAGE_THREADS = 512;  // 2048-row rounds; 2 blocks x 31.7 KB fill the SM's 64 KB
 constexpr int STAGE_CAP = STAGE_THREADS * STAGE_ITEMS;
 
 struct StageSmem {

@@ -283,11 +283,11 @@ if tl:
         col = {"h2d": SLOT[0], "kernel": SLOT[1], "extract": SLOT[2], "d2h": SLOT[6], "init": INK2}
         for r in ev:
             ax.barh(r["stream"], r["t1_ms"] - r["t0_ms"], left=r["t0_ms"], color=col[r["op"]], height=0.6, edgecolor="white", linewidth=0.5)
-        for op, c in col.items():
-            ax.barh([], [], color=c, label=op)
+        from matplotlib.patches import Patch
+        ax.legend(handles=[Patch(color=c, label=op) for op, c in col.items()], ncol=5, loc="upper center",
+                  bbox_to_anchor=(0.5, 1.35), fontsize=7)
         ax.set_yticks(sorted({r["stream"] for r in ev})); ax.set_yticklabels([f"stream {s}" for s in sorted({r["stream"] for r in ev})])
         ax.set_xlabel("ms since pipeline start"); ax.invert_yaxis(); ax.grid(axis="y", visible=False)
-        ax.legend(ncol=5, loc="upper center", bbox_to_anchor=(0.5, 1.35), fontsize=7)
         ax.set_title(f"V5 event timeline, {q}", fontsize=9, pad=24)
         fig.savefig(os.path.join(OUT, f"timeline_{q}.png")); plt.close(fig)
 st = [r for r in R if "stream" in str(r.get("exp", "")) and r.get("exp") != "timeline" and "median_ms" in r]
@@ -359,3 +359,68 @@ if tp:
 
 open(os.path.join(OUT, "tables.md"), "w").write("\n".join(md) + "\n")
 print("wrote", len(os.listdir(OUT)), "files to", OUT)
+
+# ---------------- nsys trace of the V5 pipeline ----------------
+def nsys_timeline():
+    import csv
+    files = sorted(glob.glob(os.path.join(ROOT, "runs", "*", "v5_stream_cuda_gpu_trace.csv")))
+    if not files:
+        return None
+    rows = list(csv.DictReader(open(files[-1])))
+    ops = []
+    for r in rows:
+        n = r["Name"]
+        kind = "h2d" if "Host-to-Device" in n else "d2h" if "Device-to-Host" in n else "kernel" if "k_agg" in n else \
+               "extract" if "extract" in n else None
+        if kind:
+            s = int(r["Start (ns)"]) / 1e6
+            ops.append((s, s + int(r["Duration (ns)"]) / 1e6, kind, r["Strm"], float(r["Bytes (MB)"] or 0)))
+    ops.sort()
+    # split into episodes (pipeline runs) separated by idle gaps > 2 ms; keep the ones using >= 3 streams
+    eps, cur, end = [], [], -1e18
+    for o in ops:
+        if cur and o[0] - end > 2.0:
+            eps.append(cur); cur = []
+        cur.append(o); end = max(end, o[1])
+    if cur:
+        eps.append(cur)
+    def ovfrac(ep, a_kind, b_kind):
+        A = [(a, b) for a, b, k, *_ in ep if k == a_kind]
+        Bv = [(a, b) for a, b, k, *_ in ep if k == b_kind]
+        tot = sum(b - a for a, b in A)
+        ov = 0.0
+        for a, b in A:
+            for c, d in Bv:
+                ov += max(0.0, min(b, d) - max(a, c))
+        return ov / tot if tot else 0.0
+    cand = [e for e in eps if len({o[3] for o in e if o[2] == "h2d"}) >= 2]
+    if not cand:
+        return None
+    # the pinned + overlapped pipeline is the episode with the highest H2D throughput
+    ep = max(cand, key=lambda e: sum(o[4] for o in e if o[2] == "h2d") / (max(o[1] for o in e) - e[0][0]))
+    k_hidden = ovfrac(ep, "kernel", "h2d")
+    c_hidden = ovfrac(ep, "h2d", "kernel")
+    t0 = ep[0][0]
+    win = [o for o in ep if o[0] - t0 < 30.0]
+    streams = sorted({o[3] for o in win}, key=int)
+    from matplotlib.patches import Patch
+    fig, ax = plt.subplots(figsize=(10, 2.6))
+    col = {"h2d": SLOT[0], "kernel": SLOT[1], "extract": SLOT[2], "d2h": SLOT[6]}
+    for a, b, k, s, _ in win:
+        ax.barh(streams.index(s), b - a, left=a - t0, color=col[k], height=0.6, edgecolor="white", linewidth=0.4)
+    ax.legend(handles=[Patch(color=c, label=k) for k, c in col.items()], ncol=4, loc="upper center",
+              bbox_to_anchor=(0.5, 1.34), fontsize=7)
+    ax.set_yticks(range(len(streams))); ax.set_yticklabels([f"stream {i}" for i in range(len(streams))])
+    ax.invert_yaxis(); ax.grid(axis="y", visible=False); ax.set_xlabel("ms since pipeline start (nsys CUDA trace, first 30 ms)")
+    ax.set_title(f"V5 under nsys: {100 * k_hidden:.0f}% of kernel time runs under an H2D copy; "
+                 f"copies busy {100 * c_hidden:.0f}% concurrent with kernels", fontsize=9, pad=22)
+    fig.savefig(os.path.join(OUT, "nsys_timeline.png")); plt.close(fig)
+    return k_hidden, c_hidden
+
+
+ovl = nsys_timeline()
+if ovl is not None:
+    with open(os.path.join(OUT, "tables.md"), "a") as f:
+        f.write(f"\n## nsys (3-stream V5 pipeline)\n\nkernel time hidden under H2D copies: {100 * ovl[0]:.1f}%; "
+                f"H2D time with a kernel running concurrently: {100 * ovl[1]:.1f}%\n")
+    print(f"nsys: kernels hidden {100 * ovl[0]:.1f}%, copies overlapped {100 * ovl[1]:.1f}%")

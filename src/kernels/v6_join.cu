@@ -10,6 +10,7 @@
 // All variants aggregate by cat with warp-aggregated shared-memory atomics (PSmem) into a GT.
 #include <cub/cub.cuh>
 #include <vector>
+#include "../gpu/partition.cuh"
 #include "../gpu/procs.cuh"
 #include "v6_join.cuh"
 #include "variants.hpp"
@@ -17,8 +18,6 @@
 namespace {
 
 using CatAgg = PSmem<LSoA<256>, 256, true>;
-constexpr int JS = 4096;          // shared-memory build table slots per partition
-constexpr int JMAXBITS = 13;      // single-pass fan-out limit (32 KB histogram)
 constexpr u32 PROBE_CHUNK = 16384;
 
 __device__ __forceinline__ u32 bloom_bits(u64 h) {
@@ -86,97 +85,74 @@ __global__ void __launch_bounds__(256) k_probe_np(DevJoin J, JHT ht, const u32* 
 }
 
 // ---------------- partitioned ----------------
-struct BuildSrc {
-  const u64* key; const u8* cat; const u8* p; u64 n; u8 sel;
-  __device__ __forceinline__ void get(u64 i, bool& valid, u64& k, u32& pay) const {
-    valid = i < n && p[i] < sel;
-    k = valid ? key[i] : 0;
-    pay = valid ? cat[i] : 0;
-  }
-};
-struct ProbeSrc {
-  const u32* code; const u64* dict; const i32* val; u64 n; const u32* bloom; u32 bmask;
-  __device__ __forceinline__ void get(u64 i, bool& valid, u64& k, u32& pay) const {
-    valid = i < n;
-    k = valid ? __ldg(dict + code[i]) : 0;
-    pay = valid ? (u32)val[i] : 0;
-    if (valid && bloom) {
-      u64 h = fmix64(k);
-      u32 bb = bloom_bits(h);
-      valid = (__ldg(bloom + (h & bmask)) & bb) == bb;
-    }
-  }
-};
-template <class Src>
-__global__ void __launch_bounds__(256) k_jhist(Src src, int B, u32* hist) {
-  extern __shared__ u32 h[];
+// Probe side is radix-partitioned (write-combined staging, Bloom filter applied while partitioning)
+// on the top B bits of fmix64(key).  The build table's home slot is also the top bits of the same
+// hash, so partition p only ever touches the contiguous slice [p*cap/2^B, (p+1)*cap/2^B) of the
+// table; B is chosen so that slice is <= 1 MB and partitions are processed in order -> L2-resident.
+__device__ __forceinline__ bool probe_item(const DevJoin& J, u64 i, u64 end, const u32* bloom, u32 bmask, u64& key) {
+  if (i >= end) return false;
+  key = __ldg(J.fdict + J.fcode[i]);
+  if (!bloom) return true;
+  u64 h = fmix64(key);
+  u32 bb = bloom_bits(h);
+  return (__ldg(bloom + (h & bmask)) & bb) == bb;
+}
+__global__ void __launch_bounds__(STAGE_THREADS) k_jp_hist(DevJoin J, u64 chunk, int B, const u32* bloom, u32 bmask, u32* hist) {
+  __shared__ u32 h[STAGE_PMAX];
   for (u32 i = threadIdx.x; i < (1u << B); i += blockDim.x) h[i] = 0;
   __syncthreads();
-  for (u64 base = blockIdx.x * (u64)blockDim.x; base < src.n; base += (u64)gridDim.x * blockDim.x) {
-    bool valid; u64 k; u32 pay;
-    src.get(base + threadIdx.x, valid, k, pay);
-    u32 p = valid ? (u32)(fmix64(k) >> (64 - B)) : 0xffffffffu;
-    u32 peers = __match_any_sync(FULL, p);
-    if (valid && lane_id() == (u32)__ffs(peers) - 1) atomicAdd(&h[p], (u32)__popc(peers));
+  const u64 b0 = blockIdx.x * chunk, b1 = min(b0 + chunk, J.F);
+  for (u64 base = b0; base < b1; base += STAGE_CAP) {
+#pragma unroll
+    for (int j = 0; j < STAGE_ITEMS; ++j) {
+      u64 key = 0;
+      bool ok = probe_item(J, base + j * blockDim.x + threadIdx.x, b1, bloom, bmask, key);
+      u32 p = ok ? (u32)(fmix64(key) >> (64 - B)) : 0xffffffffu;
+      u32 peers = __match_any_sync(FULL, p);
+      if (ok && lane_id() == (u32)__ffs(peers) - 1) atomicAdd(&h[p], (u32)__popc(peers));
+    }
   }
   __syncthreads();
   for (u32 i = threadIdx.x; i < (1u << B); i += blockDim.x) hist[(u64)i * gridDim.x + blockIdx.x] = h[i];
 }
-template <class Src>
-__global__ void __launch_bounds__(256) k_jscatter(Src src, int B, const u32* hs, u64* okey, u32* opay) {
-  extern __shared__ u32 cur[];
-  for (u32 i = threadIdx.x; i < (1u << B); i += blockDim.x) cur[i] = hs[(u64)i * gridDim.x + blockIdx.x];
+__global__ void __launch_bounds__(STAGE_THREADS) k_jp_scatter(DevJoin J, u64 chunk, int B, const u32* bloom, u32 bmask,
+                                                              const u32* hs, u64* okey, i32* oval) {
+  __shared__ StageSmem St;
+  for (u32 i = threadIdx.x; i < (1u << B); i += blockDim.x) St.cur[i] = hs[(u64)i * gridDim.x + blockIdx.x];
   __syncthreads();
-  for (u64 base = blockIdx.x * (u64)blockDim.x; base < src.n; base += (u64)gridDim.x * blockDim.x) {
-    bool valid; u64 k; u32 pay;
-    src.get(base + threadIdx.x, valid, k, pay);
-    u32 p = valid ? (u32)(fmix64(k) >> (64 - B)) : 0xffffffffu;
-    u32 peers = __match_any_sync(FULL, p);
-    u32 leader = __ffs(peers) - 1, pos = 0;
-    if (valid && lane_id() == leader) pos = atomicAdd(&cur[p], (u32)__popc(peers));
-    pos = __shfl_sync(FULL, pos, leader) + __popc(peers & lanemask_lt());
-    if (valid) { okey[pos] = k; opay[pos] = pay; }
+  const u64 b0 = blockIdx.x * chunk, b1 = min(b0 + chunk, J.F);
+  for (u64 base = b0; base < b1; base += STAGE_CAP) {
+    bool ok[4]; u32 p[4]; u64 key[4]; i32 v[4];
+#pragma unroll
+    for (int j = 0; j < STAGE_ITEMS; ++j) {
+      u64 i = base + j * blockDim.x + threadIdx.x;
+      key[j] = 0;
+      ok[j] = probe_item(J, i, b1, bloom, bmask, key[j]);
+      v[j] = ok[j] ? J.fval[i] : 0;
+      p[j] = ok[j] ? (u32)(fmix64(key[j]) >> (64 - B)) : 0;
+    }
+    stage_round(St, 1u << B, ok, p, key, v, okey, oval);
   }
 }
-__global__ void k_starts(const u32* hs, u32 nblk, u32 P, u32 total, u32* starts) {
+__global__ void k_jstarts(const u32* hs, u32 nblk, u32 P, u32 total, u32* starts) {
   for (u32 p = blockIdx.x * blockDim.x + threadIdx.x; p <= P; p += gridDim.x * blockDim.x)
     starts[p] = p == P ? total : hs[(u64)p * nblk];
 }
-// item = {partition, probe a, probe b}; build range from bstarts
-__global__ void __launch_bounds__(256) k_jpart(const u32* items, const u32* bstarts, const u64* bkey, const u32* bcat,
-                                               const u64* pkey, const u32* pval, GT out, u32* overflow) {
-  __shared__ u64 tk[JS];
-  __shared__ u8 tc[JS];
+// one block per (partition, chunk) item, items in partition order
+__global__ void __launch_bounds__(256) k_jpart_probe(const u32* items, JHT ht, const u64* pkey, const i32* pval, GT out) {
   __shared__ __align__(16) unsigned char sm[CatAgg::SMEM];
   CatAgg agg({out}, sm);
   agg.init();
-  const u32 p = items[3 * blockIdx.x], a = items[3 * blockIdx.x + 1], b = items[3 * blockIdx.x + 2];
-  const u32 ba = bstarts[p], bb = bstarts[p + 1];
-  for (u32 i = threadIdx.x; i < JS; i += blockDim.x) tk[i] = EMPTY_KEY;
   __syncthreads();
-  if (bb - ba > JS * 3 / 4) { if (threadIdx.x == 0) atomicAdd(overflow, 1u); return; }  // host guarantees this never happens
-  for (u32 i = ba + threadIdx.x; i < bb; i += blockDim.x) {
-    u64 key = bkey[i];
-    u32 s = (u32)fmix64(key) & (JS - 1);
-    while (atomicCAS((unsigned long long*)&tk[s], (unsigned long long)EMPTY_KEY, (unsigned long long)key) != EMPTY_KEY)
-      s = (s + 1) & (JS - 1);
-    tc[s] = (u8)bcat[i];
-  }
-  __syncthreads();
+  const u32 a = items[2 * blockIdx.x], b = items[2 * blockIdx.x + 1];
   for (u32 base = a; base < b; base += blockDim.x) {
     u32 i = base + threadIdx.x;
     int cat = -1;
     i32 v = 0;
     if (i < b) {
       u64 key = pkey[i];
-      v = (i32)pval[i];
-      u32 s = (u32)fmix64(key) & (JS - 1);
-      while (true) {
-        u64 k = tk[s];
-        if (k == key) { cat = tc[s]; break; }
-        if (k == EMPTY_KEY) break;
-        s = (s + 1) & (JS - 1);
-      }
+      v = pval[i];
+      cat = ht_probe(ht, key, fmix64(key));
     }
     agg.process(cat >= 0, (u64)cat, v);
   }
@@ -292,18 +268,28 @@ static void ensure(T*& p, size_t& cap, size_t n, const char* what) {
   cap = n;
 }
 
-template <class Src>
-static u32 partition(const Src& src, int B, u64* okey, u32* opay, JoinScratch& S, cudaStream_t st, std::vector<u32>& starts) {
+void run_join_part(const DevJoin& J, JoinScratch& S, u8 sel, bool bloom, GTable& out, cudaStream_t st, JoinInfo& info) {
+  PhaseTimer pt(st);
+  table_init(out, st);
+  build(J, S, sel, bloom, st);
+  pt.mark("build");
+  // B: table slice per partition <= 1 MB (keys 8 B + cat 1 B per slot), fan-out <= 256 (one staged pass)
+  int B = std::max(1, std::min(8, ceil_log2((double)S.ht_cap * 9.0 / (1 << 20))));
   const u32 P = 1u << B;
-  const size_t smem = (size_t)P * 4;
+  info.partition_bits = B;
+  ensure(S.pkey, S.pkey_cap, J.F, "join probe partitions");
+  ensure(S.pval, S.pval_cap, J.F, "join probe partitions");
   int bps;
-  CK(cudaOccupancyMaxActiveBlocksPerMultiprocessor(&bps, k_jhist<Src>, 256, smem));
-  bps = std::max(1, std::min(bps, 4));
-  u32 nblk = (u32)(bps * num_sms());
+  CK(cudaOccupancyMaxActiveBlocksPerMultiprocessor(&bps, k_jp_scatter, STAGE_THREADS, 0));
+  const u32 nblk = (u32)(std::max(1, bps) * num_sms());
+  const u64 chunk = (J.F + nblk - 1) / nblk;
+  const u64 chunk_r = (chunk + STAGE_CAP - 1) / STAGE_CAP * STAGE_CAP;
   ensure(S.hist, S.hist_cap, (size_t)P * nblk, "jhist");
   ensure(S.hscan, S.hscan_cap, (size_t)P * nblk, "jhist");
   ensure(S.starts, S.starts_cap, (size_t)P + 1, "jstarts");
-  k_jhist<Src><<<nblk, 256, smem, st>>>(src, B, S.hist);
+  const u32* bl = bloom ? S.bloom : nullptr;
+  const u32 bmask = (u32)(S.bloom_words - 1);
+  k_jp_hist<<<nblk, STAGE_THREADS, 0, st>>>(J, chunk_r, B, bl, bmask, S.hist);
   size_t tb = 0;
   CK(cub::DeviceScan::ExclusiveSum(nullptr, tb, S.hist, S.hscan, (int)(P * nblk), st));
   if (tb > S.tmp_cap) { if (S.tmp) CK(cudaFree(S.tmp)); S.tmp = dmalloc_or_skip(tb, "jtmp"); S.tmp_cap = tb; }
@@ -311,72 +297,26 @@ static u32 partition(const Src& src, int B, u64* okey, u32* opay, JoinScratch& S
   u32 last[2];
   CK(cudaMemcpyAsync(&last[0], S.hist + (size_t)P * nblk - 1, 4, cudaMemcpyDeviceToHost, st));
   CK(cudaMemcpyAsync(&last[1], S.hscan + (size_t)P * nblk - 1, 4, cudaMemcpyDeviceToHost, st));
-  k_jscatter<Src><<<nblk, 256, smem, st>>>(src, B, S.hscan, okey, opay);
+  k_jp_scatter<<<nblk, STAGE_THREADS, 0, st>>>(J, chunk_r, B, bl, bmask, S.hscan, S.pkey, S.pval);
   CK(cudaStreamSynchronize(st));
-  u32 total = last[0] + last[1];
-  k_starts<<<64, 256, 0, st>>>(S.hscan, nblk, P, total, S.starts);
-  starts.resize(P + 1);
-  CK(cudaMemcpyAsync(starts.data(), S.starts, (P + 1) * 4, cudaMemcpyDeviceToHost, st));
+  const u32 total = last[0] + last[1];
+  k_jstarts<<<16, 256, 0, st>>>(S.hscan, nblk, P, total, S.starts);
+  std::vector<u32> pst(P + 1);
+  CK(cudaMemcpyAsync(pst.data(), S.starts, (P + 1) * 4, cudaMemcpyDeviceToHost, st));
   CK(cudaStreamSynchronize(st));
-  CK(cudaGetLastError());
-  return total;
-}
-
-void run_join_part(const DevJoin& J, JoinScratch& S, u8 sel, bool bloom, GTable& out, cudaStream_t st, JoinInfo& info) {
-  for (int k = 0; k < 2; ++k)
-    CK(cudaFuncSetAttribute(k == 0 ? (const void*)k_jhist<ProbeSrc> : (const void*)k_jscatter<ProbeSrc>,
-                            cudaFuncAttributeMaxDynamicSharedMemorySize, 32 * 1024));
-  PhaseTimer pt(st);
-  table_init(out, st);
-  // plan: build keys expected after the filter (from the dim statistics: sel% of D)
-  double nb = std::max(1.0, J.D * sel / 100.0);
-  int B = std::max(1, ceil_log2(nb / (JS / 2)));
-  if (B > JMAXBITS) throw Skip("join fan-out beyond single pass");
-  info.partition_bits = B;
-  ensure(S.bkey, S.bkey_cap, J.D, "join build partitions");
-  ensure(S.bcat, S.bcat_cap, J.D, "join build partitions");
-  ensure(S.pkey, S.pkey_cap, J.F, "join probe partitions");
-  ensure(S.pval, S.pval_cap, J.F, "join probe partitions");
-  if (bloom) CK(cudaMemsetAsync(S.bloom, 0, S.bloom_words * 4, st));
-  std::vector<u32> bst, pst;
-  for (int k = 0; k < 2; ++k)
-    CK(cudaFuncSetAttribute(k == 0 ? (const void*)k_jhist<BuildSrc> : (const void*)k_jscatter<BuildSrc>,
-                            cudaFuncAttributeMaxDynamicSharedMemorySize, 32 * 1024));
-  u32 nbuild = partition(BuildSrc{J.dkey, J.dcat, J.dp, J.D, sel}, B, S.bkey, S.bcat, S, st, bst);
-  pt.mark("build_partition");
-  if (bloom) {
-    // Bloom filter over the partitioned build keys (contiguous, coalesced)
-    build_bloom(S.bkey, nbuild, S.bloom, (u32)(S.bloom_words - 1), st);
-  }
-  u32 nprobe = partition(ProbeSrc{J.fcode, J.fdict, J.fval, J.F, bloom ? S.bloom : nullptr, (u32)(S.bloom_words - 1)},
-                         B, S.pkey, S.pval, S, st, pst);
   pt.mark("probe_partition");
-  u32 maxb = 0;
-  for (size_t p = 0; p + 1 < bst.size(); ++p) maxb = std::max(maxb, bst[p + 1] - bst[p]);
-  if (maxb > JS * 3 / 4) throw Skip("build partition overflow");
   std::vector<u32> items;
-  for (size_t p = 0; p + 1 < pst.size(); ++p)
-    for (u32 a = pst[p]; a < pst[p + 1]; a += PROBE_CHUNK) {
-      items.push_back((u32)p); items.push_back(a); items.push_back(std::min(a + PROBE_CHUNK, pst[p + 1]));
-    }
-  u32 nitems = (u32)(items.size() / 3);
-  ensure(S.items, S.items_cap, items.size() + 3, "jitems");
-  ensure(S.bst, S.bst_cap, bst.size(), "jbst");
-  CK(cudaMemcpyAsync(S.bst, bst.data(), bst.size() * 4, cudaMemcpyHostToDevice, st));
-  CK(cudaMemsetAsync(S.stats, 0, 16, st));
+  for (u32 p = 0; p < P; ++p)
+    for (u32 a = pst[p]; a < pst[p + 1]; a += PROBE_CHUNK) { items.push_back(a); items.push_back(std::min(a + PROBE_CHUNK, pst[p + 1])); }
+  const u32 nitems = (u32)(items.size() / 2);
+  ensure(S.items, S.items_cap, items.size() + 2, "jitems");
   if (nitems) {
     CK(cudaMemcpyAsync(S.items, items.data(), items.size() * 4, cudaMemcpyHostToDevice, st));
-    k_jpart<<<nitems, 256, 0, st>>>(S.items, S.bst, S.bkey, S.bcat, S.pkey, S.pval, out.t, (u32*)S.stats);
+    k_jpart_probe<<<nitems, 256, 0, st>>>(S.items, S.ht, S.pkey, S.pval, out.t);
     CK(cudaGetLastError());
   }
-  pt.mark("join_aggregate");
-  u32 ovf;
-  CK(cudaMemcpyAsync(&ovf, S.stats, 4, cudaMemcpyDeviceToHost, st));
-  CK(cudaStreamSynchronize(st));
-  if (ovf) throw Skip("build partition overflow (device)");
-  info.probed = nprobe;
-  info.build_rows = nbuild;
-  info.max_build_partition = maxb;
+  pt.mark("probe_join_aggregate");
+  info.probed = total;
   pt.dump(info.phase_ms);
 }
 

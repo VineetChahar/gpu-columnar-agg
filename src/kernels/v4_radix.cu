@@ -13,6 +13,7 @@
 #include <cub/cub.cuh>
 #include <vector>
 #include "../gpu/frontend.cuh"
+#include "../gpu/partition.cuh"
 #include "variants.hpp"
 
 namespace {
@@ -157,6 +158,57 @@ __global__ void k_p1_starts(const u32* hs, u32 nblk, u32 P, u32 total, u32* star
     starts[p] = p == P ? total : hs[(u64)p * nblk];
 }
 
+// ---------------- staged (write-combined) versions ----------------
+template <class KD>
+__global__ void __launch_bounds__(STAGE_THREADS) k_p1s_hist(Cols<KD> C, u64 chunk, int bits, u32* hist) {
+  __shared__ u32 h[STAGE_PMAX];
+  for (u32 i = threadIdx.x; i < (1u << bits); i += blockDim.x) h[i] = 0;
+  __syncthreads();
+  const u64 b0 = blockIdx.x * chunk, b1 = min(b0 + chunk, C.n);
+  fe_block_rounds(C, b0, b1, [&](const bool ok[4], const u64 key[4], const i32*) {
+#pragma unroll
+    for (int j = 0; j < 4; ++j) {
+      u32 p = ok[j] ? (u32)(fmix64(key[j]) >> (64 - bits)) : 0xffffffffu;
+      u32 peers = __match_any_sync(FULL, p);
+      if (ok[j] && lane_id() == (u32)__ffs(peers) - 1) atomicAdd(&h[p], (u32)__popc(peers));
+    }
+  });
+  __syncthreads();
+  for (u32 i = threadIdx.x; i < (1u << bits); i += blockDim.x) hist[(u64)i * gridDim.x + blockIdx.x] = h[i];
+}
+template <class KD>
+__global__ void __launch_bounds__(STAGE_THREADS) k_p1s_scatter(Cols<KD> C, u64 chunk, int bits, const u32* hs, u64* ok_, i32* ov_) {
+  __shared__ StageSmem St;
+  for (u32 i = threadIdx.x; i < (1u << bits); i += blockDim.x) St.cur[i] = hs[(u64)i * gridDim.x + blockIdx.x];
+  __syncthreads();
+  const u64 b0 = blockIdx.x * chunk, b1 = min(b0 + chunk, C.n);
+  fe_block_rounds(C, b0, b1, [&](const bool ok[4], const u64 key[4], const i32 v[4]) {
+    u32 p[4];
+#pragma unroll
+    for (int j = 0; j < 4; ++j) p[j] = ok[j] ? (u32)(fmix64(key[j]) >> (64 - bits)) : 0;
+    stage_round(St, 1u << bits, ok, p, key, v, ok_, ov_);
+  });
+}
+__global__ void __launch_bounds__(STAGE_THREADS) k_p2s_scatter(P2 q, const u64* keys, const i32* vals, const u32* hs,
+                                                               u64* ok_, i32* ov_) {
+  __shared__ StageSmem St;
+  const u32 t = blockIdx.x, seg = q.tiles[3 * t], a = q.tiles[3 * t + 1], b = q.tiles[3 * t + 2];
+  for (u32 i = threadIdx.x; i < (1u << q.b2); i += blockDim.x) St.cur[i] = hs[p2_index(q, seg, i, t)];
+  __syncthreads();
+  for (u32 base = a; base < b; base += STAGE_CAP) {
+    bool ok[4]; u32 p[4]; u64 key[4]; i32 v[4];
+#pragma unroll
+    for (int j = 0; j < 4; ++j) {
+      u32 i = base + j * blockDim.x + threadIdx.x;
+      ok[j] = i < b;
+      key[j] = ok[j] ? keys[i] : 0;
+      v[j] = ok[j] ? vals[i] : 0;
+      p[j] = ok[j] ? (u32)(fmix64(key[j]) >> (64 - q.b1 - q.b2)) & ((1u << q.b2) - 1) : 0;
+    }
+    stage_round(St, 1u << q.b2, ok, p, key, v, ok_, ov_);
+  }
+}
+
 // ---------------- aggregation over partitioned (key, v) ----------------
 template <class P>
 __global__ void __launch_bounds__(256) k_part_agg(const u32* items, const u64* keys, const i32* vals,
@@ -193,7 +245,7 @@ void release_v4_scratch() {
   S = Scratch{};
 }
 
-void run_v4_radix(RunCtx& c, bool l2_mode, bool force_1pass) {
+void run_v4_radix(RunCtx& c, bool l2_mode, bool force_1pass, bool nostage) {
   const DevData& D = *c.D;
   // ---- plan (host, from statistics) ----
   double groups_est = std::max<double>(1.0, std::min<double>(D.card, (double)c.sel_est));
@@ -236,17 +288,24 @@ void run_v4_radix(RunCtx& c, bool l2_mode, bool force_1pass) {
   with_kd(D, [&](auto kd) {
     using KD = decltype(kd);
     auto C = make_cols(D, kd, c.lo, c.hi);
+    const bool staged = !nostage && B1 <= 8;
     int bps;
-    CK(cudaOccupancyMaxActiveBlocksPerMultiprocessor(&bps, k_agg<KD, PHist, FE_VEC>, c.block, PHist::SMEM));
-    nblk = bps * num_sms();
+    if (staged) CK(cudaOccupancyMaxActiveBlocksPerMultiprocessor(&bps, k_p1s_scatter<KD>, STAGE_THREADS, 0));
+    else CK(cudaOccupancyMaxActiveBlocksPerMultiprocessor(&bps, k_agg<KD, PHist, FE_VEC>, c.block, PHist::SMEM));
+    nblk = std::max(1, bps) * num_sms();
     ensure(S.hist, S.hist_cap, (size_t)P1 * nblk + 1, "hist");
     ensure(S.hscan, S.hscan_cap, (size_t)P1 * nblk + 1, "hist");
-    launch_agg<KD, PHist, FE_VEC>(C, {S.hist, B1}, c.st, c.block, nblk);
+    const u64 chunk = block_chunk(D.n, nblk, STAGE_THREADS);
+    if (staged) k_p1s_hist<KD><<<nblk, STAGE_THREADS, 0, c.st>>>(C, chunk, B1, S.hist);
+    else launch_agg<KD, PHist, FE_VEC>(C, {S.hist, B1}, c.st, c.block, nblk);
     scan_u32(S.hist, S.hscan, (size_t)P1 * nblk, c.st);
     u32 last[2];
     CK(cudaMemcpyAsync(&last[0], S.hist + (size_t)P1 * nblk - 1, 4, cudaMemcpyDeviceToHost, c.st));
     CK(cudaMemcpyAsync(&last[1], S.hscan + (size_t)P1 * nblk - 1, 4, cudaMemcpyDeviceToHost, c.st));
-    launch_agg<KD, PScatter, FE_VEC>(C, {S.hscan, B1, S.k1, S.v1}, c.st, c.block, nblk);
+    if (staged) k_p1s_scatter<KD><<<nblk, STAGE_THREADS, 0, c.st>>>(C, chunk, B1, S.hscan, S.k1, S.v1);
+    else launch_agg<KD, PScatter, FE_VEC>(C, {S.hscan, B1, S.k1, S.v1}, c.st, c.block, nblk);
+    CK(cudaGetLastError());
+    c.info["staged"] = staged;
     pt.mark("pass1");
     CK(cudaStreamSynchronize(c.st));
     total = last[0] + last[1];
@@ -289,7 +348,8 @@ void run_v4_radix(RunCtx& c, bool l2_mode, bool force_1pass) {
     if (ntiles) {
       k_p2_hist<<<ntiles, 256, 0, c.st>>>(q, S.k1, S.hist);
       scan_u32(S.hist, S.hscan, hn, c.st);
-      k_p2_scatter<<<ntiles, 256, 0, c.st>>>(q, S.k1, S.v1, S.hscan, S.k2, S.v2);
+      if (nostage) k_p2_scatter<<<ntiles, 256, 0, c.st>>>(q, S.k1, S.v1, S.hscan, S.k2, S.v2);
+      else k_p2s_scatter<<<ntiles, STAGE_THREADS, 0, c.st>>>(q, S.k1, S.v1, S.hscan, S.k2, S.v2);
     }
     ensure(S.starts, S.starts_cap, (size_t)P + 1, "starts");
     k_p2_starts<<<64, 256, 0, c.st>>>(q, S.hscan, d_ss, total, S.starts);

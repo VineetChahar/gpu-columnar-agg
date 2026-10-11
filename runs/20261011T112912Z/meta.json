@@ -1,0 +1,1 @@
+{"ref": "vineetkumar0210/gpu-columnar-agg", "cmd": "make verify && build/bench sweep rows=10M skews=0,1.5 sels=10,100 variants=all iters=10 warmup=2 tag=dev2 cpu_budget_s=5 && build/bench join D=1048576,16777216 F=20M sels=1,100 iters=5 tag=dev2_join; make nsys", "accel": "NvidiaTeslaT4Highmem", "utc": "20261011T112912Z"}

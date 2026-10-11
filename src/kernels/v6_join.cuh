@@ -28,7 +28,7 @@ struct JoinScratch {
   u64* bkey = nullptr; size_t bkey_cap = 0;
   u32* bcat = nullptr; size_t bcat_cap = 0;
   u64* pkey = nullptr; size_t pkey_cap = 0;
-  u32* pval = nullptr; size_t pval_cap = 0;
+  i32* pval = nullptr; size_t pval_cap = 0;
   u32* hist = nullptr; size_t hist_cap = 0;
   u32* hscan = nullptr; size_t hscan_cap = 0;
   u32* starts = nullptr; size_t starts_cap = 0;

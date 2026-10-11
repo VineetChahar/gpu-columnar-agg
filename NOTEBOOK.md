@@ -58,3 +58,45 @@ project's kernels; a push while both are busy is rejected. `kaggle_run.py` now q
 function), so `scripts/compile_check.sh` + `kaggle_run.py --cpu` now compile every translation unit with
 the real flags in a *CPU-only* Kaggle session (CUDA 12.8 compiler installed from NVIDIA's apt repo
 there) before anything is pushed to a GPU.
+
+**Profiler probe** (run 20261011T110053Z): `ncu` → `ERR_NVGPUCTRPERM` (no hardware counters), as
+expected. Nothing in this repo relies on counters. `nsys` is not installed, but `apt-cache` lists
+`nsight-systems-2024.5.1` → `make nsys` installs it at run time and traces one V5 pipeline.
+
+**Microbenchmarks — the denominators** (same run, T4 #0, clocks recorded per row):
+- DRAM read 277.8 GB/s (best over grid sizes; 87% of the 320 GB/s spec — the spec is never used),
+  copy 226 GB/s. Under `ncu` the same kernel read 150 GB/s → profilers perturb; never time under one.
+- PCIe pinned H2D 12.3 GB/s, D2H 13.1; pageable 4.5 / 4.3 GB/s.
+- Global u64 atomics, random addresses: 29 G/s while the working set is L2-resident (≤1 MB), falling
+  to **1.08 G/s at 8 MB and 0.72 G/s at ≥128 MB**. A single hot address: 36 G/s (the compiler/L2
+  coalesce same-address atomics). → A hash table that does not fit L2 is bound by ~0.7 G random
+  atomics/s, i.e. ~140 M rows/s at 5 atomics per row. This one number explains the high-cardinality
+  results below.
+- Shared memory, random slot of a 512-slot table, cycles per warp instruction:
+  key probe (u64 load) AoS-64B 604 vs SoA 192; u32 atomicAdd 584 vs 113; **u64 atomicAdd 4560 vs 869;
+  f64 atomicAdd 4573 vs 1248**. Two lessons: (a) the AoS-64B bank-conflict penalty is 3–5×; (b) 64-bit
+  shared atomics cost ~8× a 32-bit one (emulated with a CAS loop on sm_75).
+  Monte-Carlo bank model: 18.9 wavefronts per u64 warp load for AoS-64B vs 6.0 for SoA (ideal 2).
+
+**Dev sweep, 10M rows, every variant** (run 20261011T110053Z, 10 iters — tuning only, not results):
+- Hash variants fall off a cliff at 1M–16M groups (V0 76 → 101 ms at sel 100%) while `v4_sort`
+  stays at 7–11 ms: random DRAM atomics (above) vs sequential radix-sort passes.
+- Shared-memory tables lose at *low* cardinality because of occupancy: the 1024-slot SoA table +
+  warp ring buffers = 52 KB → 1 block (8 warps) per SM. 256 slots → 25 KB → 2 blocks/SM made V3
+  1.19 ms vs 2.11 ms (card 16, sel 100%). **Decision: DEFAULT_SLOTS = 256**; 512/1024 kept as ablations.
+- `__match_any_sync` aggregation (V3) at Zipf 1.5, sel 100%: 9.5 ms (V0) → 1.3–2.1 ms. At uniform
+  64K+ it changes nothing (≤1% of warps have duplicate keys).
+- V4 radix-to-smem is *slower* than V3 at 1M groups (27.8 vs 76 ms is a win over hashing, but far from
+  sort's 7.4 ms) → added CUDA-event phase timers to see where the time goes.
+- Join: dictionary-translated join is 2–7 ms vs 5–28 ms for row-wise probing (it probes the 64K–1M
+  dictionary entries once instead of 20M rows); partitioned join is slower than non-partitioned at
+  D ≤ 1M — phase timers added there too.
+- V5 at 100M rows: global aggregate — CPU (4 thr) 38.6 ms vs GPU 44 ms pinned+overlapped (+27 ms
+  one-time `cudaHostRegister`) vs 91 ms pageable. **The PCIe-wall regime exists on this box.**
+- CPU engine at 16M groups (1.4 s for 10M rows) used 256 partitions → 1.3 MB tables per partition,
+  larger than the core's L2: not a fair baseline. Now picks P so a partition holds ≤8K groups.
+
+**Change: global table → AoS.** One 64-byte aligned slot {key,cnt,sum,dsum,mn,mx}. In SoA the five
+atomics of an update touch six different lines; with a DRAM-resident table that is six random
+misses per row. The SoA layout stays as the `v0_naive_soa` ablation. Note the irony, which is the
+point of V2: the *same* AoS-64B layout that is right for the global table is wrong in shared memory.

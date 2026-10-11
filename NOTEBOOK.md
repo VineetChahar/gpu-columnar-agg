@@ -178,3 +178,10 @@ inherit each other's 4–12 GB of partition/sort buffers.
   memcheck 0 errors; racecheck 0 hazards. CPU compile check of the sels= change passed first.
 - gca-part2a harness hung (no output for 75 min while other pushes succeeded; likely a stalled API call);
   killed and relaunched. Old log kept at /tmp/p2a.old.txt.
+
+## 2026-10-12 — gca-part2a landed (runs/20261011T182620Z) — all runs complete
+- 500M rows, 16/256/4K groups: 432/432 timed and correct, no OOM skips. Time 4.0-5.0x for 5x rows; GPU/CPU
+  holds (1% sel: 1.4-2.2x -> 1.6-2.4x). Winner label flips between near-tied variants (top two within 0.1-3.3%).
+- Totals across sweep/ablation/capest/latemat: 3,432 timed points, all correct; FP SUM max rel err 1.7e-10,
+  median 6e-13, none bit-identical. RESULTS correctness section updated.
+- plots regenerated from the merged results.json (43 files).

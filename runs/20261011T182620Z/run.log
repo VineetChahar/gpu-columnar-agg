@@ -1,0 +1,567 @@
+$ nvidia-smi; nvcc --version; nproc; free -g
+Sun Oct 11 18:26:27 2026       
++-----------------------------------------------------------------------------------------+
+| NVIDIA-SMI 580.178.04             Driver Version: 580.178.04     CUDA Version: 13.0     |
++-----------------------------------------+------------------------+----------------------+
+| GPU  Name                 Persistence-M | Bus-Id          Disp.A | Volatile Uncorr. ECC |
+| Fan  Temp   Perf          Pwr:Usage/Cap |           Memory-Usage | GPU-Util  Compute M. |
+|                                         |                        |               MIG M. |
+|=========================================+========================+======================|
+|   0  Tesla T4                       Off |   00000000:00:04.0 Off |                    0 |
+| N/A   54C    P8             10W /   70W |       0MiB /  15360MiB |      0%      Default |
+|                                         |                        |                  N/A |
++-----------------------------------------+------------------------+----------------------+
+|   1  Tesla T4                       Off |   00000000:00:05.0 Off |                    0 |
+| N/A   39C    P8             11W /   70W |       0MiB /  15360MiB |      0%      Default |
+|                                         |                        |                  N/A |
++-----------------------------------------+------------------------+----------------------+
+
++-----------------------------------------------------------------------------------------+
+| Processes:                                                                              |
+|  GPU   GI   CI              PID   Type   Process name                        GPU Memory |
+|        ID   ID                                                               Usage      |
+|=========================================================================================|
+|  No running processes found                                                             |
++-----------------------------------------------------------------------------------------+
+nvcc: NVIDIA (R) Cuda compiler driver
+Copyright (c) 2005-2025 NVIDIA Corporation
+Built on Fri_Feb_21_20:23:50_PST_2025
+Cuda compilation tools, release 12.8, V12.8.93
+Build cuda_12.8.r12.8/compiler.35583870_0
+4
+               total        used        free      shared  buff/cache   available
+Mem:              31           1          25           0           4          30
+Swap:              0           0           0
+$ make bench-part2a
+cmake -S . -B build -DCMAKE_BUILD_TYPE=Release > /dev/null
+cmake --build build -j4
+gmake[1]: Entering directory '/kaggle/repo/build'
+gmake[2]: Entering directory '/kaggle/repo/build'
+gmake[3]: Entering directory '/kaggle/repo/build'
+gmake[3]: Leaving directory '/kaggle/repo/build'
+gmake[3]: Entering directory '/kaggle/repo/build'
+[ 10%] Building CXX object CMakeFiles/cpu.dir/src/cpu/reference.cpp.o
+[ 10%] Building CXX object CMakeFiles/cpu.dir/src/datagen.cpp.o
+[ 15%] Building CXX object CMakeFiles/cpu.dir/src/cpu/engine.cpp.o
+[ 20%] Building CXX object CMakeFiles/cpu.dir/src/cpu/join_cpu.cpp.o
+[ 25%] Linking CXX static library libcpu.a
+gmake[3]: Leaving directory '/kaggle/repo/build'
+[ 25%] Built target cpu
+gmake[3]: Entering directory '/kaggle/repo/build'
+gmake[3]: Leaving directory '/kaggle/repo/build'
+gmake[3]: Entering directory '/kaggle/repo/build'
+[ 30%] Building CUDA object CMakeFiles/bench.dir/bench/bench.cu.o
+[ 35%] Building CUDA object CMakeFiles/bench.dir/bench/micro.cu.o
+[ 40%] Building CUDA object CMakeFiles/bench.dir/bench/stream.cu.o
+[ 45%] Building CUDA object CMakeFiles/bench.dir/bench/join.cu.o
+[ 50%] Building CUDA object CMakeFiles/bench.dir/bench/tpch.cu.o
+[ 55%] Building CUDA object CMakeFiles/bench.dir/src/gpu/dev.cu.o
+[ 60%] Building CUDA object CMakeFiles/bench.dir/src/kernels/v0_naive.cu.o
+[ 65%] Building CUDA object CMakeFiles/bench.dir/src/kernels/v1_vec.cu.o
+[ 70%] Building CUDA object CMakeFiles/bench.dir/src/kernels/v2_smem.cu.o
+[ 75%] Building CUDA object CMakeFiles/bench.dir/src/kernels/v3_warpagg.cu.o
+[ 80%] Building CUDA object CMakeFiles/bench.dir/src/kernels/v4_radix.cu.o
+[ 85%] Building CUDA object CMakeFiles/bench.dir/src/kernels/v4_sort.cu.o
+[ 90%] Building CUDA object CMakeFiles/bench.dir/src/kernels/v6_join.cu.o
+[ 95%] Building CUDA object CMakeFiles/bench.dir/src/kernels/variants.cu.o
+[100%] Linking CXX executable bench
+gmake[3]: Leaving directory '/kaggle/repo/build'
+[100%] Built target bench
+gmake[2]: Leaving directory '/kaggle/repo/build'
+gmake[1]: Leaving directory '/kaggle/repo/build'
+build/bench sweep rows=500M cards=16,256,4096 skews=0,0.5,1,1.5 sels=1,10,50,100 variants=main tag=sweep cpu_budget_s=15
+device: Tesla T4, 40 SMs, L2 4 MB, smem/SM 64 KB
+achievable DRAM read bandwidth (own microbenchmark): 278.3 GB/s; CPU threads=4
+  generated rows=500000000 card=16 skew=0.0 comp=0 in 3564 ms (runs=15623430, 2593.7 MB compressed)
+ sel=1% groups=16 ref=1189ms cpu_engine=32.9ms cap=1024
+  v0_naive            26.763 ms  iqr 1.489    34.8% bw     1.2x cpu  groups=16
+  v1_vec              15.985 ms  iqr 0.396    58.3% bw     2.1x cpu  groups=16
+  v2_smem_aos512      26.612 ms  iqr 0.157    35.0% bw     1.2x cpu  groups=16
+  v2_smem_soa512      26.037 ms  iqr 0.174    35.8% bw     1.3x cpu  groups=16
+  v2_smem_soa         17.891 ms  iqr 0.265    52.1% bw     1.8x cpu  groups=16
+  v3_warpagg          18.566 ms  iqr 0.334    50.2% bw     1.8x cpu  groups=16
+  v4_radix_smem       18.650 ms  iqr 0.435    50.0% bw     1.8x cpu  groups=16
+  v4_radix_l2         18.595 ms  iqr 0.449    50.1% bw     1.8x cpu  groups=16
+  v4_sort             16.766 ms  iqr 0.307    55.6% bw     2.0x cpu  groups=16
+ sel=10% groups=16 ref=1361ms cpu_engine=182.8ms cap=1024
+  v0_naive            52.144 ms  iqr 0.509    17.9% bw     3.5x cpu  groups=16
+  v1_vec              46.927 ms  iqr 0.068    19.9% bw     3.9x cpu  groups=16
+  v2_smem_aos512      42.139 ms  iqr 0.264    22.1% bw     4.3x cpu  groups=16
+  v2_smem_soa512      34.763 ms  iqr 0.258    26.8% bw     5.3x cpu  groups=16
+  v2_smem_soa         24.012 ms  iqr 0.499    38.8% bw     7.6x cpu  groups=16
+  v3_warpagg          23.762 ms  iqr 0.526    39.2% bw     7.7x cpu  groups=16
+  v4_radix_smem       23.809 ms  iqr 0.499    39.1% bw     7.7x cpu  groups=16
+  v4_radix_l2         23.855 ms  iqr 0.306    39.1% bw     7.7x cpu  groups=16
+  v4_sort             33.263 ms  iqr 0.383    28.0% bw     5.5x cpu  groups=16
+ sel=50% groups=16 ref=2044ms cpu_engine=691.2ms cap=1024
+  v0_naive           215.187 ms  iqr 0.030     4.3% bw     3.2x cpu  groups=16
+  v1_vec             214.429 ms  iqr 0.023     4.3% bw     3.2x cpu  groups=16
+  v2_smem_aos512     124.018 ms  iqr 0.428     7.5% bw     5.6x cpu  groups=16
+  v2_smem_soa512      78.940 ms  iqr 0.410    11.8% bw     8.8x cpu  groups=16
+  v2_smem_soa         58.378 ms  iqr 0.421    16.0% bw    11.8x cpu  groups=16
+  v3_warpagg          46.632 ms  iqr 0.220    20.0% bw    14.8x cpu  groups=16
+  v4_radix_smem       46.884 ms  iqr 0.581    19.9% bw    14.7x cpu  groups=16
+  v4_radix_l2         47.008 ms  iqr 0.648    19.8% bw    14.7x cpu  groups=16
+  v4_sort            109.026 ms  iqr 1.257     8.5% bw     6.3x cpu  groups=16
+ sel=100% groups=16 ref=2692ms cpu_engine=1299.5ms cap=1024
+  v0_naive           426.747 ms  iqr 0.028     2.2% bw     3.0x cpu  groups=16
+  v1_vec             429.481 ms  iqr 0.028     2.2% bw     3.0x cpu  groups=16
+  v2_smem_aos512     241.823 ms  iqr 0.470     3.9% bw     5.4x cpu  groups=16
+  v2_smem_soa512     141.050 ms  iqr 0.196     6.6% bw     9.2x cpu  groups=16
+  v2_smem_soa        109.013 ms  iqr 0.277     8.5% bw    11.9x cpu  groups=16
+  v3_warpagg          76.499 ms  iqr 0.467    12.2% bw    17.0x cpu  groups=16
+  v4_radix_smem       76.489 ms  iqr 0.121    12.2% bw    17.0x cpu  groups=16
+  v4_radix_l2         76.366 ms  iqr 0.449    12.2% bw    17.0x cpu  groups=16
+  v4_sort            202.663 ms  iqr 0.640     4.6% bw     6.4x cpu  groups=16
+  generated rows=500000000 card=16 skew=0.5 comp=0 in 4380 ms (runs=15623430, 2593.7 MB compressed)
+ sel=1% groups=16 ref=1196ms cpu_engine=32.8ms cap=1024
+  v0_naive            31.633 ms  iqr 1.385    29.5% bw     1.0x cpu  groups=16
+  v1_vec              19.097 ms  iqr 1.033    48.8% bw     1.7x cpu  groups=16
+  v2_smem_aos512      28.775 ms  iqr 0.536    32.4% bw     1.1x cpu  groups=16
+  v2_smem_soa512      28.292 ms  iqr 0.324    32.9% bw     1.2x cpu  groups=16
+  v2_smem_soa         20.389 ms  iqr 0.507    45.7% bw     1.6x cpu  groups=16
+  v3_warpagg          20.445 ms  iqr 0.338    45.6% bw     1.6x cpu  groups=16
+  v4_radix_smem       20.414 ms  iqr 0.255    45.6% bw     1.6x cpu  groups=16
+  v4_radix_l2         20.414 ms  iqr 0.259    45.6% bw     1.6x cpu  groups=16
+  v4_sort             20.109 ms  iqr 0.336    46.3% bw     1.6x cpu  groups=16
+ sel=10% groups=16 ref=1469ms cpu_engine=169.8ms cap=1024
+  v0_naive            58.775 ms  iqr 0.088    15.9% bw     2.9x cpu  groups=16
+  v1_vec              51.569 ms  iqr 0.045    18.1% bw     3.3x cpu  groups=16
+  v2_smem_aos512      46.509 ms  iqr 0.374    20.0% bw     3.7x cpu  groups=16
+  v2_smem_soa512      40.103 ms  iqr 0.583    23.2% bw     4.2x cpu  groups=16
+  v2_smem_soa         28.204 ms  iqr 0.268    33.0% bw     6.0x cpu  groups=16
+  v3_warpagg          26.490 ms  iqr 0.027    35.2% bw     6.4x cpu  groups=16
+  v4_radix_smem       26.495 ms  iqr 0.035    35.2% bw     6.4x cpu  groups=16
+  v4_radix_l2         26.498 ms  iqr 0.035    35.2% bw     6.4x cpu  groups=16
+  v4_sort             35.816 ms  iqr 1.080    26.0% bw     4.7x cpu  groups=16
+ sel=50% groups=16 ref=2072ms cpu_engine=659.8ms cap=1024
+  v0_naive           233.020 ms  iqr 1.759     4.0% bw     2.8x cpu  groups=16
+  v1_vec             228.242 ms  iqr 1.004     4.1% bw     2.9x cpu  groups=16
+  v2_smem_aos512     146.859 ms  iqr 0.661     6.3% bw     4.5x cpu  groups=16
+  v2_smem_soa512     106.251 ms  iqr 0.515     8.8% bw     6.2x cpu  groups=16
+  v2_smem_soa         82.079 ms  iqr 0.281    11.4% bw     8.0x cpu  groups=16
+  v3_warpagg          50.778 ms  iqr 0.372    18.4% bw    13.0x cpu  groups=16
+  v4_radix_smem       50.776 ms  iqr 0.304    18.4% bw    13.0x cpu  groups=16
+  v4_radix_l2         50.557 ms  iqr 0.385    18.4% bw    13.0x cpu  groups=16
+  v4_sort            111.960 ms  iqr 0.664     8.3% bw     5.9x cpu  groups=16
+ sel=100% groups=16 ref=2743ms cpu_engine=1266.0ms cap=1024
+  v0_naive           443.465 ms  iqr 0.032     2.1% bw     2.9x cpu  groups=16
+  v1_vec             446.079 ms  iqr 0.031     2.1% bw     2.8x cpu  groups=16
+  v2_smem_aos512     273.320 ms  iqr 1.165     3.4% bw     4.6x cpu  groups=16
+  v2_smem_soa512     187.296 ms  iqr 1.351     5.0% bw     6.8x cpu  groups=16
+  v2_smem_soa        153.222 ms  iqr 2.110     6.1% bw     8.3x cpu  groups=16
+  v3_warpagg          78.300 ms  iqr 0.157    11.9% bw    16.2x cpu  groups=16
+  v4_radix_smem       77.685 ms  iqr 0.527    12.0% bw    16.3x cpu  groups=16
+  v4_radix_l2         77.325 ms  iqr 0.311    12.1% bw    16.4x cpu  groups=16
+  v4_sort            200.910 ms  iqr 0.886     4.6% bw     6.3x cpu  groups=16
+  generated rows=500000000 card=16 skew=1.0 comp=0 in 4977 ms (runs=15623430, 2593.7 MB compressed)
+ sel=1% groups=16 ref=1153ms cpu_engine=33.6ms cap=1024
+  v0_naive            31.187 ms  iqr 1.965    29.9% bw     1.1x cpu  groups=16
+  v1_vec              18.758 ms  iqr 0.540    49.7% bw     1.8x cpu  groups=16
+  v2_smem_aos512      28.792 ms  iqr 0.191    32.4% bw     1.2x cpu  groups=16
+  v2_smem_soa512      28.300 ms  iqr 0.248    32.9% bw     1.2x cpu  groups=16
+  v2_smem_soa         20.074 ms  iqr 0.324    46.4% bw     1.7x cpu  groups=16
+  v3_warpagg          20.470 ms  iqr 0.056    45.5% bw     1.6x cpu  groups=16
+  v4_radix_smem       20.450 ms  iqr 0.409    45.6% bw     1.6x cpu  groups=16
+  v4_radix_l2         20.357 ms  iqr 0.299    45.8% bw     1.7x cpu  groups=16
+  v4_sort             20.142 ms  iqr 0.088    46.3% bw     1.7x cpu  groups=16
+ sel=10% groups=16 ref=1435ms cpu_engine=173.6ms cap=1024
+  v0_naive            79.461 ms  iqr 0.056    11.7% bw     2.2x cpu  groups=16
+  v1_vec              73.310 ms  iqr 0.040    12.7% bw     2.4x cpu  groups=16
+  v2_smem_aos512      54.611 ms  iqr 0.447    17.1% bw     3.2x cpu  groups=16
+  v2_smem_soa512      49.079 ms  iqr 0.425    19.0% bw     3.5x cpu  groups=16
+  v2_smem_soa         35.385 ms  iqr 0.539    26.3% bw     4.9x cpu  groups=16
+  v3_warpagg          26.832 ms  iqr 0.051    34.7% bw     6.5x cpu  groups=16
+  v4_radix_smem       26.998 ms  iqr 0.237    34.5% bw     6.4x cpu  groups=16
+  v4_radix_l2         26.995 ms  iqr 0.204    34.5% bw     6.4x cpu  groups=16
+  v4_sort             35.856 ms  iqr 1.066    26.0% bw     4.8x cpu  groups=16
+ sel=50% groups=16 ref=2028ms cpu_engine=678.1ms cap=1024
+  v0_naive           349.005 ms  iqr 0.032     2.7% bw     1.9x cpu  groups=16
+  v1_vec             348.068 ms  iqr 0.029     2.7% bw     1.9x cpu  groups=16
+  v2_smem_aos512     205.241 ms  iqr 1.849     4.5% bw     3.3x cpu  groups=16
+  v2_smem_soa512     170.877 ms  iqr 0.776     5.5% bw     4.0x cpu  groups=16
+  v2_smem_soa        148.920 ms  iqr 0.642     6.3% bw     4.6x cpu  groups=16
+  v3_warpagg          50.971 ms  iqr 0.589    18.3% bw    13.3x cpu  groups=16
+  v4_radix_smem       50.741 ms  iqr 0.567    18.4% bw    13.4x cpu  groups=16
+  v4_radix_l2         50.741 ms  iqr 0.529    18.4% bw    13.4x cpu  groups=16
+  v4_sort            110.075 ms  iqr 0.856     8.5% bw     6.2x cpu  groups=16
+ sel=100% groups=16 ref=2739ms cpu_engine=1310.0ms cap=1024
+  v0_naive           695.393 ms  iqr 0.045     1.3% bw     1.9x cpu  groups=16
+  v1_vec             696.259 ms  iqr 0.019     1.3% bw     1.9x cpu  groups=16
+  v2_smem_aos512     388.725 ms  iqr 1.165     2.4% bw     3.4x cpu  groups=16
+  v2_smem_soa512     317.903 ms  iqr 2.641     2.9% bw     4.1x cpu  groups=16
+  v2_smem_soa        301.963 ms  iqr 1.801     3.1% bw     4.3x cpu  groups=16
+  v3_warpagg          79.744 ms  iqr 0.518    11.7% bw    16.4x cpu  groups=16
+  v4_radix_smem       79.496 ms  iqr 0.184    11.7% bw    16.5x cpu  groups=16
+  v4_radix_l2         79.533 ms  iqr 0.200    11.7% bw    16.5x cpu  groups=16
+  v4_sort            201.028 ms  iqr 0.631     4.6% bw     6.5x cpu  groups=16
+  generated rows=500000000 card=16 skew=1.5 comp=0 in 4786 ms (runs=15623430, 2593.7 MB compressed)
+ sel=1% groups=16 ref=1131ms cpu_engine=32.7ms cap=1024
+  v0_naive            31.289 ms  iqr 1.636    29.8% bw     1.0x cpu  groups=16
+  v1_vec              19.932 ms  iqr 0.543    46.8% bw     1.6x cpu  groups=16
+  v2_smem_aos512      29.417 ms  iqr 0.190    31.7% bw     1.1x cpu  groups=16
+  v2_smem_soa512      29.188 ms  iqr 0.472    31.9% bw     1.1x cpu  groups=16
+  v2_smem_soa         20.479 ms  iqr 0.525    45.5% bw     1.6x cpu  groups=16
+  v3_warpagg          20.339 ms  iqr 0.339    45.8% bw     1.6x cpu  groups=16
+  v4_radix_smem       20.367 ms  iqr 0.350    45.8% bw     1.6x cpu  groups=16
+  v4_radix_l2         20.497 ms  iqr 0.282    45.5% bw     1.6x cpu  groups=16
+  v4_sort             20.149 ms  iqr 0.304    46.2% bw     1.6x cpu  groups=16
+ sel=10% groups=16 ref=1434ms cpu_engine=179.3ms cap=1024
+  v0_naive           115.974 ms  iqr 0.824     8.0% bw     1.5x cpu  groups=16
+  v1_vec             110.493 ms  iqr 0.053     8.4% bw     1.6x cpu  groups=16
+  v2_smem_aos512      70.403 ms  iqr 0.493    13.2% bw     2.5x cpu  groups=16
+  v2_smem_soa512      65.554 ms  iqr 0.387    14.2% bw     2.7x cpu  groups=16
+  v2_smem_soa         49.342 ms  iqr 0.502    18.9% bw     3.6x cpu  groups=16
+  v3_warpagg          28.085 ms  iqr 0.709    33.2% bw     6.4x cpu  groups=16
+  v4_radix_smem       28.118 ms  iqr 0.525    33.1% bw     6.4x cpu  groups=16
+  v4_radix_l2         28.132 ms  iqr 0.236    33.1% bw     6.4x cpu  groups=16
+  v4_sort             37.017 ms  iqr 1.821    25.2% bw     4.8x cpu  groups=16
+ sel=50% groups=16 ref=1997ms cpu_engine=663.3ms cap=1024
+  v0_naive           553.481 ms  iqr 0.031     1.7% bw     1.2x cpu  groups=16
+  v1_vec             552.349 ms  iqr 0.024     1.7% bw     1.2x cpu  groups=16
+  v2_smem_aos512     281.488 ms  iqr 0.613     3.3% bw     2.4x cpu  groups=16
+  v2_smem_soa512     250.470 ms  iqr 0.638     3.7% bw     2.6x cpu  groups=16
+  v2_smem_soa        241.426 ms  iqr 0.546     3.9% bw     2.7x cpu  groups=16
+  v3_warpagg          51.182 ms  iqr 0.574    18.2% bw    13.0x cpu  groups=16
+  v4_radix_smem       50.906 ms  iqr 0.562    18.3% bw    13.0x cpu  groups=16
+  v4_radix_l2         50.900 ms  iqr 0.560    18.3% bw    13.0x cpu  groups=16
+  v4_sort            110.403 ms  iqr 0.713     8.4% bw     6.0x cpu  groups=16
+ sel=100% groups=16 ref=2741ms cpu_engine=1249.7ms cap=1024
+  v0_naive          1104.508 ms  iqr 0.034     0.8% bw     1.1x cpu  groups=16
+  v1_vec            1105.117 ms  iqr 0.039     0.8% bw     1.1x cpu  groups=16
+  v2_smem_aos512     543.099 ms  iqr 0.441     1.7% bw     2.3x cpu  groups=16
+  v2_smem_soa512     485.415 ms  iqr 0.932     1.9% bw     2.6x cpu  groups=16
+  v2_smem_soa        496.687 ms  iqr 1.025     1.9% bw     2.5x cpu  groups=16
+  v3_warpagg          81.588 ms  iqr 0.444    11.4% bw    15.3x cpu  groups=16
+  v4_radix_smem       81.490 ms  iqr 0.394    11.4% bw    15.3x cpu  groups=16
+  v4_radix_l2         81.552 ms  iqr 0.581    11.4% bw    15.3x cpu  groups=16
+  v4_sort            203.858 ms  iqr 0.686     4.6% bw     6.1x cpu  groups=16
+  generated rows=500000000 card=256 skew=0.0 comp=0 in 3701 ms (runs=15623430, 2593.7 MB compressed)
+ sel=1% groups=256 ref=1138ms cpu_engine=37.7ms cap=1024
+  v0_naive            34.018 ms  iqr 2.103    27.4% bw     1.1x cpu  groups=256
+  v1_vec              20.039 ms  iqr 0.062    46.5% bw     1.9x cpu  groups=256
+  v2_smem_aos512      30.809 ms  iqr 0.057    30.2% bw     1.2x cpu  groups=256
+  v2_smem_soa512      30.242 ms  iqr 0.504    30.8% bw     1.2x cpu  groups=256
+  v2_smem_soa         22.303 ms  iqr 0.828    41.8% bw     1.7x cpu  groups=256
+  v3_warpagg          22.988 ms  iqr 0.862    40.5% bw     1.6x cpu  groups=256
+  v4_radix_smem       23.070 ms  iqr 0.754    40.4% bw     1.6x cpu  groups=256
+  v4_radix_l2         23.087 ms  iqr 0.813    40.4% bw     1.6x cpu  groups=256
+  v4_sort             20.191 ms  iqr 0.385    46.2% bw     1.9x cpu  groups=256
+ sel=10% groups=256 ref=1446ms cpu_engine=230.4ms cap=1024
+  v0_naive            48.151 ms  iqr 1.260    19.4% bw     4.8x cpu  groups=256
+  v1_vec              33.672 ms  iqr 1.056    27.7% bw     6.8x cpu  groups=256
+  v2_smem_aos512      57.376 ms  iqr 0.626    16.2% bw     4.0x cpu  groups=256
+  v2_smem_soa512      51.788 ms  iqr 0.847    18.0% bw     4.4x cpu  groups=256
+  v2_smem_soa         43.005 ms  iqr 2.108    21.7% bw     5.4x cpu  groups=256
+  v3_warpagg          44.479 ms  iqr 2.125    21.0% bw     5.2x cpu  groups=256
+  v4_radix_smem       44.668 ms  iqr 1.514    20.9% bw     5.2x cpu  groups=256
+  v4_radix_l2         44.629 ms  iqr 2.350    20.9% bw     5.2x cpu  groups=256
+  v4_sort             37.929 ms  iqr 2.021    24.6% bw     6.1x cpu  groups=256
+ sel=50% groups=256 ref=2074ms cpu_engine=951.7ms cap=1024
+  v0_naive           111.770 ms  iqr 0.689     8.3% bw     8.5x cpu  groups=256
+  v1_vec             102.068 ms  iqr 0.536     9.1% bw     9.3x cpu  groups=256
+  v2_smem_aos512     170.014 ms  iqr 3.082     5.5% bw     5.6x cpu  groups=256
+  v2_smem_soa512     141.826 ms  iqr 3.377     6.6% bw     6.7x cpu  groups=256
+  v2_smem_soa        110.040 ms  iqr 8.030     8.5% bw     8.6x cpu  groups=256
+  v3_warpagg         111.009 ms  iqr 2.326     8.4% bw     8.6x cpu  groups=256
+  v4_radix_smem      109.683 ms  iqr 2.628     8.5% bw     8.7x cpu  groups=256
+  v4_radix_l2        108.757 ms  iqr 1.798     8.6% bw     8.8x cpu  groups=256
+  v4_sort            115.225 ms  iqr 1.117     8.1% bw     8.3x cpu  groups=256
+ sel=100% groups=256 ref=2653ms cpu_engine=1865.9ms cap=1024
+  v0_naive           190.106 ms  iqr 2.709     4.9% bw     9.8x cpu  groups=256
+  v1_vec             182.815 ms  iqr 1.535     5.1% bw    10.2x cpu  groups=256
+  v2_smem_aos512     292.650 ms  iqr 2.535     3.2% bw     6.4x cpu  groups=256
+  v2_smem_soa512     246.507 ms  iqr 7.205     3.8% bw     7.6x cpu  groups=256
+  v2_smem_soa        188.834 ms  iqr 3.801     4.9% bw     9.9x cpu  groups=256
+  v3_warpagg         196.717 ms  iqr 5.660     4.7% bw     9.5x cpu  groups=256
+  v4_radix_smem      194.159 ms  iqr 7.880     4.8% bw     9.6x cpu  groups=256
+  v4_radix_l2        191.564 ms  iqr 6.835     4.9% bw     9.7x cpu  groups=256
+  v4_sort            207.677 ms  iqr 1.291     4.5% bw     9.0x cpu  groups=256
+  generated rows=500000000 card=256 skew=0.5 comp=0 in 4564 ms (runs=15623430, 2593.7 MB compressed)
+ sel=1% groups=256 ref=1167ms cpu_engine=38.2ms cap=1024
+  v0_naive            32.600 ms  iqr 1.542    28.6% bw     1.2x cpu  groups=256
+  v1_vec              19.989 ms  iqr 0.746    46.6% bw     1.9x cpu  groups=256
+  v2_smem_aos512      30.074 ms  iqr 0.235    31.0% bw     1.3x cpu  groups=256
+  v2_smem_soa512      29.411 ms  iqr 0.243    31.7% bw     1.3x cpu  groups=256
+  v2_smem_soa         21.640 ms  iqr 0.768    43.1% bw     1.8x cpu  groups=256
+  v3_warpagg          22.456 ms  iqr 0.468    41.5% bw     1.7x cpu  groups=256
+  v4_radix_smem       22.499 ms  iqr 0.738    41.4% bw     1.7x cpu  groups=256
+  v4_radix_l2         22.519 ms  iqr 0.516    41.4% bw     1.7x cpu  groups=256
+  v4_sort             20.095 ms  iqr 0.337    46.4% bw     1.9x cpu  groups=256
+ sel=10% groups=256 ref=1451ms cpu_engine=220.1ms cap=1024
+  v0_naive            45.807 ms  iqr 2.087    20.3% bw     4.8x cpu  groups=256
+  v1_vec              34.369 ms  iqr 1.714    27.1% bw     6.4x cpu  groups=256
+  v2_smem_aos512      54.539 ms  iqr 0.601    17.1% bw     4.0x cpu  groups=256
+  v2_smem_soa512      48.274 ms  iqr 0.622    19.3% bw     4.6x cpu  groups=256
+  v2_smem_soa         39.858 ms  iqr 0.766    23.4% bw     5.5x cpu  groups=256
+  v3_warpagg          40.683 ms  iqr 0.655    22.9% bw     5.4x cpu  groups=256
+  v4_radix_smem       40.706 ms  iqr 0.560    22.9% bw     5.4x cpu  groups=256
+  v4_radix_l2         40.704 ms  iqr 0.532    22.9% bw     5.4x cpu  groups=256
+  v4_sort             36.990 ms  iqr 1.516    25.2% bw     6.0x cpu  groups=256
+ sel=50% groups=256 ref=2073ms cpu_engine=929.4ms cap=1024
+  v0_naive           133.447 ms  iqr 3.772     7.0% bw     7.0x cpu  groups=256
+  v1_vec             123.860 ms  iqr 5.228     7.5% bw     7.5x cpu  groups=256
+  v2_smem_aos512     162.049 ms  iqr 1.820     5.8% bw     5.7x cpu  groups=256
+  v2_smem_soa512     133.853 ms  iqr 1.587     7.0% bw     6.9x cpu  groups=256
+  v2_smem_soa        102.874 ms  iqr 3.274     9.1% bw     9.0x cpu  groups=256
+  v3_warpagg         105.755 ms  iqr 1.751     8.8% bw     8.8x cpu  groups=256
+  v4_radix_smem      106.131 ms  iqr 2.103     8.8% bw     8.8x cpu  groups=256
+  v4_radix_l2        104.327 ms  iqr 3.072     8.9% bw     8.9x cpu  groups=256
+  v4_sort            115.335 ms  iqr 0.929     8.1% bw     8.1x cpu  groups=256
+ sel=100% groups=256 ref=2703ms cpu_engine=1778.5ms cap=1024
+  v0_naive           226.102 ms  iqr 10.512     4.1% bw     7.9x cpu  groups=256
+  v1_vec             230.041 ms  iqr 10.721     4.1% bw     7.7x cpu  groups=256
+  v2_smem_aos512     283.289 ms  iqr 6.816     3.3% bw     6.3x cpu  groups=256
+  v2_smem_soa512     229.135 ms  iqr 6.661     4.1% bw     7.8x cpu  groups=256
+  v2_smem_soa        173.029 ms  iqr 2.948     5.4% bw    10.3x cpu  groups=256
+  v3_warpagg         179.903 ms  iqr 3.395     5.2% bw     9.9x cpu  groups=256
+  v4_radix_smem      177.254 ms  iqr 4.800     5.3% bw    10.0x cpu  groups=256
+  v4_radix_l2        175.754 ms  iqr 2.744     5.3% bw    10.1x cpu  groups=256
+  v4_sort            206.994 ms  iqr 1.091     4.5% bw     8.6x cpu  groups=256
+  generated rows=500000000 card=256 skew=1.0 comp=0 in 4950 ms (runs=15623430, 2593.7 MB compressed)
+ sel=1% groups=256 ref=1202ms cpu_engine=36.3ms cap=1024
+  v0_naive            31.663 ms  iqr 1.441    29.4% bw     1.1x cpu  groups=256
+  v1_vec              19.720 ms  iqr 0.635    47.3% bw     1.8x cpu  groups=256
+  v2_smem_aos512      29.538 ms  iqr 0.176    31.5% bw     1.2x cpu  groups=256
+  v2_smem_soa512      28.957 ms  iqr 0.364    32.2% bw     1.3x cpu  groups=256
+  v2_smem_soa         21.043 ms  iqr 0.438    44.3% bw     1.7x cpu  groups=256
+  v3_warpagg          21.764 ms  iqr 0.660    42.8% bw     1.7x cpu  groups=256
+  v4_radix_smem       21.879 ms  iqr 0.709    42.6% bw     1.7x cpu  groups=256
+  v4_radix_l2         21.842 ms  iqr 0.524    42.7% bw     1.7x cpu  groups=256
+  v4_sort             20.205 ms  iqr 0.116    46.1% bw     1.8x cpu  groups=256
+ sel=10% groups=256 ref=1472ms cpu_engine=195.3ms cap=1024
+  v0_naive            63.568 ms  iqr 0.812    14.7% bw     3.1x cpu  groups=256
+  v1_vec              56.077 ms  iqr 0.072    16.6% bw     3.5x cpu  groups=256
+  v2_smem_aos512      52.611 ms  iqr 0.480    17.7% bw     3.7x cpu  groups=256
+  v2_smem_soa512      47.061 ms  iqr 0.401    19.8% bw     4.2x cpu  groups=256
+  v2_smem_soa         37.973 ms  iqr 0.974    24.5% bw     5.1x cpu  groups=256
+  v3_warpagg          37.686 ms  iqr 1.092    24.7% bw     5.2x cpu  groups=256
+  v4_radix_smem       37.738 ms  iqr 0.965    24.7% bw     5.2x cpu  groups=256
+  v4_radix_l2         37.851 ms  iqr 1.020    24.6% bw     5.2x cpu  groups=256
+  v4_sort             36.891 ms  iqr 1.693    25.3% bw     5.3x cpu  groups=256
+ sel=50% groups=256 ref=2068ms cpu_engine=804.1ms cap=1024
+  v0_naive           253.104 ms  iqr 0.204     3.7% bw     3.2x cpu  groups=256
+  v1_vec             249.814 ms  iqr 1.557     3.7% bw     3.2x cpu  groups=256
+  v2_smem_aos512     164.771 ms  iqr 1.231     5.7% bw     4.9x cpu  groups=256
+  v2_smem_soa512     134.574 ms  iqr 1.833     6.9% bw     6.0x cpu  groups=256
+  v2_smem_soa        101.111 ms  iqr 1.624     9.2% bw     8.0x cpu  groups=256
+  v3_warpagg          93.191 ms  iqr 3.592    10.0% bw     8.6x cpu  groups=256
+  v4_radix_smem       92.435 ms  iqr 2.323    10.1% bw     8.7x cpu  groups=256
+  v4_radix_l2         91.997 ms  iqr 3.096    10.1% bw     8.7x cpu  groups=256
+  v4_sort            113.454 ms  iqr 0.721     8.2% bw     7.1x cpu  groups=256
+ sel=100% groups=256 ref=2778ms cpu_engine=1542.0ms cap=1024
+  v0_naive           478.654 ms  iqr 0.135     1.9% bw     3.2x cpu  groups=256
+  v1_vec             481.743 ms  iqr 5.278     1.9% bw     3.2x cpu  groups=256
+  v2_smem_aos512     301.205 ms  iqr 4.138     3.1% bw     5.1x cpu  groups=256
+  v2_smem_soa512     240.606 ms  iqr 2.698     3.9% bw     6.4x cpu  groups=256
+  v2_smem_soa        179.236 ms  iqr 5.358     5.2% bw     8.6x cpu  groups=256
+  v3_warpagg         149.676 ms  iqr 7.248     6.2% bw    10.3x cpu  groups=256
+  v4_radix_smem      148.503 ms  iqr 5.841     6.3% bw    10.4x cpu  groups=256
+  v4_radix_l2        146.725 ms  iqr 8.532     6.4% bw    10.5x cpu  groups=256
+  v4_sort            206.198 ms  iqr 1.087     4.5% bw     7.5x cpu  groups=256
+  generated rows=500000000 card=256 skew=1.5 comp=0 in 4438 ms (runs=15623430, 2593.7 MB compressed)
+ sel=1% groups=256 ref=1158ms cpu_engine=35.6ms cap=1024
+  v0_naive            31.486 ms  iqr 1.898    29.6% bw     1.1x cpu  groups=256
+  v1_vec              19.529 ms  iqr 0.144    47.7% bw     1.8x cpu  groups=256
+  v2_smem_aos512      29.588 ms  iqr 0.258    31.5% bw     1.2x cpu  groups=256
+  v2_smem_soa512      29.348 ms  iqr 0.360    31.8% bw     1.2x cpu  groups=256
+  v2_smem_soa         20.886 ms  iqr 0.096    44.6% bw     1.7x cpu  groups=256
+  v3_warpagg          20.989 ms  iqr 0.544    44.4% bw     1.7x cpu  groups=256
+  v4_radix_smem       20.887 ms  iqr 0.651    44.6% bw     1.7x cpu  groups=256
+  v4_radix_l2         21.025 ms  iqr 0.348    44.3% bw     1.7x cpu  groups=256
+  v4_sort             20.192 ms  iqr 0.106    46.1% bw     1.8x cpu  groups=256
+ sel=10% groups=256 ref=1450ms cpu_engine=179.4ms cap=1024
+  v0_naive           107.444 ms  iqr 0.712     8.7% bw     1.7x cpu  groups=256
+  v1_vec             101.268 ms  iqr 0.437     9.2% bw     1.8x cpu  groups=256
+  v2_smem_aos512      65.270 ms  iqr 0.435    14.3% bw     2.7x cpu  groups=256
+  v2_smem_soa512      60.434 ms  iqr 0.517    15.4% bw     3.0x cpu  groups=256
+  v2_smem_soa         44.881 ms  iqr 0.755    20.8% bw     4.0x cpu  groups=256
+  v3_warpagg          32.070 ms  iqr 0.972    29.1% bw     5.6x cpu  groups=256
+  v4_radix_smem       32.469 ms  iqr 0.720    28.7% bw     5.5x cpu  groups=256
+  v4_radix_l2         32.610 ms  iqr 0.709    28.6% bw     5.5x cpu  groups=256
+  v4_sort             37.457 ms  iqr 1.821    24.9% bw     4.8x cpu  groups=256
+ sel=50% groups=256 ref=2064ms cpu_engine=706.2ms cap=1024
+  v0_naive           503.235 ms  iqr 0.043     1.9% bw     1.4x cpu  groups=256
+  v1_vec             502.273 ms  iqr 0.030     1.9% bw     1.4x cpu  groups=256
+  v2_smem_aos512     253.400 ms  iqr 0.608     3.7% bw     2.8x cpu  groups=256
+  v2_smem_soa512     222.506 ms  iqr 1.366     4.2% bw     3.2x cpu  groups=256
+  v2_smem_soa        194.843 ms  iqr 0.979     4.8% bw     3.6x cpu  groups=256
+  v3_warpagg          66.856 ms  iqr 2.325    13.9% bw    10.6x cpu  groups=256
+  v4_radix_smem       66.765 ms  iqr 1.618    14.0% bw    10.6x cpu  groups=256
+  v4_radix_l2         66.554 ms  iqr 1.563    14.0% bw    10.6x cpu  groups=256
+  v4_sort            111.544 ms  iqr 0.873     8.4% bw     6.3x cpu  groups=256
+ sel=100% groups=256 ref=2737ms cpu_engine=1316.0ms cap=1024
+  v0_naive          1003.966 ms  iqr 0.031     0.9% bw     1.3x cpu  groups=256
+  v1_vec            1005.032 ms  iqr 0.113     0.9% bw     1.3x cpu  groups=256
+  v2_smem_aos512     486.598 ms  iqr 0.560     1.9% bw     2.7x cpu  groups=256
+  v2_smem_soa512     427.131 ms  iqr 2.273     2.2% bw     3.1x cpu  groups=256
+  v2_smem_soa        398.890 ms  iqr 1.553     2.3% bw     3.3x cpu  groups=256
+  v3_warpagg         108.871 ms  iqr 2.953     8.6% bw    12.1x cpu  groups=256
+  v4_radix_smem      109.698 ms  iqr 2.696     8.5% bw    12.0x cpu  groups=256
+  v4_radix_l2        109.696 ms  iqr 2.179     8.5% bw    12.0x cpu  groups=256
+  v4_sort            206.384 ms  iqr 0.961     4.5% bw     6.4x cpu  groups=256
+  generated rows=500000000 card=4096 skew=0.0 comp=0 in 3837 ms (runs=15623430, 3093.7 MB compressed)
+ sel=1% groups=4096 ref=1100ms cpu_engine=49.0ms cap=8192
+  v0_naive            38.221 ms  iqr 1.884    29.1% bw     1.3x cpu  groups=4096
+  v1_vec              20.976 ms  iqr 1.412    53.0% bw     2.3x cpu  groups=4096
+  v2_smem_aos512      34.524 ms  iqr 0.508    32.2% bw     1.4x cpu  groups=4096
+  v2_smem_soa512      34.627 ms  iqr 0.360    32.1% bw     1.4x cpu  groups=4096
+  v2_smem_soa         25.012 ms  iqr 0.609    44.4% bw     2.0x cpu  groups=4096
+  v3_warpagg          25.626 ms  iqr 0.588    43.4% bw     1.9x cpu  groups=4096
+  v4_radix_smem       40.568 ms  iqr 0.189    27.4% bw     1.2x cpu  groups=4096
+  v4_radix_l2         25.680 ms  iqr 0.717    43.3% bw     1.9x cpu  groups=4096
+  v4_sort             20.054 ms  iqr 0.222    55.4% bw     2.4x cpu  groups=4096
+ sel=10% groups=4096 ref=1382ms cpu_engine=356.5ms cap=8192
+  v0_naive            58.176 ms  iqr 1.221    19.1% bw     6.1x cpu  groups=4096
+  v1_vec              40.662 ms  iqr 0.109    27.3% bw     8.8x cpu  groups=4096
+  v2_smem_aos512      75.896 ms  iqr 1.564    14.6% bw     4.7x cpu  groups=4096
+  v2_smem_soa512      75.783 ms  iqr 0.589    14.7% bw     4.7x cpu  groups=4096
+  v2_smem_soa         55.110 ms  iqr 1.490    20.2% bw     6.5x cpu  groups=4096
+  v3_warpagg          56.504 ms  iqr 1.766    19.7% bw     6.3x cpu  groups=4096
+  v4_radix_smem       69.127 ms  iqr 0.752    16.1% bw     5.2x cpu  groups=4096
+  v4_radix_l2         57.345 ms  iqr 1.759    19.4% bw     6.2x cpu  groups=4096
+  v4_sort             45.224 ms  iqr 1.631    24.6% bw     7.9x cpu  groups=4096
+ sel=50% groups=4096 ref=2039ms cpu_engine=1558.5ms cap=8192
+  v0_naive           126.927 ms  iqr 1.193     8.8% bw    12.3x cpu  groups=4096
+  v1_vec             107.513 ms  iqr 0.580    10.3% bw    14.5x cpu  groups=4096
+  v2_smem_aos512     234.138 ms  iqr 2.565     4.7% bw     6.7x cpu  groups=4096
+  v2_smem_soa512     233.850 ms  iqr 2.922     4.8% bw     6.7x cpu  groups=4096
+  v2_smem_soa        164.570 ms  iqr 8.178     6.8% bw     9.5x cpu  groups=4096
+  v3_warpagg         168.776 ms  iqr 8.847     6.6% bw     9.2x cpu  groups=4096
+  v4_radix_smem      164.071 ms  iqr 1.945     6.8% bw     9.5x cpu  groups=4096
+  v4_radix_l2        163.718 ms  iqr 7.026     6.8% bw     9.5x cpu  groups=4096
+  v4_sort            142.795 ms  iqr 0.800     7.8% bw    10.9x cpu  groups=4096
+ sel=100% groups=4096 ref=2657ms cpu_engine=2967.7ms cap=8192
+  v0_naive           201.413 ms  iqr 1.887     5.5% bw    14.7x cpu  groups=4096
+  v1_vec             190.654 ms  iqr 1.044     5.8% bw    15.6x cpu  groups=4096
+  v2_smem_aos512     412.090 ms  iqr 13.743     2.7% bw     7.2x cpu  groups=4096
+  v2_smem_soa512     408.985 ms  iqr 4.992     2.7% bw     7.3x cpu  groups=4096
+  v2_smem_soa        297.558 ms  iqr 13.186     3.7% bw    10.0x cpu  groups=4096
+  v3_warpagg         296.325 ms  iqr 19.327     3.8% bw    10.0x cpu  groups=4096
+  v4_radix_smem      269.476 ms  iqr 1.099     4.1% bw    11.0x cpu  groups=4096
+  v4_radix_l2        296.825 ms  iqr 22.342     3.7% bw    10.0x cpu  groups=4096
+  v4_sort            266.425 ms  iqr 1.369     4.2% bw    11.1x cpu  groups=4096
+  generated rows=500000000 card=4096 skew=0.5 comp=0 in 4867 ms (runs=15623430, 3093.7 MB compressed)
+ sel=1% groups=4096 ref=1168ms cpu_engine=51.4ms cap=8192
+  v0_naive            37.413 ms  iqr 2.153    29.7% bw     1.4x cpu  groups=4096
+  v1_vec              21.077 ms  iqr 1.231    52.7% bw     2.4x cpu  groups=4096
+  v2_smem_aos512      34.367 ms  iqr 0.552    32.3% bw     1.5x cpu  groups=4096
+  v2_smem_soa512      34.503 ms  iqr 0.347    32.2% bw     1.5x cpu  groups=4096
+  v2_smem_soa         24.746 ms  iqr 0.652    44.9% bw     2.1x cpu  groups=4096
+  v3_warpagg          25.502 ms  iqr 0.755    43.6% bw     2.0x cpu  groups=4096
+  v4_radix_smem       40.616 ms  iqr 0.315    27.4% bw     1.3x cpu  groups=4096
+  v4_radix_l2         25.504 ms  iqr 0.588    43.6% bw     2.0x cpu  groups=4096
+  v4_sort             20.128 ms  iqr 0.228    55.2% bw     2.6x cpu  groups=4096
+ sel=10% groups=4096 ref=1440ms cpu_engine=337.7ms cap=8192
+  v0_naive            56.992 ms  iqr 1.946    19.5% bw     5.9x cpu  groups=4096
+  v1_vec              39.161 ms  iqr 0.509    28.4% bw     8.6x cpu  groups=4096
+  v2_smem_aos512      72.512 ms  iqr 1.818    15.3% bw     4.7x cpu  groups=4096
+  v2_smem_soa512      73.015 ms  iqr 0.596    15.2% bw     4.6x cpu  groups=4096
+  v2_smem_soa         53.315 ms  iqr 1.708    20.8% bw     6.3x cpu  groups=4096
+  v3_warpagg          53.893 ms  iqr 1.647    20.6% bw     6.3x cpu  groups=4096
+  v4_radix_smem       68.533 ms  iqr 0.865    16.2% bw     4.9x cpu  groups=4096
+  v4_radix_l2         54.821 ms  iqr 1.730    20.3% bw     6.2x cpu  groups=4096
+  v4_sort             44.720 ms  iqr 1.501    24.9% bw     7.6x cpu  groups=4096
+ sel=50% groups=4096 ref=2047ms cpu_engine=1413.8ms cap=8192
+  v0_naive           122.833 ms  iqr 0.910     9.0% bw    11.5x cpu  groups=4096
+  v1_vec             104.106 ms  iqr 0.534    10.7% bw    13.6x cpu  groups=4096
+  v2_smem_aos512     230.728 ms  iqr 5.591     4.8% bw     6.1x cpu  groups=4096
+  v2_smem_soa512     226.609 ms  iqr 8.351     4.9% bw     6.2x cpu  groups=4096
+  v2_smem_soa        156.970 ms  iqr 1.327     7.1% bw     9.0x cpu  groups=4096
+  v3_warpagg         158.093 ms  iqr 1.427     7.0% bw     8.9x cpu  groups=4096
+  v4_radix_smem      162.180 ms  iqr 0.718     6.9% bw     8.7x cpu  groups=4096
+  v4_radix_l2        155.378 ms  iqr 7.227     7.2% bw     9.1x cpu  groups=4096
+  v4_sort            142.182 ms  iqr 0.800     7.8% bw     9.9x cpu  groups=4096
+ sel=100% groups=4096 ref=2591ms cpu_engine=2790.1ms cap=8192
+  v0_naive           193.918 ms  iqr 2.391     5.7% bw    14.4x cpu  groups=4096
+  v1_vec             184.119 ms  iqr 0.882     6.0% bw    15.2x cpu  groups=4096
+  v2_smem_aos512     395.784 ms  iqr 14.724     2.8% bw     7.0x cpu  groups=4096
+  v2_smem_soa512     379.558 ms  iqr 7.540     2.9% bw     7.4x cpu  groups=4096
+  v2_smem_soa        280.679 ms  iqr 9.532     4.0% bw     9.9x cpu  groups=4096
+  v3_warpagg         291.067 ms  iqr 14.133     3.8% bw     9.6x cpu  groups=4096
+  v4_radix_smem      267.050 ms  iqr 1.583     4.2% bw    10.4x cpu  groups=4096
+  v4_radix_l2        283.965 ms  iqr 20.133     3.9% bw     9.8x cpu  groups=4096
+  v4_sort            266.422 ms  iqr 1.364     4.2% bw    10.5x cpu  groups=4096
+  generated rows=500000000 card=4096 skew=1.0 comp=0 in 5001 ms (runs=15623430, 3093.7 MB compressed)
+ sel=1% groups=4096 ref=1182ms cpu_engine=41.9ms cap=8192
+  v0_naive            36.790 ms  iqr 1.838    30.2% bw     1.1x cpu  groups=4096
+  v1_vec              20.286 ms  iqr 0.551    54.8% bw     2.1x cpu  groups=4096
+  v2_smem_aos512      32.668 ms  iqr 0.322    34.0% bw     1.3x cpu  groups=4096
+  v2_smem_soa512      32.451 ms  iqr 0.339    34.3% bw     1.3x cpu  groups=4096
+  v2_smem_soa         23.704 ms  iqr 0.640    46.9% bw     1.8x cpu  groups=4096
+  v3_warpagg          24.392 ms  iqr 0.731    45.6% bw     1.7x cpu  groups=4096
+  v4_radix_smem       40.483 ms  iqr 0.105    27.5% bw     1.0x cpu  groups=4096
+  v4_radix_l2         24.387 ms  iqr 0.524    45.6% bw     1.7x cpu  groups=4096
+  v4_sort             20.112 ms  iqr 0.244    55.3% bw     2.1x cpu  groups=4096
+ sel=10% groups=4096 ref=1453ms cpu_engine=261.5ms cap=8192
+  v0_naive            54.040 ms  iqr 0.496    20.6% bw     4.8x cpu  groups=4096
+  v1_vec              44.638 ms  iqr 0.533    24.9% bw     5.9x cpu  groups=4096
+  v2_smem_aos512      66.712 ms  iqr 0.838    16.7% bw     3.9x cpu  groups=4096
+  v2_smem_soa512      64.058 ms  iqr 1.537    17.4% bw     4.1x cpu  groups=4096
+  v2_smem_soa         44.809 ms  iqr 1.225    24.8% bw     5.8x cpu  groups=4096
+  v3_warpagg          46.198 ms  iqr 1.272    24.1% bw     5.7x cpu  groups=4096
+  v4_radix_smem       66.025 ms  iqr 0.698    16.8% bw     4.0x cpu  groups=4096
+  v4_radix_l2         46.805 ms  iqr 2.022    23.7% bw     5.6x cpu  groups=4096
+  v4_sort             44.522 ms  iqr 1.355    25.0% bw     5.9x cpu  groups=4096
+ sel=50% groups=4096 ref=1954ms cpu_engine=1095.9ms cap=8192
+  v0_naive           184.071 ms  iqr 1.388     6.0% bw     6.0x cpu  groups=4096
+  v1_vec             174.155 ms  iqr 0.828     6.4% bw     6.3x cpu  groups=4096
+  v2_smem_aos512     196.625 ms  iqr 10.797     5.7% bw     5.6x cpu  groups=4096
+  v2_smem_soa512     177.952 ms  iqr 5.001     6.2% bw     6.2x cpu  groups=4096
+  v2_smem_soa        119.843 ms  iqr 5.225     9.3% bw     9.1x cpu  groups=4096
+  v3_warpagg         118.844 ms  iqr 1.813     9.4% bw     9.2x cpu  groups=4096
+  v4_radix_smem      155.258 ms  iqr 2.225     7.2% bw     7.1x cpu  groups=4096
+  v4_radix_l2        117.570 ms  iqr 2.008     9.5% bw     9.3x cpu  groups=4096
+  v4_sort            142.696 ms  iqr 0.885     7.8% bw     7.7x cpu  groups=4096
+ sel=100% groups=4096 ref=2522ms cpu_engine=2002.7ms cap=8192
+  v0_naive           334.900 ms  iqr 1.227     3.3% bw     6.0x cpu  groups=4096
+  v1_vec             333.418 ms  iqr 2.968     3.3% bw     6.0x cpu  groups=4096
+  v2_smem_aos512     334.294 ms  iqr 8.673     3.3% bw     6.0x cpu  groups=4096
+  v2_smem_soa512     299.256 ms  iqr 4.962     3.7% bw     6.7x cpu  groups=4096
+  v2_smem_soa        206.628 ms  iqr 6.765     5.4% bw     9.7x cpu  groups=4096
+  v3_warpagg         201.039 ms  iqr 5.167     5.5% bw    10.0x cpu  groups=4096
+  v4_radix_smem      251.758 ms  iqr 1.351     4.4% bw     8.0x cpu  groups=4096
+  v4_radix_l2        200.131 ms  iqr 8.219     5.6% bw    10.0x cpu  groups=4096
+  v4_sort            267.571 ms  iqr 1.120     4.2% bw     7.5x cpu  groups=4096
+  generated rows=500000000 card=4096 skew=1.5 comp=0 in 4524 ms (runs=15623430, 3093.7 MB compressed)
+ sel=1% groups=4096 ref=1213ms cpu_engine=37.9ms cap=8192
+  v0_naive            35.754 ms  iqr 2.024    31.1% bw     1.1x cpu  groups=4096
+  v1_vec              20.411 ms  iqr 0.383    54.5% bw     1.9x cpu  groups=4096
+  v2_smem_aos512      31.222 ms  iqr 0.053    35.6% bw     1.2x cpu  groups=4096
+  v2_smem_soa512      30.852 ms  iqr 0.060    36.0% bw     1.2x cpu  groups=4096
+  v2_smem_soa         22.360 ms  iqr 0.361    49.7% bw     1.7x cpu  groups=4096
+  v3_warpagg          22.430 ms  iqr 0.442    49.6% bw     1.7x cpu  groups=4096
+  v4_radix_smem       40.010 ms  iqr 0.713    27.8% bw     0.9x cpu  groups=4096
+  v4_radix_l2         22.622 ms  iqr 0.623    49.1% bw     1.7x cpu  groups=4096
+  v4_sort             20.121 ms  iqr 0.066    55.2% bw     1.9x cpu  groups=4096
+ sel=10% groups=4096 ref=1428ms cpu_engine=206.0ms cap=8192
+  v0_naive           103.571 ms  iqr 0.990    10.7% bw     2.0x cpu  groups=4096
+  v1_vec              96.005 ms  iqr 0.044    11.6% bw     2.1x cpu  groups=4096
+  v2_smem_aos512      68.264 ms  iqr 0.532    16.3% bw     3.0x cpu  groups=4096
+  v2_smem_soa512      63.599 ms  iqr 0.495    17.5% bw     3.2x cpu  groups=4096
+  v2_smem_soa         46.340 ms  iqr 0.933    24.0% bw     4.4x cpu  groups=4096
+  v3_warpagg          36.239 ms  iqr 1.182    30.7% bw     5.7x cpu  groups=4096
+  v4_radix_smem       61.558 ms  iqr 0.477    18.1% bw     3.3x cpu  groups=4096
+  v4_radix_l2         36.720 ms  iqr 1.622    30.3% bw     5.6x cpu  groups=4096
+  v4_sort             43.900 ms  iqr 1.650    25.3% bw     4.7x cpu  groups=4096
+ sel=50% groups=4096 ref=1895ms cpu_engine=791.2ms cap=8192
+  v0_naive           461.016 ms  iqr 0.029     2.4% bw     1.7x cpu  groups=4096
+  v1_vec             459.720 ms  iqr 0.028     2.4% bw     1.7x cpu  groups=4096
+  v2_smem_aos512     254.108 ms  iqr 0.763     4.4% bw     3.1x cpu  groups=4096
+  v2_smem_soa512     226.431 ms  iqr 1.244     4.9% bw     3.5x cpu  groups=4096
+  v2_smem_soa        188.098 ms  iqr 1.573     5.9% bw     4.2x cpu  groups=4096
+  v3_warpagg          78.081 ms  iqr 1.434    14.2% bw    10.1x cpu  groups=4096
+  v4_radix_smem      132.135 ms  iqr 0.705     8.4% bw     6.0x cpu  groups=4096
+  v4_radix_l2         77.681 ms  iqr 1.083    14.3% bw    10.2x cpu  groups=4096
+  v4_sort            140.811 ms  iqr 0.633     7.9% bw     5.6x cpu  groups=4096
+ sel=100% groups=4096 ref=2367ms cpu_engine=1444.4ms cap=8192
+  v0_naive           919.040 ms  iqr 0.025     1.2% bw     1.6x cpu  groups=4096
+  v1_vec             919.574 ms  iqr 0.024     1.2% bw     1.6x cpu  groups=4096
+  v2_smem_aos512     481.396 ms  iqr 1.819     2.3% bw     3.0x cpu  groups=4096
+  v2_smem_soa512     428.295 ms  iqr 2.157     2.6% bw     3.4x cpu  groups=4096
+  v2_smem_soa        385.825 ms  iqr 2.049     2.9% bw     3.7x cpu  groups=4096
+  v3_warpagg         131.159 ms  iqr 3.662     8.5% bw    11.0x cpu  groups=4096
+  v4_radix_smem      219.476 ms  iqr 1.009     5.1% bw     6.6x cpu  groups=4096
+  v4_radix_l2        130.328 ms  iqr 5.117     8.5% bw    11.1x cpu  groups=4096
+  v4_sort            267.344 ms  iqr 0.898     4.2% bw     5.4x cpu  groups=4096
+EXIT_CODE=0

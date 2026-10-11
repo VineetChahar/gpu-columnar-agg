@@ -263,6 +263,11 @@ Best correct variant, 100M → 500M rows (CPU = 4-thread engine; throughput = in
 
 | groups | skew | sel | 100M best | 500M best | GPU/CPU 100M → 500M |
 |---|---|---|---|---|---|
+| 16 | uniform | 100% | v3_warpagg 16.4 ms (6.1 G rows/s) | v4_radix_l2 76.4 ms (6.5 G/s) | 16.5× → 17× |
+| 16 | uniform | 1% | v1_vec 4.0 ms | v1_vec 16.0 ms | 1.6× → 2.1× |
+| 256 | uniform | 100% | v2_smem_soa 36.7 ms | v1_vec 182.8 ms | 9.7× → 10× |
+| 4K | uniform | 100% | v1_vec 40.4 ms | v1_vec 190.7 ms | 14× → 16× |
+| 4K | Zipf 1.5 | 100% | v4_radix_l2 27.8 ms | v4_radix_l2 130.3 ms | 11× → 11× |
 | 64K | uniform | 100% | v4_sort 56.5 ms (1.8 G rows/s) | v4_sort 269.4 ms (1.9 G/s) | 19× → 21× |
 | 64K | Zipf 1.5 | 100% | v3_warpagg 31.1 ms | v3_warpagg 135.6 ms | 11× → 12× |
 | 1M | uniform | 100% | v4_sort 68.4 ms (1.5 G/s) | v4_radix_l2 628.9 ms (0.8 G/s) | 40× → 24× |
@@ -271,9 +276,14 @@ Best correct variant, 100M → 500M rows (CPU = 4-thread engine; throughput = in
 | 16M | uniform | 1% | v4_sort 5.7 ms | v1_vec 58.8 ms | 21× → 13× |
 | 16M | Zipf 1.5 | 1% | v4_sort 4.9 ms | v1_vec 48.0 ms | 3.6× → 2.0× |
 
-**Scaling is linear wherever the plan stays the same.** At 64K groups, and wherever V3 wins (skew),
-time grows 4.3–4.8× for 5× the rows. Throughput even rises slightly, because launch and extraction
-costs are amortised. The CPU engine scales the same way, so the GPU/CPU ratio holds.
+**Scaling is linear wherever the plan stays the same.** At ≤ 64K groups, and wherever V3 wins
+(skew), time grows 4.0–5.0× for 5× the rows. Throughput holds or rises slightly, because launch and
+extraction costs are amortised. The CPU engine scales the same way, so the GPU/CPU ratio holds or
+improves a little (1% selectivity: 1.4–2.2× → 1.6–2.4×). The winner sometimes changes between 100M
+and 500M at ≤ 4K groups (e.g. V3 → v4_radix_l2 at 16 groups). These are near-ties: the top two are within 0.1–3.3%,
+all scan-bound, so the label flips while the time does not. All 432
+points at 500M / 16–4K groups are timed and correct, with no OOM skips: at ≤ 4K groups the partition
+and sort buffers still fit.
 
 **It breaks where memory capacity changes the plan.** At 500M rows the out-of-place algorithms no
 longer fit in the T4's 15 GB alongside the ~4 GB of columns (u32 codes + int32 values):
@@ -382,7 +392,7 @@ the bytes (8.4 GB) and streams them at ~39% of the roof, which is why it wins.
 - **The floating-point SUM (`SUM(v*0.01)` in double) is not deterministic** on the GPU. Atomic and
   warp-shuffle reduction order varies from run to run, and sort-based aggregation reduces in an order
   that depends on the non-deterministic compaction. It is compared with a relative tolerance of 1e-9.
-  The largest error seen over all 2,120 sweep and ablation points was **1.1e-10**, median 5e-13; no
+  The largest error seen over all 3,432 timed sweep, ablation, capacity and latemat points was **1.7e-10**, median 6e-13; no
   point was bit-identical to the sequential reference. The int64 SUM is exact.
 - Load factor: capacity = nextpow2(2 × dictionary size) for every variant, so the reported load factor
   (groups/capacity) is ≤ 0.50 at every point (min 9e-5 when few groups survive).

@@ -34,6 +34,7 @@ FROM fact f JOIN dim d ON f.fk = d.key WHERE d.p < sel GROUP BY d.cat
 | `v3_warpagg` | `__match_any_sync` warp aggregation: one atomic per distinct key per warp |
 | `v4_radix_{smem,l2}` | radix partition (1–2 passes), then per-partition shared-memory or L2-resident tables |
 | `v4_sort` | `cub::DeviceRadixSort` on dictionary codes + `ReduceByKey` |
+| `v4_sort_chunked` | the same over memory-sized row chunks, partials folded into a dense per-code accumulator (fits 500M rows) |
 | V5 (`bench stream`) | chunked H2D / kernel / D2H pipeline over ≥ 3 streams, PCIe-wall experiment |
 | V6 (`bench join`) | non-partitioned / partitioned hash join, ± Bloom prefilter, dictionary-translated join |
 
@@ -72,6 +73,8 @@ python3 -m venv .venv && .venv/bin/pip install kaggle numpy matplotlib
 .venv/bin/python scripts/kaggle_run.py --slug gca-part2a --cmd "make bench-part2a"
 .venv/bin/python scripts/kaggle_run.py --slug gca-part2b --cmd "make bench-part2b"
 .venv/bin/python scripts/kaggle_run.py --slug gca-part3  --cmd "make bench-part3"
+.venv/bin/python scripts/kaggle_run.py --slug gca-part4  --cmd "make bench-part4"
+.venv/bin/python scripts/kaggle_run.py --slug gca-part5  --cmd "make bench-part5"
 .venv/bin/python scripts/plot_all.py      # merges runs/*/results.json -> results.json, plots/, plots/tables.md
 ```
 
@@ -82,6 +85,8 @@ python3 -m venv .venv && .venv/bin/pip install kaggle numpy matplotlib
 | `bench-part1b` | nsys trace, ablations, composite keys, V5 streaming, V6 joins, TPC-H SF-10 (+DuckDB), cuDF | 1 h |
 | `bench-part2a/2b` | main sweep at 500M rows | 2–5 h |
 | `bench-part3` | capacity-policy experiment, late materialisation | 0.5 h |
+| `bench-part4` | follow-up: verify + sanitizers for chunked sort and multi-GPU, chunked sort at 500M, full TPC-H Q6 | 1 h |
+| `bench-part5` | follow-up: multi-GPU (2 x T4) row split, cap=est at 500M | 2 h |
 
 `kaggle_run.py` packs the source into a private GPU script kernel (T4 x2), queues if the account's
 two GPU sessions are busy, polls every 30–60 s, downloads the outputs into `runs/<UTC timestamp>/`,
@@ -93,8 +98,9 @@ them in sequence on a local CUDA machine.
 
 - **Value column** is plain int32 (fixed-point cents). Keys are dictionary-encoded and the predicate is
   RLE-encoded. SUM is exact in int64, and the floating aggregate is `SUM(v*0.01)` in double.
-- **Q6** keeps the l_shipdate range predicate but drops the discount/quantity predicates (the engine
-  supports one RLE predicate column). Q1's composite key and date predicate are exact.
+- **Q6** in the generic engine is date-predicate-only, because the engine has one RLE predicate column.
+  The **full Q6** (date + discount + quantity) runs in a dedicated kernel (`bench/tpch.cu`) and matches
+  DuckDB's official Q6 SQL exactly. Q1's composite key and date predicate are exact.
 - **Multi-GPU stretch** not attempted: GPU-session availability (2 concurrent sessions shared with
   another project) was the binding constraint, and the brief says to cut the stretch first.
 - **ncu** is blocked on Kaggle (`ERR_NVGPUCTRPERM`). Occupancy comes from the occupancy API, bytes are

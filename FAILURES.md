@@ -18,8 +18,8 @@ runs full-width.
 | no compaction | 10.4 ms | 7.5 | 9.0 | 14.4 | 26.4 | 55.6 |
 | compaction | 9.8 | 7.1 | 8.1 | 13.2 | 25.3 | 54.4 |
 
-That is 4–11% at 10% selectivity and nothing at 100% (85.99 vs 85.99 ms at 16 groups), and at
-Zipf 1.5 / 100% the two are identical to 0.01 ms.
+That is 2–11% at 10% selectivity and nothing at 100% (85.99 vs 85.99 ms at 16 groups), and at
+Zipf 1.5 / 100% the two are within 0.01 ms up to 1M groups (compaction is 0.24% slower at 16M).
 
 **Why.** Compaction helps only when the probe phase is the bottleneck *and* lanes are idle. At low
 selectivity the probe phase is tiny: 10% of rows reach it, and the kernel is a scan of codes, values
@@ -65,9 +65,9 @@ code → category lookup: 13.8 ms vs 83.9 ms at D = 1M / 1% (`v6_dict`).
 lane writing its row straight to `out[cursor[p]++]` (cursor in shared memory, warp-aggregated with
 `__match_any_sync`). Then aggregate each partition in a shared-memory table.
 
-**Measured.** Phase timers (`info.ms_pass1`) showed pass 1 at **217.8 ms for 100M rows into 256
+**Measured.** Phase timers (`info.ms_pass1`) showed pass 1 at **218.7 ms for 100M rows into 256
 partitions**, about 25× its byte count (2 × 0.6 GB read for the histogram and scatter passes +
-1.2 GB written ≈ 2.4 GB ≈ 9 ms at the measured 278 GB/s). The two-pass 16M-group plan spent 333 + 197 ms partitioning before aggregating anything. The
+1.2 GB written ≈ 2.4 GB ≈ 9 ms at the measured 278 GB/s). The two-pass 16M-group plan spent 329.6 + 196.4 ms partitioning before aggregating anything. The
 first V6 partitioned join (partition *both* sides into ≤ 2K-key shared-memory build tables, up to 2^13
 partitions) lost to the plain join at every point (71 vs 28 ms at D = 1M, dev run).
 
@@ -80,8 +80,8 @@ store fills at most 8/32 of a sector.
 
 **What recovered part of it, and what did not.** Write-combining: each block counting-sorts a
 2048-row round by partition in shared memory, then writes each partition's run contiguously
-(`src/gpu/partition.cuh`). That cut pass 1 to 96.7 ms (2.3×) and pass 2 from 197 to 80 ms. It is
-still ~10× the byte count, because with 256 partitions a 2048-row round gives runs of ~8 rows (64 B),
+(`src/gpu/partition.cuh`). That cut pass 1 from 218.7 to 61.9 ms at 64K groups (3.5×), and at 16M groups pass 1 from 329.6 to
+167.2 ms and pass 2 from 196.4 to 46.2 ms (final 100M sweep). It is still ~7× the byte count, because with 256 partitions a 2048-row round gives runs of ~8 rows (64 B),
 still below a 128-byte line. Getting further needs deeper per-block buffering (several rounds per
 flush), which is what `cub`'s onesweep radix sort does. That is why plain `v4_sort` beats every
 partitioned hash variant above 64K groups (68 vs 142 ms at 1M groups). The partitioned hash approach
@@ -89,9 +89,9 @@ pays off only in the 64K–1M band, in its single-pass L2 mode.
 
 ## Smaller things that did not pay off (recorded, not one of the three)
 
-- **AoS global-table slots under contention**: 1.8–2.4× slower than SoA at ≤ 16 groups or Zipf 1.5,
+- **AoS global-table slots under contention**: 1.8–2.5× slower than SoA at ≤ 16 groups or Zipf 1.5,
   because five atomics on one hot slot serialise on one L2 line. Kept anyway, because V3 removes
-  the contention and AoS is 2–3× better once the table is DRAM-resident (RESULTS.md, V0).
+  the contention and AoS is 3.1–3.5× better once the table is DRAM-resident (RESULTS.md, V0).
 - **Bigger shared-memory tables** (1024 slots): fewer overflows, but 1 block/SM. They lose 1.2–1.4× at 16
   groups and under skew, and win only at exactly 256 uniform groups.
 - **Single-pass 4096-way partitioning** (`v4_radix_1pass`, unstaged): 394 ms vs 260 ms for two unstaged

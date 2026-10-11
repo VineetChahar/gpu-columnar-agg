@@ -3,8 +3,9 @@
 **Question:** at what group cardinality, skew and selectivity does the GPU stop winning?
 
 **Setup:** one Tesla T4 (40 SMs, 4 MB L2, 64 KB smem/SM, CUDA 12.8) against a 4-thread Xeon
-@ 2.0 GHz (2 cores + HT, AVX-512) on Kaggle. Every number is a median of 30 timed runs after 5
-warm-ups, timed with CUDA events. IQRs, SM/memory clocks, temperature and power are in
+@ 2.0 GHz (2 cores + HT, AVX-512) on Kaggle. Every kernel number is a median of 30 timed runs after 5
+warm-ups, timed with CUDA events (exceptions: the V5 streaming runs use 10–15 iterations, the external
+DuckDB/cuDF TPC-H timings 10, and the host-timed multi-GPU runs 10). IQRs, SM/memory clocks, temperature and power are in
 `results.json`. Every GPU result was diffed against the single-threaded CPU reference at
 **every** sweep point before it was timed: 4,000+ measured points, 0 mismatches. All plots and tables
 regenerate from `results.json` with `scripts/plot_all.py` (`plots/tables.md` holds every number).
@@ -44,13 +45,13 @@ What the map says:
    the hot slots decides the winner. Smem tables + warp aggregation (V2/V3) win at ≤ 256 groups.
    Plain global atomics (V1) win at 4K uniform, where a 256-slot smem table only adds an overflow
    probe.
-2. **Above about 64K uniform groups, sort-based aggregation wins, by 2–3.5× at 1M–16M.** Every hash
+2. **Above about 64K uniform groups, sort-based aggregation wins, by 2.1–3.3× at 1M–16M.** Every hash
    variant is then bound by random DRAM atomics (≈ 0.72 G/s measured, i.e. ≈ 140 M rows/s at five
-   atomics per row). `cub` radix sort on the 2–3-byte dictionary codes streams at 107 GB/s instead.
+   atomics per row). `cub` radix sort on the 2–4-byte dictionary codes streams at 107 GB/s instead.
 3. **Skew moves the crossover far to the right.** At Zipf 1.5 the hot keys repeat inside each warp.
-   `__match_any_sync` folds them, and V3 beats sort up to 1M groups.
+   `__match_any_sync` folds them, and V3 beats sort at every cardinality from 64K to 16M.
 4. **The GPU never loses to this CPU when data is resident**, but the margin varies 100×. At 1%
-   selectivity, low cardinality, it is only **1.3–2×** (next section). At high cardinality it is
+   selectivity, low cardinality, it is only **1.3–2.2×** at 100M rows (next section). At high cardinality it is
    40–119×, because the 4-thread CPU's partitioned hash aggregation is DRAM-latency bound.
 5. **cuDF**, run on the same data uncompressed and device-resident, is **3.3–24× slower than the best
    variant (median 8.5×)**. Caveat: cuDF does more work. It reads ~2.8× the bytes (14 B/row
@@ -61,7 +62,7 @@ What the map says:
 
 **(a) Low selectivity, low cardinality, data resident.** At 1% selectivity the CPU engine skips
 unselected RLE runs entirely and never touches their codes or values. The GPU kernels decode the
-predicate per row but still load every row's code and value. Result: GPU 4.0–4.9 ms vs CPU 6.4–11 ms at
+predicate per row but still load every row's code and value. Result: GPU 4.0–5.0 ms vs CPU 6.4–11 ms at
 100M rows, 16–4K groups (1.3–2.2×). Late materialisation (`v3_latemat`: decode the predicate first,
 load a lane's data only if one of its rows survives) is the GPU fix. Measured in
 [Late materialisation](#late-materialisation-v3_latemat).
@@ -79,7 +80,7 @@ load a lane's data only if one of its rows survives) is the GPU fix. Measured in
 For the global aggregate **the GPU cannot win at all**. The bytes it must receive (4 B/row values + RLE)
 take ≥ 68 ms at the measured 12.4 GB/s pinned PCIe floor. The CPU scans the same bytes from its own
 memory at 24.9 GB/s, which is **twice PCIe**. That holds even if the GPU kernel took zero time. It gets
-worse in practice: pageable memory halves PCIe (4.5 GB/s), and a one-shot query must pay
+worse in practice: pageable memory cuts PCIe 2.7× (4.5 GB/s), and a one-shot query must pay
 `cudaHostRegister` (59 ms here) to get pinned speed. The GPU only wins once there is enough work per
 byte. Already at 16 groups the CPU engine's per-row hash update makes it 5× slower than the
 PCIe-bound GPU. At 16M groups the GPU kernel itself (483 ms) dominates and PCIe disappears
@@ -97,7 +98,7 @@ Overlap evidence (`nsys`, installed at run time; the event-timeline equivalent i
 In the 3-stream pinned pipeline the copy engine runs H2D chunks back to back, and **94% of kernel
 time runs underneath a copy**. The pipeline is copy-bound, which is the point of (b). Serial
 (1 stream) vs overlapped costs 135 → 117 ms (16 groups). 2, 3 or 4 streams are within 5% of each
-other (one H2D copy engine is the bottleneck), and chunk size (1M–64M rows) moves it < 10%.
+other (one H2D copy engine is the bottleneck), and chunk size (1M–64M rows) moves it by ≤ 10.5%.
 
 **(c) Hash table sized by dictionary, few surviving rows.** At 1% selectivity and 16M groups, every
 hash variant spends ~30 ms clearing and scanning a 2 GB table (capacity = 2 × dictionary size,
@@ -116,8 +117,8 @@ correct and reasonable, and it is the reference every other rung is measured aga
 modes are the textbook ones. With 16 uniform groups, 100M rows serialise on 16 slots: 85 ms, vs 16 ms
 for V3. At Zipf 1.5 it is 184–247 ms at every cardinality. With 1M+ groups it is bound by random DRAM
 atomics: 219–272 ms. A layout lesson came from this rung too. The natural `struct Slot` (AoS, 64 B
-aligned) is 2–3× faster than structure-of-arrays once the table outgrows L2: one line per update
-instead of six (64K groups: 88 vs 283 ms; 1M: 219 vs 758 ms). It is 1.8–2.4× *slower* under hot-key
+aligned) is 3.1–3.5× faster than structure-of-arrays once the table outgrows L2: one line per update
+instead of six (64K groups: 88 vs 283 ms; 1M: 219 vs 758 ms). It is 1.8–2.5× *slower* under hot-key
 contention, because all five atomics of a hot slot queue on one L2 line (16 groups: 85 vs 47 ms;
 Zipf 1.5: 221 vs 94 ms). The AoS layout is the default because V3 removes that contention. SoA stays
 as the `v0_naive_soa` ablation.
@@ -141,7 +142,7 @@ wavefronts per warp. The fix is the SoA layout change. In the full kernel (V2, 5
 **49.2 → 29.1 ms at 16 groups** and 58.5 → 47.6 ms at 256, and nothing above 4K groups, where the
 smem table is overflowed anyway.
 
-*What V2 bought.* 3.7× over V1 at 16 uniform groups, 2.1–3.0× at Zipf 1.5 for every cardinality.
+*What V2 bought.* 3.7× over V1 at 16 uniform groups, 1.9–3.0× at Zipf 1.5 for every cardinality.
 It is *slower* than V1 at 4K–64K uniform (0.67–0.78×): those tables still fit L2, global atomics are
 cheap there (29 G/s), and the smem table only adds an overflow probe. Two more costs were found on
 the way. (1) Occupancy: a 1024-slot table + warp buffers is 52 KB, so 1 block/SM. 256 slots runs
@@ -171,8 +172,8 @@ table. *L2* mode partitions only until each partition's slice of the global tabl
 uses warp-aggregated global atomics; partition id = top hash bits = home-slot bits, so each partition
 touches a contiguous slice. Phase timers (`info.ms_*` in results.json) separate the costs. The
 partition pass was first a naive per-row scatter, ~10× its byte volume (see FAILURES.md). With
-shared-memory write-combining it is 2.3–2.5× cheaper (64K groups: 218 → 97 ms; 16M: 333+197 →
-197+80 ms for two passes).
+shared-memory write-combining it is 2.0–3.5× cheaper (64K groups: 218.7 → 61.9 ms; 1M: 149.5+68.5 →
+82.0+26.3 ms; 16M: 329.6+196.4 → 167.2+46.2 ms for two passes).
 
 *Cost vs contention saved.* Uniform keys, best V4 mode vs best non-partitioned hash variant (V1–V3):
 
@@ -184,7 +185,8 @@ shared-memory write-combining it is 2.3–2.5× cheaper (64K groups: 218 → 97 
 V4 pays off only in the **64K–1M band (1.3–1.5×)**. There the partition pass turns random DRAM
 atomics into L2-resident ones. At 4K the table already fits L2, so partitioning is pure overhead. At
 16M, two passes over 16M distinct keys cost more than the atomics they localise. L2 mode (one
-cheap partition pass, table slices ≤ 1 MB) beats smem mode everywhere except 16M, and is the best
+cheap partition pass, table slices ≤ 1 MB) beats smem mode at 64K and 1M (smem mode is marginally ahead at
+4K, 60.2 vs 61.5 ms, and clearly at 16M), and is the best
 variant at Zipf 1.5 / ≤ 4K groups (27.8 ms vs 47.6 for smem mode at 4K).
 
 *Sort-based (`v4_sort`).* Compaction (fused decode + filter, warp-aggregated append) →
@@ -192,7 +194,7 @@ variant at Zipf 1.5 / ≤ 4K groups (27.8 ms vs 47.6 for smem mode at 4K).
 16M) → `cub::DeviceReduce::ReduceByKey` → decode only the unique codes. It is flat in cardinality
 (43–78 ms over 16 → 16M groups at 100M rows) and wins every uniform point ≥ 64K. It loses at low
 cardinality (43 ms vs 16 ms at 16 groups), where it sorts 100M rows to produce 16 groups. Sorting
-codes instead of keys is a compressed-data win: 3–4 bytes and ≤ 24 key bits instead of 8 bytes and
+codes instead of keys is a compressed-data win: 2–4 bytes and ≤ 24 key bits instead of 8 bytes and
 64 bits.
 
 **V5: streaming pipeline.** Covered in [Where the GPU stops winning](#where-the-gpu-stops-winning) (b).
@@ -218,8 +220,8 @@ aggregation).
 | 16M | 1% | 105.6 | 103.0 | 178.2 | 207.1 | **65.1** | 4,944 |
 | 16M | 100% | 217.4 | 297.9 | 258.1 | 417.5 | **127.5** | 8,730 |
 
-- *Bloom filter (blocked, one 32-bit word and 4 bits per key, 16 bits/key; measured FPR 0.00–0.18%).*
-  Measured saving: 4–7% at 1% selectivity, but a 13–37% *loss* at 100% (every probe pays the
+- *Bloom filter (blocked, one 32-bit word and 4 bits per key, 16 bits/key; measured FPR 0.00–0.19%).*
+  Measured saving: 2–7% at 1% selectivity, but a 13–37% *loss* at 100% (every probe pays the
   filter for nothing). The filter skips the hash-table probe. It does not skip the fact-code → key dictionary
   gather, which is half of the probe cost. With partitioning the filter also costs a second gather
   in the histogram pass, so `part_bloom` loses almost everywhere.
@@ -230,7 +232,7 @@ aggregation).
   loses.
 - *Dictionary-translated join* is the compressed-data result. The fact key is dictionary-encoded, so
   probe the D dictionary entries once, build a code → cat byte array, and scan the fact table with a
-  1-byte gather per row. It wins every point: 1.3–6.1× over the best row-wise join, and 54–147× over the
+  1-byte gather per row. It wins every point: 1.2–6.1× over the best row-wise join, and 54–147× over the
   CPU engine at D ≤ 1M. Its cost scales with D, not F, so at D = F it would converge to the plain join.
 
 ## Real data: TPC-H SF-10 lineitem (60M rows)
@@ -250,8 +252,8 @@ after it.
 | **V3 warp-aggregated** | **9.4** | **3.4** |
 | V4 sort | 23.8 | 4.8 |
 | CPU engine (4 thr) | 199.8 | 50.0 |
-| cuDF (uncompressed, device) | 110.0 | 23.6 |
-| DuckDB (4 thr, its own storage) | 730.0 | 30.7 |
+| cuDF (uncompressed, device) | 114.6 | 24.5 |
+| DuckDB (4 thr, its own storage) | 763.8 | 32.4 |
 
 With 4 groups and ~59M qualifying rows, Q1 is a pure contention benchmark. Warp aggregation is a
 **15×** step (V2 → V3; 19× over V0) and 21× over the CPU engine.
@@ -299,10 +301,10 @@ Best correct variant, 100M → 500M rows (CPU = 4-thread engine; throughput = in
 | 16M | Zipf 1.5 | 1% | v4_sort 4.9 ms | v1_vec 48.0 ms | 3.6× → 2.0× |
 
 **Scaling is linear wherever the plan stays the same.** At ≤ 64K groups, and wherever V3 wins
-(skew), time grows 4.0–5.0× for 5× the rows. Throughput holds or rises slightly, because launch and
+(skew), time grows 3.9–5.1× for 5× the rows (V3 at 16M / Zipf 1.5 only 2.9×, where fixed costs dominate at 100M). Throughput holds or rises slightly, because launch and
 extraction costs are amortised. The CPU engine scales the same way, so the GPU/CPU ratio holds or
-improves a little (1% selectivity: 1.4–2.2× → 1.6–2.4×). The winner sometimes changes between 100M
-and 500M at ≤ 4K groups (e.g. V3 → v4_radix_l2 at 16 groups). These are near-ties: the top two are within 0.1–3.3%,
+improves a little (1% selectivity, ≤ 4K groups: 1.3–2.2× → 1.6–2.6×). The winner sometimes changes between 100M
+and 500M at ≤ 4K groups (e.g. V3 → v4_radix_l2 at 16 groups). These are mostly near-ties: at 100% selectivity the top two are within 0.1–3.3%; the largest gap (256 groups, 10%) is 12.6%,
 all scan-bound, so the label flips while the time does not. All 432
 points at 500M / 16–4K groups are timed and correct, with no OOM skips: at ≤ 4K groups the partition
 and sort buffers still fit.
@@ -342,8 +344,8 @@ skew ≤ 1.0 and ≥ 1M groups (1.01–2.91×). It ties within ±5% at 64K / ske
 fit. At Zipf 1.5 it wins only at 16M groups with 1–10% selectivity (1.10–1.61×), and otherwise ties or loses
 (0.43–1.00×). V3's warp aggregation turns a few hot keys into few atomics, and sorting cannot
 exploit that. So the planner rule is unchanged, with the OOM gap closed: **sort for
-uniform high cardinality, warp aggregation for heavy skew.** Chunking costs ≤ 2% at 64K–1M groups. At
-16M groups it adds 7–11 ms of fixed cost: initialising and scanning the 512 MB accumulator (100M rows:
+uniform high cardinality, warp aggregation for heavy skew.** Chunking costs ≤ 6% at 64K–1M groups. At
+16M groups it adds 5.6–11.7 ms of fixed cost: initialising and scanning the 512 MB accumulator (100M rows:
 15.0 → 25.8 ms at 10%, 79.0 → 90.7 ms at 100%). Forcing six 16M-row chunks at 100M costs another
 +0–35 ms (`plots/tables.md`). Cross-session comparisons carry the ~6% session noise measured in the
 capacity section.
@@ -386,7 +388,7 @@ is 16M groups at 1% selectivity (32M → 2M slots; load factor 0.029 → 0.467 u
 | 16M groups, sel 1%, 100M rows | uniform cap=dict → est | Zipf 1.5 cap=dict → est |
 |---|---|---|
 | v0_naive | 36.8 → 9.5 ms (3.9×) | 33.9 → 7.2 (4.7×) |
-| v1_vec | 35.7 → **7.9** (4.6×) | 33.3 → **5.8** (5.8×) |
+| v1_vec | 35.7 → **7.9** (4.5×) | 33.3 → **5.8** (5.8×) |
 | v3_warpagg | 36.2 → 8.5 (4.3×) | 33.7 → 6.1 (5.5×) |
 | v4_sort (no table) | 5.7 → 5.4 | 4.9 → 4.7 |
 
@@ -454,7 +456,7 @@ the bytes (8.4 GB) and streams them at ~39% of the roof, which is why it wins.
 - **The floating-point SUM (`SUM(v*0.01)` in double) is not deterministic** on the GPU. Atomic and
   warp-shuffle reduction order varies from run to run, and sort-based aggregation reduces in an order
   that depends on the non-deterministic compaction. It is compared with a relative tolerance of 1e-9.
-  The largest error seen over all 3,432 timed sweep, ablation, capacity and latemat points was **1.7e-10**, median 6e-13; no
+  The largest error seen over all 3,620 timed sweep, ablation, capacity (incl. 500M), latemat and chunked points was **1.7e-10**, median 6e-13; no
   point was bit-identical to the sequential reference. The int64 SUM is exact.
 - Load factor: capacity = nextpow2(2 × dictionary size) for every variant, so the reported load factor
   (groups/capacity) is ≤ 0.50 at every point (min 9e-5 when few groups survive).
@@ -463,8 +465,8 @@ the bytes (8.4 GB) and streams them at ~39% of the roof, which is why it wins.
 
 - **Clocks.** The T4 ran under its software power cap (NVML throttle reason 0x4) for 96% of
   measurements. SM clock after a measurement ranged from 450 to 1,590 MHz (median 1,185), at
-  72–84 °C. Steady-state throttling is how a 70 W T4 runs, so medians reflect it. Clocks are stored
-  per point, and IQR/median is 1.6% at the median point.
+  57–84 °C. Steady-state throttling is how a 70 W T4 runs, so medians reflect it. Clocks are stored
+  per point, and IQR/median is 1.35% at the median point (2,620 sweep points).
 - **Profilers.** `ncu` is blocked on Kaggle (`ERR_NVGPUCTRPERM`), so nothing here uses hardware
   counters. Occupancy comes from the occupancy API (stored in `info`), bytes are analytic, and
   bandwidth is our own microbenchmark. Under `ncu` the bandwidth kernel measured 150 GB/s instead of

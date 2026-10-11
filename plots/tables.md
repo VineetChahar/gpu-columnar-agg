@@ -1012,22 +1012,27 @@
 
 | variant | card | analytic GB | GB/s achieved | % of DRAM BW |
 |---|---|---|---|---|
-| v0_naive | 4K | 3.09 | 15 | 6% |
-| v0_naive | 1M | 84.24 | 79 | 28% |
-| v0_naive | 16M | 86.51 | 73 | 26% |
-| v1_vec | 4K | 3.09 | 16 | 6% |
-| v1_vec | 1M | 84.24 | 80 | 29% |
-| v1_vec | 16M | 86.51 | 74 | 27% |
-| v2_smem_soa | 4K | 3.09 | 10 | 4% |
-| v2_smem_soa | 1M | 84.24 | 81 | 29% |
-| v2_smem_soa | 16M | 86.51 | 76 | 27% |
-| v3_warpagg | 4K | 3.09 | 10 | 4% |
-| v3_warpagg | 1M | 84.24 | 81 | 29% |
-| v3_warpagg | 16M | 86.51 | 76 | 27% |
-| v4_radix_smem | 4K | 18.19 | 67 | 24% |
-| v4_radix_l2 | 4K | 3.09 | 10 | 4% |
-| v4_radix_l2 | 1M | 52.47 | 83 | 30% |
-| v4_sort | 4K | 27.09 | 102 | 37% |
+| v0_naive | 4K | 0.62 | 15 | 5% |
+| v0_naive | 1M | 16.97 | 78 | 28% |
+| v0_naive | 16M | 19.23 | 71 | 26% |
+| v1_vec | 4K | 0.62 | 15 | 6% |
+| v1_vec | 1M | 16.97 | 78 | 28% |
+| v1_vec | 16M | 19.23 | 72 | 26% |
+| v2_smem_soa | 4K | 0.62 | 10 | 4% |
+| v2_smem_soa | 1M | 16.97 | 77 | 28% |
+| v2_smem_soa | 16M | 19.23 | 75 | 27% |
+| v3_warpagg | 4K | 0.62 | 10 | 4% |
+| v3_warpagg | 1M | 16.97 | 79 | 28% |
+| v3_warpagg | 16M | 19.23 | 75 | 27% |
+| v4_radix_smem | 4K | 3.64 | 60 | 22% |
+| v4_radix_smem | 1M | 13.12 | 81 | 29% |
+| v4_radix_smem | 16M | 17.40 | 58 | 21% |
+| v4_radix_l2 | 4K | 0.62 | 10 | 4% |
+| v4_radix_l2 | 1M | 10.72 | 75 | 27% |
+| v4_radix_l2 | 16M | 17.40 | 54 | 19% |
+| v4_sort | 4K | 5.42 | 96 | 34% |
+| v4_sort | 1M | 7.29 | 107 | 38% |
+| v4_sort | 16M | 8.43 | 108 | 39% |
 
 ## V5 streaming / PCIe wall
 

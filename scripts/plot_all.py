@@ -290,7 +290,8 @@ if micro and sweep:
             ax.axhline(y, color=INK2, lw=0.8, ls=":")
             ax.text(xs[0] * 1.3, y * 1.12, lbl, color=INK2, fontsize=7)
     ref_rows = [r for r in sweep if r["sel"] == 100 and r["skew"] == 0 and not r.get("composite")]
-    big = max((r["rows"] for r in ref_rows), default=0)
+    # 100M: the largest scale at which every variant fits (at 500M the out-of-place plans run out of memory)
+    big = 100_000_000 if any(r["rows"] == 100_000_000 for r in ref_rows) else max((r["rows"] for r in ref_rows), default=0)
     for v in MAIN:
         for c, mk in ((4096, "s"), (1048576, "o"), (16777216, "^")):
             m = [r for r in ref_rows if r["variant"] == v and r["card"] == c and r["rows"] == big]

@@ -213,3 +213,14 @@ User asked to fix the gaps listed at the end of the run. Design decisions:
   tpch_prep asserts equals the official Q6 SQL on DECIMAL columns; cuDF is asserted equal too.
 - **cap=est at 500M**: part5 sweep, cpu=0 (CPU numbers exist from part2b, same seed = same data).
 - Compile check (CPU session, -Werror) clean twice; parts 4 and 5 queued in parallel.
+
+## gca-part4 landed (runs/20261011T202316Z)
+- verify v4_sort + v4_sort_chunked: 916 checks, 0 failures; chunk=4096 forced: 612/0; memcheck 0 errors,
+  racecheck 0 hazards (chunk=4096, sels 1/50/100). mgpu_verify (1M + 20M rows, 7 variants, g=1,2): 336 rows,
+  0 incorrect; mgpu memcheck 0 errors. Kaggle T4 x2: cudaDeviceCanAccessPeer(0,1) = 0, so peer copies
+  are staged through the host.
+- 500M chunked: 1.86x (1M uniform) and 2.91x (16M uniform) over the best variant that fit; 16M uniform
+  back to 1.3 G rows/s, GPU/CPU 101x. Loses to V3 at Zipf 1.5 except at 16M / 1-10%. Overhead at 100M:
+  <=2% up to 1M groups; +7-11 ms at 16M (512 MB accumulator init + scan).
+- Full Q6: 1,139,264 rows, revenue 1,230,113,636.0101 == DuckDB == official SQL == cuDF. eager 1.49 ms
+  (87% BW), ordered/late 1.06 ms, CPU 16.9, DuckDB 26.1, cuDF 35.9.

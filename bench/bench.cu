@@ -107,7 +107,7 @@ static int run_verify(const Args& a) {
       dref.release();
     }
     T.release(); R.release(); D.release();
-    release_v4_scratch(); release_sort_scratch();
+    release_v4_scratch(); release_sort_scratch(); release_ablation_tables();
   }
   // checker self-test: a gate that never fails proves nothing, so corrupt one aggregate on purpose
   {
@@ -242,7 +242,7 @@ static int run_sweep(const Args& a) {
       dref.release();
     }
     T.release(); R.release(); D.release();
-    release_v4_scratch(); release_sort_scratch();
+    release_v4_scratch(); release_sort_scratch(); release_ablation_tables();
   }
   return 0;
 }

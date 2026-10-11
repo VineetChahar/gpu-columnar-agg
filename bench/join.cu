@@ -96,6 +96,7 @@ int run_join(const Args& a) {
           CheckResult r = check_results(R, dref, st);
           j.b("correct", r.ok).n("probed", (double)info.probed).n("partition_bits", info.partition_bits)
               .n("max_build_partition", (double)info.max_build_partition);
+        for (auto& kv : info.phase_ms) j.n(kv.first, kv.second);
           if (v.bloom && info.probed >= matches && F > matches)
             j.n("bloom_fpr", (double)(info.probed - matches) / (double)(F - matches));
           if (!r.ok) { ++fails; printf("  %-14s INCORRECT %s\n", v.name, r.msg.c_str()); }

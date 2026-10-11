@@ -38,7 +38,10 @@ struct JoinScratch {
   void alloc(const DevJoin& J);
   void release();
 };
+#include <map>
+#include <string>
 struct JoinInfo {
+  std::map<std::string, double> phase_ms;
   u64 probed = 0, matched = 0, build_rows = 0, max_build_partition = 0;
   int partition_bits = 0;
 };

@@ -17,7 +17,7 @@
 
 namespace {
 
-constexpr int AGG_SLOTS = DEFAULT_SLOTS;
+constexpr int AGG_SLOTS = 1024;  // per-work-item table: one block per item, so occupancy matters less than capacity
 constexpr u32 CHUNK = 8192;     // rows per aggregation work item
 constexpr u32 TILE2 = 8192;     // rows per pass-2 tile
 constexpr int MAX_1PASS_BITS = 12;  // smem histogram of 4096 counters
@@ -198,18 +198,20 @@ void run_v4_radix(RunCtx& c, bool l2_mode, bool force_1pass) {
   // ---- plan (host, from statistics) ----
   double groups_est = std::max<double>(1.0, std::min<double>(D.card, (double)c.sel_est));
   int B;
-  if (l2_mode) B = ceil_log2((double)c.T->cap * 40.0 / (1 << 20));        // <= 1 MB table slice
+  if (l2_mode) B = ceil_log2((double)c.T->bytes() / (1 << 20));             // <= 1 MB table slice
   else B = ceil_log2(groups_est / (AGG_SLOTS / 4));                           // <= S/4 groups/partition
   int B1 = B, B2 = 0;
   if (B > FANOUT_BITS && !force_1pass) { B1 = (B + 1) / 2; B2 = B - B1; }
   if (B1 > MAX_1PASS_BITS) throw Skip("1-pass fan-out > 2^12 needs a >16KB histogram");
+  if (B2 > FANOUT_BITS) throw Skip("needs a third partition pass");
+  PhaseTimer pt(c.st);
   c.info["partition_bits"] = B; c.info["passes"] = B == 0 ? 0 : (B2 ? 2 : 1);
 
   table_init(*c.T, c.st);
   if (B == 0) {  // everything fits: plain V3
     with_kd(D, [&](auto kd) {
       auto C = make_cols(D, kd, c.lo, c.hi);
-      launch_agg<decltype(kd), PSmem<LSoA<AGG_SLOTS>, AGG_SLOTS, true>, FE_VEC_COMPACT>(C, {c.T->t}, c.st, c.block);
+      launch_agg<decltype(kd), PSmem<LSoA<DEFAULT_SLOTS>, DEFAULT_SLOTS, true>, FE_VEC_COMPACT>(C, {c.T->t}, c.st, c.block);
     });
     table_extract(*c.T, *c.R, c.st);
     return;
@@ -245,6 +247,7 @@ void run_v4_radix(RunCtx& c, bool l2_mode, bool force_1pass) {
     CK(cudaMemcpyAsync(&last[0], S.hist + (size_t)P1 * nblk - 1, 4, cudaMemcpyDeviceToHost, c.st));
     CK(cudaMemcpyAsync(&last[1], S.hscan + (size_t)P1 * nblk - 1, 4, cudaMemcpyDeviceToHost, c.st));
     launch_agg<KD, PScatter, FE_VEC>(C, {S.hscan, B1, S.k1, S.v1}, c.st, c.block, nblk);
+    pt.mark("pass1");
     CK(cudaStreamSynchronize(c.st));
     total = last[0] + last[1];
   });
@@ -293,11 +296,13 @@ void run_v4_radix(RunCtx& c, bool l2_mode, bool force_1pass) {
     CK(cudaGetLastError());
     fk = S.k2;
     fv = S.v2;
+    pt.mark("pass2");
     c.info["pass2_tiles"] = ntiles;
   }
   CK(cudaMemcpyAsync(starts.data(), S.starts, (P + 1) * 4, cudaMemcpyDeviceToHost, c.st));
   CK(cudaStreamSynchronize(c.st));
 
+  pt.mark("plan");
   // ---- aggregation work items: (a, b) chunks in partition order ----
   std::vector<u32> items;
   u32 maxp = 0;
@@ -322,5 +327,8 @@ void run_v4_radix(RunCtx& c, bool l2_mode, bool force_1pass) {
     CK(cudaGetLastError());
   }
   c.info["work_items"] = nitems;
+  pt.mark("aggregate");
   table_extract(*c.T, *c.R, c.st);
+  pt.mark("extract");
+  pt.dump(c.info);
 }

@@ -122,7 +122,11 @@ Cols<KD> make_cols(const DevData& D, KD kd, u16 lo, u16 hi) {
   return Cols<KD>{kd, D.vals, D.run_end, D.run_val, D.nruns, 0, D.n, lo, hi};
 }
 
-// ---------------- global open-addressing hash table (SoA) ----------------
+// ---------------- global open-addressing hash table ----------------
+// Two layouts behind one view (index multipliers m8/m4 for 8- and 4-byte fields):
+//   AoS (default): one 64-byte aligned slot {key, cnt, sum, dsum, mn, mx} -> the five atomics of an
+//                  update touch two 32-byte sectors of ONE line instead of six different lines.
+//   SoA (ablation): six separate arrays.
 struct GT {
   u64* keys;
   u64* cnt;
@@ -130,35 +134,50 @@ struct GT {
   double* dsum;
   i32* mn;
   i32* mx;
-  u32 shift;  // slot = hash >> shift  (top log2(cap) bits)
+  u32 m8, m4;  // element stride of 8-byte / 4-byte fields (SoA 1,1; AoS 8,16)
+  u32 shift;   // slot = hash >> shift  (top log2(cap) bits)
   u32 mask;
+  __host__ __device__ __forceinline__ u64& K(u64 s) const { return keys[s * m8]; }
+  __host__ __device__ __forceinline__ u64& C(u64 s) const { return cnt[s * m8]; }
+  __host__ __device__ __forceinline__ u64& S(u64 s) const { return sum[s * m8]; }
+  __host__ __device__ __forceinline__ double& D(u64 s) const { return dsum[s * m8]; }
+  __host__ __device__ __forceinline__ i32& MN(u64 s) const { return mn[s * m4]; }
+  __host__ __device__ __forceinline__ i32& MX(u64 s) const { return mx[s * m4]; }
+  // view of slots [off, ...)
+  GT slice(u64 off) const {
+    GT g = *this;
+    g.keys += off * m8; g.cnt += off * m8; g.sum += off * m8; g.dsum += off * m8; g.mn += off * m4; g.mx += off * m4;
+    return g;
+  }
 };
 struct GTable {
   GT t{};
   u64 cap = 0;
-  void alloc(u64 capacity);
+  bool aos = true;
+  void* base = nullptr;
+  void alloc(u64 capacity, bool aos_layout = true);
   void release();
+  size_t bytes() const { return aos ? cap * 64 : cap * 40; }
 };
 
 __device__ __forceinline__ u32 gt_slot(const GT& T, u64 key, u64 h) {
   u32 s = (u32)(h >> T.shift);
   while (true) {
-    u64 k = T.keys[s];
+    u64 k = T.K(s);
     if (k == key) return s;
     if (k == EMPTY_KEY) {
-      u64 old = atomicCAS((unsigned long long*)&T.keys[s], (unsigned long long)EMPTY_KEY,
-                          (unsigned long long)key);
+      u64 old = atomicCAS((unsigned long long*)&T.K(s), (unsigned long long)EMPTY_KEY, (unsigned long long)key);
       if (old == EMPTY_KEY || old == key) return s;
     }
     s = (s + 1) & T.mask;
   }
 }
 __device__ __forceinline__ void gt_add(const GT& T, u32 s, u64 c, i64 sum, i32 mn, i32 mx, double ds) {
-  atomicAdd((unsigned long long*)&T.cnt[s], (unsigned long long)c);
-  atomicAdd((unsigned long long*)&T.sum[s], (unsigned long long)sum);
-  atomicAdd(&T.dsum[s], ds);
-  atomicMin(&T.mn[s], mn);
-  atomicMax(&T.mx[s], mx);
+  atomicAdd((unsigned long long*)&T.C(s), (unsigned long long)c);
+  atomicAdd((unsigned long long*)&T.S(s), (unsigned long long)sum);
+  atomicAdd(&T.D(s), ds);
+  atomicMin(&T.MN(s), mn);
+  atomicMax(&T.MX(s), mx);
 }
 
 // ---------------- dense result buffers (what every variant must produce) ----------------

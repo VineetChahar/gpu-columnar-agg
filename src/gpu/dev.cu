@@ -53,21 +53,30 @@ void DevData::release() {
   codes = codes2 = nullptr; dict = nullptr; dict1 = dict2 = nullptr; vals = nullptr; run_end = nullptr; run_val = nullptr;
 }
 
-void GTable::alloc(u64 capacity) {
+void GTable::alloc(u64 capacity, bool aos_layout) {
   release();
   cap = capacity;
-  t.keys = (u64*)dmalloc_or_skip(cap * 8, "table");
-  t.cnt = (u64*)dmalloc_or_skip(cap * 8, "table");
-  t.sum = (u64*)dmalloc_or_skip(cap * 8, "table");
-  t.dsum = (double*)dmalloc_or_skip(cap * 8, "table");
-  t.mn = (i32*)dmalloc_or_skip(cap * 4, "table");
-  t.mx = (i32*)dmalloc_or_skip(cap * 4, "table");
+  aos = aos_layout;
   t.shift = 64 - ilog2(cap);
   t.mask = (u32)(cap - 1);
+  if (aos) {
+    base = dmalloc_or_skip(cap * 64, "table");
+    u64* b = (u64*)base;
+    t.keys = b; t.cnt = b + 1; t.sum = b + 2; t.dsum = (double*)(b + 3);
+    t.mn = (i32*)(b + 4); t.mx = (i32*)(b + 4) + 1;
+    t.m8 = 8; t.m4 = 16;
+  } else {
+    base = dmalloc_or_skip(cap * 40, "table");
+    char* b = (char*)base;
+    t.keys = (u64*)b; t.cnt = (u64*)(b + cap * 8); t.sum = (u64*)(b + cap * 16); t.dsum = (double*)(b + cap * 24);
+    t.mn = (i32*)(b + cap * 32); t.mx = (i32*)(b + cap * 36);
+    t.m8 = 1; t.m4 = 1;
+  }
 }
 void GTable::release() {
   if (!cap) return;
-  for (void* p : {(void*)t.keys, (void*)t.cnt, (void*)t.sum, (void*)t.dsum, (void*)t.mn, (void*)t.mx}) CK(cudaFree(p));
+  CK(cudaFree(base));
+  base = nullptr;
   cap = 0;
 }
 
@@ -91,7 +100,7 @@ u32 Results::count() const { u32 n; CK(cudaMemcpy(&n, r.n, 4, cudaMemcpyDeviceTo
 
 __global__ void k_table_init(GT T, u64 cap) {
   for (u64 s = blockIdx.x * (u64)blockDim.x + threadIdx.x; s < cap; s += (u64)gridDim.x * blockDim.x) {
-    T.keys[s] = EMPTY_KEY; T.cnt[s] = 0; T.sum[s] = 0; T.dsum[s] = 0.0; T.mn[s] = INT_MAX; T.mx[s] = INT_MIN;
+    T.K(s) = EMPTY_KEY; T.C(s) = 0; T.S(s) = 0; T.D(s) = 0.0; T.MN(s) = INT_MAX; T.MX(s) = INT_MIN;
   }
 }
 void table_init(const GTable& T, cudaStream_t st) {
@@ -104,15 +113,15 @@ __global__ void k_extract(GT T, u64 cap, ResV R) {
   const u64 gw = (blockIdx.x * (u64)blockDim.x + threadIdx.x) >> 5, nw = ((u64)gridDim.x * blockDim.x) >> 5;
   for (u64 base = gw * 32; base < cap; base += nw * 32) {
     u64 s = base + lane_id();
-    bool ok = s < cap && T.keys[s] != EMPTY_KEY;
+    bool ok = s < cap && T.K(s) != EMPTY_KEY;
     u32 b = __ballot_sync(FULL, ok);
     u32 off = 0;
     if (lane_id() == 0 && b) off = atomicAdd(R.n, __popc(b));
     off = __shfl_sync(FULL, off, 0);
     if (ok) {
       u32 i = off + __popc(b & lanemask_lt());
-      R.key[i] = T.keys[s]; R.cnt[i] = T.cnt[s]; R.sum[i] = (i64)T.sum[s];
-      R.mn[i] = T.mn[s]; R.mx[i] = T.mx[s]; R.dsum[i] = T.dsum[s];
+      R.key[i] = T.K(s); R.cnt[i] = T.C(s); R.sum[i] = (i64)T.S(s);
+      R.mn[i] = T.MN(s); R.mx[i] = T.MX(s); R.dsum[i] = T.D(s);
     }
   }
 }

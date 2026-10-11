@@ -140,8 +140,7 @@ struct Pipeline {
     u64 sc = T.cap / slices;
     for (u64 j = 0; j < slices; ++j) {
       int s = (int)(j % ns);
-      GT sub = T.t;  // view of slots [j*sc, (j+1)*sc)
-      sub.keys += j * sc; sub.cnt += j * sc; sub.sum += j * sc; sub.dsum += j * sc; sub.mn += j * sc; sub.mx += j * sc;
+      GT sub = T.t.slice(j * sc);  // view of slots [j*sc, (j+1)*sc)
       ResV rr = R.r;
       rr.key += j * sc; rr.cnt += j * sc; rr.sum += j * sc; rr.dsum += j * sc; rr.mn += j * sc; rr.mx += j * sc;
       rr.n = d_slice_n + j;
@@ -191,15 +190,15 @@ __global__ void k_extract_slice(GT T, u64 cap, ResV R) {
   const u64 gw = (blockIdx.x * (u64)blockDim.x + threadIdx.x) >> 5, nw = ((u64)gridDim.x * blockDim.x) >> 5;
   for (u64 base = gw * 32; base < cap; base += nw * 32) {
     u64 s = base + lane_id();
-    bool ok = s < cap && T.keys[s] != EMPTY_KEY;
+    bool ok = s < cap && T.K(s) != EMPTY_KEY;
     u32 b = __ballot_sync(FULL, ok);
     u32 off = 0;
     if (lane_id() == 0 && b) off = atomicAdd(R.n, __popc(b));
     off = __shfl_sync(FULL, off, 0);
     if (ok) {
       u32 i = off + __popc(b & lanemask_lt());
-      R.key[i] = T.keys[s]; R.cnt[i] = T.cnt[s]; R.sum[i] = (i64)T.sum[s];
-      R.mn[i] = T.mn[s]; R.mx[i] = T.mx[s]; R.dsum[i] = T.dsum[s];
+      R.key[i] = T.K(s); R.cnt[i] = T.C(s); R.sum[i] = (i64)T.S(s);
+      R.mn[i] = T.MN(s); R.mx[i] = T.MX(s); R.dsum[i] = T.D(s);
     }
   }
 }
@@ -279,7 +278,9 @@ int run_stream(const Args& a) {
   double gpu_bw = quick_read_bw();
   int fails = 0;
   struct Q { const char* name; u32 card; bool global; };
+  auto only = a.slist("queries", "global_agg,groupby_card16,groupby_card16M");
   for (Q q : {Q{"global_agg", 16, true}, Q{"groupby_card16", 16, false}, Q{"groupby_card16M", 1u << 24, false}}) {
+    if (std::find(only.begin(), only.end(), q.name) == only.end()) continue;
     HostData H;
     GenSpec g; g.rows = rows; g.card = q.card; g.seed = 99;
     gen_setup(H, g);

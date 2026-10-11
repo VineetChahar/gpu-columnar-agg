@@ -37,7 +37,7 @@ tpch: build tpch-data
 
 # ---- full benchmark, split into sessions that fit a Kaggle run (each appends to results.jsonl) ----
 CARDS = 16,256,4096,65536,1048576,16777216
-ABL = v1_vec,v1_nocompact,v3_warpagg,v3_global,v4_radix_smem,v4_radix_1pass,v2_smem_soa256,v3_warpagg256,v3_warpagg512
+ABL = v0_naive,v0_naive_soa,v1_vec,v1_nocompact,v3_warpagg,v3_global,v4_radix_smem,v4_radix_1pass,v2_smem_soa1024,v3_warpagg512,v3_warpagg1024
 
 bench-part1: build
 	$(BENCH) micro
@@ -56,3 +56,10 @@ bench-part3: build
 	python3 scripts/cudf_sweep.py --rows 10M,100M
 
 bench: bench-part1 bench-part2 bench-part3
+
+# nsys is not on the Kaggle image but installs from NVIDIA's apt repo; trace one V5 pipeline
+nsys: build
+	which nsys || (apt-get install -y -qq nsight-systems-2024.5.1 >/dev/null 2>&1 || apt-get install -y -qq nsight-systems-2024.4.2 >/dev/null 2>&1); \
+	NSYS=$$(which nsys || ls /opt/nvidia/nsight-systems/*/bin/nsys | head -1); echo "nsys: $$NSYS"; \
+	$$NSYS profile -t cuda -o $${RESULTS_DIR:-.}/v5_stream -f true $(BENCH) stream rows=100M iters=2 queries=groupby_card16 tag=nsys_stream && \
+	$$NSYS stats --report cuda_gpu_trace --format csv -o $${RESULTS_DIR:-.}/v5_stream $${RESULTS_DIR:-.}/v5_stream.nsys-rep >/dev/null && ls -la $${RESULTS_DIR:-.} | grep v5_stream

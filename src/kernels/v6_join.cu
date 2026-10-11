@@ -12,6 +12,7 @@
 #include <vector>
 #include "../gpu/procs.cuh"
 #include "v6_join.cuh"
+#include "variants.hpp"
 
 namespace {
 
@@ -325,6 +326,7 @@ void run_join_part(const DevJoin& J, JoinScratch& S, u8 sel, bool bloom, GTable&
   for (int k = 0; k < 2; ++k)
     CK(cudaFuncSetAttribute(k == 0 ? (const void*)k_jhist<ProbeSrc> : (const void*)k_jscatter<ProbeSrc>,
                             cudaFuncAttributeMaxDynamicSharedMemorySize, 32 * 1024));
+  PhaseTimer pt(st);
   table_init(out, st);
   // plan: build keys expected after the filter (from the dim statistics: sel% of D)
   double nb = std::max(1.0, J.D * sel / 100.0);
@@ -341,12 +343,14 @@ void run_join_part(const DevJoin& J, JoinScratch& S, u8 sel, bool bloom, GTable&
     CK(cudaFuncSetAttribute(k == 0 ? (const void*)k_jhist<BuildSrc> : (const void*)k_jscatter<BuildSrc>,
                             cudaFuncAttributeMaxDynamicSharedMemorySize, 32 * 1024));
   u32 nbuild = partition(BuildSrc{J.dkey, J.dcat, J.dp, J.D, sel}, B, S.bkey, S.bcat, S, st, bst);
+  pt.mark("build_partition");
   if (bloom) {
     // Bloom filter over the partitioned build keys (contiguous, coalesced)
     build_bloom(S.bkey, nbuild, S.bloom, (u32)(S.bloom_words - 1), st);
   }
   u32 nprobe = partition(ProbeSrc{J.fcode, J.fdict, J.fval, J.F, bloom ? S.bloom : nullptr, (u32)(S.bloom_words - 1)},
                          B, S.pkey, S.pval, S, st, pst);
+  pt.mark("probe_partition");
   u32 maxb = 0;
   for (size_t p = 0; p + 1 < bst.size(); ++p) maxb = std::max(maxb, bst[p + 1] - bst[p]);
   if (maxb > JS * 3 / 4) throw Skip("build partition overflow");
@@ -365,6 +369,7 @@ void run_join_part(const DevJoin& J, JoinScratch& S, u8 sel, bool bloom, GTable&
     k_jpart<<<nitems, 256, 0, st>>>(S.items, S.bst, S.bkey, S.bcat, S.pkey, S.pval, out.t, (u32*)S.stats);
     CK(cudaGetLastError());
   }
+  pt.mark("join_aggregate");
   u32 ovf;
   CK(cudaMemcpyAsync(&ovf, S.stats, 4, cudaMemcpyDeviceToHost, st));
   CK(cudaStreamSynchronize(st));
@@ -372,6 +377,7 @@ void run_join_part(const DevJoin& J, JoinScratch& S, u8 sel, bool bloom, GTable&
   info.probed = nprobe;
   info.build_rows = nbuild;
   info.max_build_partition = maxb;
+  pt.dump(info.phase_ms);
 }
 
 __global__ void k_bloom_build(const u64* keys, u32 n, u32* bloom, u32 bmask) {

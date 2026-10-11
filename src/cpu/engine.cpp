@@ -79,7 +79,10 @@ std::vector<GroupRow> engine_impl(const HostData& D, const KD& code_of, u16 lo, 
     return out;
   }
   // radix-partitioned: phase 1 scatter (key,val) into P partitions per thread, phase 2 aggregate.
-  constexpr int PB = 8, P = 1 << PB;
+  // P chosen so one partition's table (~8K groups, ~0.5 MB) stays in the core's 1 MB L2.
+  int PB = 8;
+  while (PB < 12 && ((u64)D.card >> PB) > 8192) ++PB;
+  const int P = 1 << PB;
   struct Buf { std::vector<u64> k; std::vector<i32> v; };
   std::vector<std::vector<Buf>> bufs(T, std::vector<Buf>(P));
   u64 est = rle_count_selected(D, lo, hi);

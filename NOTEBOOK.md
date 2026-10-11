@@ -51,3 +51,10 @@ Verified end-to-end with `src/devprop.cu` (deviceProp dump + a trivial kernel): 
 against the reference — **0 failures**; memcheck 0 errors / 0 leaks; racecheck 0 hazards.
 A gate that never fails proves little, so a checker self-test was added (inject wrong COUNT, a 1e-3
 error in the FP sum, a missing group → all must be flagged).
+
+**GPU-slot hygiene.** The Kaggle account allows 2 concurrent batch GPU sessions, shared with another
+project's kernels; a push while both are busy is rejected. `kaggle_run.py` now queues (retry every
+120 s, up to 6 h). One GPU session was wasted on a compile error (`-Werror` flagged an unused device
+function), so `scripts/compile_check.sh` + `kaggle_run.py --cpu` now compile every translation unit with
+the real flags in a *CPU-only* Kaggle session (CUDA 12.8 compiler installed from NVIDIA's apt repo
+there) before anything is pushed to a GPU.

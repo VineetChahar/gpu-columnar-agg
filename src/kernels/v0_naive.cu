@@ -16,7 +16,7 @@ void run_v0_naive(RunCtx& c) {
 
 // ablation: the same kernel on a structure-of-arrays global table (six separate arrays), so one
 // update's five atomics land on five different cache lines instead of one 64-byte slot.
-static GTable soa_table;
+static thread_local GTable soa_table;
 void run_v0_naive_soa(RunCtx& c) {
   if (soa_table.cap != c.T->cap) soa_table.alloc(c.T->cap, /*aos=*/false);
   RunCtx s = c;

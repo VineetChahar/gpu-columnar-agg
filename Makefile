@@ -72,6 +72,30 @@ verify-latemat-san: build
 	$(SAN) --tool memcheck --error-exitcode 1 --leak-check full $(BENCH) verify tiny=1 sels=1,10,100 variants=v3_latemat
 	$(SAN) --tool racecheck --error-exitcode 1 --racecheck-report all $(BENCH) verify tiny=1 sels=1,10,100 variants=v3_latemat
 
+# ---- follow-up: fixes for the gaps recorded in RESULTS (OOM at 500M, cap=est at 500M, full Q6, multi-GPU) ----
+# correctness gates for the new code paths, incl. a forced multi-chunk plan (chunk=4096 rows) and the
+# multi-GPU split + merge on small inputs; sanitizers on both
+verify-followup: build
+	$(BENCH) verify variants=v4_sort,v4_sort_chunked
+	$(BENCH) verify variants=v4_sort_chunked chunk=4096
+	$(SAN) --tool memcheck --error-exitcode 1 --leak-check full $(BENCH) verify tiny=1 sels=1,50,100 variants=v4_sort_chunked chunk=4096
+	$(SAN) --tool racecheck --error-exitcode 1 --racecheck-report all $(BENCH) verify tiny=1 sels=1,50,100 variants=v4_sort_chunked chunk=4096
+	$(BENCH) mgpu rows=1000003,20000000 cards=16,65536,1048576 skews=0,1.5 sels=1,100 gpus=2,1 variants=v0_naive,v1_vec,v2_smem_soa,v3_warpagg,v4_radix_l2,v4_sort,v4_sort_chunked iters=3 warmup=1 tag=mgpu_verify
+	$(SAN) --tool memcheck --error-exitcode 1 $(BENCH) mgpu rows=100000 cards=4096 skews=0 sels=50 gpus=2 variants=v3_warpagg,v4_sort_chunked iters=1 warmup=0 tag=mgpu_san
+
+# chunked sort at 500M (where v4_sort runs out of memory) + chunking overhead at 100M; full TPC-H Q6
+bench-part4: verify-followup
+	$(BENCH) sweep rows=500M cards=65536,1048576,16777216 skews=0,0.5,1,1.5 sels=1,10,50,100 variants=v4_sort_chunked tag=chunked cpu=0
+	$(BENCH) sweep rows=100M cards=65536,1048576,16777216 skews=0,1.5 sels=10,100 variants=v4_sort,v4_sort_chunked tag=chunked cpu=0
+	$(BENCH) sweep rows=100M cards=65536,1048576,16777216 skews=0,1.5 sels=10,100 variants=v4_sort_chunked chunk=16777216 tag=chunked16M cpu=0
+	python3 scripts/tpch_prep.py /kaggle/tmp/tpch --sf 10
+	$(BENCH) tpch dir=/kaggle/tmp/tpch only=q6full
+
+# capacity policy at 500M (hash variants are the fallback there) + row-split multi-GPU (T4 x2)
+bench-part5: build
+	$(BENCH) mgpu rows=100M,500M cards=4096,65536,1048576,16777216 skews=0,1.5 sels=1,100 gpus=2,1 variants=v1_vec,v3_warpagg,v4_radix_l2,v4_sort,v4_sort_chunked tag=mgpu
+	$(BENCH) sweep rows=500M cards=1048576,16777216 skews=0,1.5 sels=1,10,50,100 variants=main cap=est tag=capest cpu=0
+
 bench: bench-part1 bench-part2 bench-part3
 
 # nsys is not on the Kaggle image but installs from NVIDIA's apt repo; trace one V5 pipeline

@@ -34,7 +34,8 @@ struct Scratch {
   void* tmp = nullptr; size_t tmp_cap = 0;
   u32* items = nullptr; size_t items_cap = 0;  // packed work items / tile descriptors
   u32* starts = nullptr; size_t starts_cap = 0;
-} S;
+};
+thread_local Scratch S;  // per host thread = per GPU in the multi-GPU runner
 
 template <class T>
 void ensure(T*& p, size_t& cap, size_t n, const char* what) {
@@ -380,7 +381,7 @@ void run_v4_radix(RunCtx& c, bool l2_mode, bool force_1pass, bool nostage) {
       k_part_agg<PG><<<nitems, 256, 0, c.st>>>(S.items, fk, fv, PG::Params{c.T->t});
     } else {
       using PS = PSmem<LSoA<AGG_SLOTS>, AGG_SLOTS, true>;
-      static bool attr = false;
+      thread_local bool attr = false;  // function attributes are per device
       if (!attr) { CK(cudaFuncSetAttribute(k_part_agg<PS>, cudaFuncAttributeMaxDynamicSharedMemorySize, 64 * 1024)); attr = true; }
       k_part_agg<PS><<<nitems, 256, PS::SMEM, c.st>>>(S.items, fk, fv, PS::Params{c.T->t});
     }

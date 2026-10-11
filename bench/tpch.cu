@@ -3,12 +3,16 @@
 //   Q1-shaped:  SELECT l_returnflag, l_linestatus, COUNT(*), SUM(price), MIN(price), MAX(price), SUM(price*0.01)
 //               WHERE l_shipdate <= DATE '1998-09-02' GROUP BY 1, 2          (composite dictionary key)
 //   Q6-shaped:  same aggregates, no GROUP BY, WHERE l_shipdate in [1994-01-01, 1995-01-01)
-// (price = l_extendedprice in cents.  Q6's discount/quantity predicates are not expressible with a
-//  single RLE predicate column and are dropped; README states the deviation.)
+//   Q6 (full):  SELECT count(*), SUM(price * discount) WHERE l_shipdate in [1994-01-01, 1995-01-01)
+//               AND discount BETWEEN 5 AND 7 (percent) AND quantity < 24 - three predicates, run by a
+//               dedicated kernel in two forms: eager (load every column) and ordered/late (RLE date
+//               first, then discount + quantity only where the date passes, then price only where all pass)
+// (price = l_extendedprice in cents.)
 // Both are checked against the CPU reference AND against DuckDB's answer for the same SQL.
 #include <fstream>
 #include <thread>
 #include "../src/cpu/cpu.hpp"
+#include "../src/encoding/rle.cuh"
 #include "../src/kernels/variants.hpp"
 #include "util.hpp"
 
@@ -42,7 +46,176 @@ std::vector<Expected> load_expected(const std::string& path) {
   std::sort(out.begin(), out.end(), [](auto& a, auto& b) { return a.key < b.key; });
   return out;
 }
+// ---- full Q6: three predicates, one global aggregate ----
+struct Q6Cols {
+  const u32* run_end; const u16* run_val; u32 nruns;
+  const u8* disc; const u8* qty; const i32* price;
+  u64 n; u16 lo, hi;
+};
+template <bool LATE>
+__global__ void __launch_bounds__(256) k_q6(Q6Cols C, unsigned long long* out) {
+  const u32 lane = lane_id();
+  const u64 gw = (blockIdx.x * (u64)blockDim.x + threadIdx.x) >> 5, nw = ((u64)gridDim.x * blockDim.x) >> 5;
+  const u64 ntiles = (C.n + TILE - 1) / TILE;
+  u64 cnt = 0; i64 rev = 0;
+  for (u64 t = gw; t < ntiles; t += nw) {
+    const u64 tb = t * TILE, te = min(tb + TILE, C.n);
+    u32 cur = rle_upper_bound(C.run_end, C.nruns, tb);
+    for (u64 b = tb; b < te; b += 128) {
+      const u64 r = b + 4 * lane;
+      u32 dw = 0, qw = 0;
+      int4 pw = make_int4(0, 0, 0, 0);
+      if (!LATE && r < te) {
+        dw = *reinterpret_cast<const u32*>(C.disc + r);
+        qw = *reinterpret_cast<const u32*>(C.qty + r);
+        pw = *reinterpret_cast<const int4*>(C.price + r);
+      }
+      u32 run = warp_rle_find(C.run_end, C.nruns, cur, r < te ? r : te - 1);
+      bool ok[4];
+#pragma unroll
+      for (int j = 0; j < 4; ++j) {
+        ok[j] = false;
+        if (r + j < te) {
+          while (C.run_end[run] <= r + j) ++run;
+          u16 p = C.run_val[run];
+          ok[j] = p >= C.lo && p < C.hi;
+        }
+      }
+      cur = __shfl_sync(FULL, run, 31);
+      // (no per-lane `continue`: every lane must reach the next warp_rle_find together)
+      if (LATE && (ok[0] | ok[1] | ok[2] | ok[3])) {  // date failed for all 4 rows: no other column touched
+        dw = *reinterpret_cast<const u32*>(C.disc + r);
+        qw = *reinterpret_cast<const u32*>(C.qty + r);
+      }
+#pragma unroll
+      for (int j = 0; j < 4; ++j) {
+        u32 d = (dw >> (8 * j)) & 0xff, q = (qw >> (8 * j)) & 0xff;
+        ok[j] = ok[j] && d >= 5 && d <= 7 && q < 24;
+      }
+      if (LATE && (ok[0] | ok[1] | ok[2] | ok[3])) pw = *reinterpret_cast<const int4*>(C.price + r);
+      const i32 pv[4] = {pw.x, pw.y, pw.z, pw.w};
+#pragma unroll
+      for (int j = 0; j < 4; ++j)
+        if (ok[j]) { ++cnt; rev += (i64)pv[j] * (i64)((dw >> (8 * j)) & 0xff); }
+    }
+  }
+#pragma unroll
+  for (int o = 16; o; o >>= 1) {
+    cnt += __shfl_down_sync(FULL, cnt, o);
+    rev += __shfl_down_sync(FULL, rev, o);
+  }
+  if (lane == 0) { atomicAdd(&out[0], (unsigned long long)cnt); atomicAdd(&out[1], (unsigned long long)rev); }
+}
+
+struct Q6Host { u64 cnt; i64 rev; };
+Q6Host q6_cpu(const HostData& H, const std::vector<u8>& disc, const std::vector<u8>& qty, u16 lo, u16 hi, int threads) {
+  // thread t takes every threads-th run; runs whose date fails are skipped without touching other columns
+  std::vector<Q6Host> part(threads, Q6Host{0, 0});
+  std::vector<std::thread> th;
+  for (int t = 0; t < threads; ++t)
+    th.emplace_back([&, t] {
+      u64 c = 0; i64 r = 0;
+      for (size_t i = t; i < H.run_end.size(); i += threads) {
+        if (H.run_val[i] < lo || H.run_val[i] >= hi) continue;
+        u64 b = i ? H.run_end[i - 1] : 0, e = H.run_end[i];
+        for (u64 k = b; k < e; ++k)
+          if (disc[k] >= 5 && disc[k] <= 7 && qty[k] < 24) { ++c; r += (i64)H.vals[k] * disc[k]; }
+      }
+      part[t] = {c, r};
+    });
+  for (auto& x : th) x.join();
+  Q6Host s{0, 0};
+  for (auto& p : part) { s.cnt += p.cnt; s.rev += p.rev; }
+  return s;
+}
+
 }  // namespace
+
+static int run_q6_full(const std::string& dir, const HostData& base, u16 lo, u16 hi, int warm, int iters, double bw) {
+  std::ifstream probe(dir + "/discount.u8");
+  if (!probe) { printf("Q6 full: discount.u8 missing (old tpch_prep output) - skipped\n"); return 0; }
+  auto disc = load<u8>(dir + "/discount.u8");
+  auto qty = load<u8>(dir + "/quantity.u8");
+  const u64 n = base.n;
+  int threads = (int)std::thread::hardware_concurrency();
+  // single-threaded reference (row loop, no run skipping) and DuckDB's answer
+  Q6Host ref{0, 0};
+  double t0 = now_ms();
+  {
+    size_t run = 0;
+    for (u64 k = 0; k < n; ++k) {
+      while (base.run_end[run] <= k) ++run;
+      u16 p = base.run_val[run];
+      if (p >= lo && p < hi && disc[k] >= 5 && disc[k] <= 7 && qty[k] < 24) { ++ref.cnt; ref.rev += (i64)base.vals[k] * disc[k]; }
+    }
+  }
+  double ref_ms = now_ms() - t0;
+  long long ec = -1, er = -1;
+  { std::ifstream f(dir + "/q6full_expected.csv"); std::string line; std::getline(f, line); sscanf(line.c_str(), "%lld,%lld", &ec, &er); }
+  bool duck_ok = (long long)ref.cnt == ec && (long long)ref.rev == er;
+  printf("Q6 full: count=%llu revenue=%lld (x1e-4 $), reference matches DuckDB: %s\n", (unsigned long long)ref.cnt,
+         (long long)ref.rev, duck_ok ? "yes" : "NO");
+  int fails = duck_ok ? 0 : 1;
+  std::vector<double> cms;
+  for (int i = 0; i < 11; ++i) {
+    double t = now_ms(); Q6Host c = q6_cpu(base, disc, qty, lo, hi, threads);
+    if (i) cms.push_back(now_ms() - t);
+    if (c.cnt != ref.cnt || c.rev != ref.rev) { printf("Q6 full: CPU engine INCORRECT\n"); ++fails; break; }
+  }
+  Stat cpu = stats(cms);
+  // device columns (padded so the 4-row vector loads past n stay in bounds)
+  const u64 npad = (n + TILE - 1) / TILE * TILE + TILE;
+  u8 *dd, *dq; i32* dp; u32* dre; u16* drv; unsigned long long* dout;
+  CK(cudaMalloc(&dd, npad)); CK(cudaMalloc(&dq, npad)); CK(cudaMalloc(&dp, npad * 4));
+  CK(cudaMemset(dd, 0, npad)); CK(cudaMemset(dq, 0, npad)); CK(cudaMemset(dp, 0, npad * 4));
+  CK(cudaMemcpy(dd, disc.data(), n, cudaMemcpyHostToDevice));
+  CK(cudaMemcpy(dq, qty.data(), n, cudaMemcpyHostToDevice));
+  CK(cudaMemcpy(dp, base.vals.data(), n * 4, cudaMemcpyHostToDevice));
+  const u32 nr = (u32)base.run_end.size();
+  CK(cudaMalloc(&dre, (nr + 32) * 4)); CK(cudaMalloc(&drv, (nr + 32) * 2)); CK(cudaMalloc(&dout, 16));
+  CK(cudaMemcpy(dre, base.run_end.data(), nr * 4, cudaMemcpyHostToDevice));
+  CK(cudaMemcpy(drv, base.run_val.data(), nr * 2, cudaMemcpyHostToDevice));
+  Q6Cols C{dre, drv, nr, dd, dq, dp, n, lo, hi};
+  const double bytes_all = n * 6.0 + nr * 6.0;  // disc + qty + price + runs: what the eager kernel must read
+  cudaStream_t st; CK(cudaStreamCreate(&st));
+  for (int late = 0; late < 2; ++late) {
+    auto kern = late ? k_q6<true> : k_q6<false>;
+    int bps = 0;
+    CK(cudaOccupancyMaxActiveBlocksPerMultiprocessor(&bps, kern, 256, 0));
+    const int grid = bps * num_sms();
+    auto run = [&] {
+      CK(cudaMemsetAsync(dout, 0, 16, st));
+      kern<<<grid, 256, 0, st>>>(C, dout);
+      CK(cudaGetLastError());
+    };
+    run();
+    unsigned long long h[2];
+    CK(cudaMemcpyAsync(h, dout, 16, cudaMemcpyDeviceToHost, st));
+    CK(cudaStreamSynchronize(st));
+    bool ok = h[0] == ref.cnt && (i64)h[1] == ref.rev;
+    std::string vn = late ? "q6_ordered_late" : "q6_eager";
+    Json j;
+    j.s("exp", "tpch").s("query", "Q6full").s("variant", vn).n("rows", (double)n).n("bytes_in", bytes_all)
+        .n("cpu_ms", cpu.med).n("cpu_threads", threads).n("ref_ms", ref_ms).b("reference_matches_duckdb", duck_ok)
+        .n("selected", (double)ref.cnt).n("achievable_read_gbs", bw).b("correct", ok).n("groups", 1);
+    if (!ok) { ++fails; printf("  Q6full %-16s INCORRECT (%llu, %lld)\n", vn.c_str(), h[0], (long long)h[1]); }
+    else {
+      Clk c0 = clocks();
+      Stat s = time_gpu(run, st, warm, iters);
+      Clk c1 = clocks();
+      double gbs = bytes_all / (s.med * 1e6);
+      j.n("median_ms", s.med).n("p25_ms", s.p25).n("p75_ms", s.p75).n("iqr_ms", s.p75 - s.p25).n("n_iter", s.n)
+          .n("eff_gbs", gbs).n("bw_pct", 100 * gbs / bw).n("speedup_vs_cpu", cpu.med / s.med);
+      put_clocks(j, c0, c1);
+      printf("  Q6full %-16s %8.3f ms  %5.1f%% bw(eager bytes)  %6.1fx cpu(%.1f ms)\n", vn.c_str(), s.med, 100 * gbs / bw,
+             cpu.med / s.med, cpu.med);
+    }
+    emit(j);
+  }
+  for (void* p : {(void*)dd, (void*)dq, (void*)dp, (void*)dre, (void*)drv, (void*)dout}) CK(cudaFree(p));
+  CK(cudaStreamDestroy(st));
+  return fails;
+}
 
 int run_tpch(const Args& a) {
   std::string dir = a.get("dir", "/kaggle/tmp/tpch");
@@ -67,7 +240,8 @@ int run_tpch(const Args& a) {
   double bw = quick_read_bw();
   cudaStream_t st; CK(cudaStreamCreate(&st));
   int fails = 0;
-  for (int q = 0; q < 2; ++q) {
+  const bool only_q6full = a.get("only", "") == "q6full";  // re-run just the full Q6 (Q1/Q6-shaped already measured)
+  for (int q = 0; q < 2 && !only_q6full; ++q) {
     HostData H = base;
     u16 lo, hi;
     std::string qname;
@@ -133,6 +307,7 @@ int run_tpch(const Args& a) {
     dref.release(); R.release(); T.release(); D.release();
     release_v4_scratch(); release_sort_scratch();
   }
+  fails += run_q6_full(dir, base, (u16)params[1], (u16)params[2], warm, iters, bw);
   return fails ? 1 : 0;
 }
 

@@ -103,6 +103,8 @@ struct DevData {
   u32 nruns = 0;
   size_t bytes_in = 0;  // compressed bytes a full scan reads
   void upload(const HostData& H);
+  // rows [r0, r1) only (multi-GPU split); run ends are rebased to the slice, dictionaries are copied whole
+  void upload_range(const HostData& H, u64 r0, u64 r1);
   void release();
 };
 
@@ -120,6 +122,14 @@ void with_kd(const DevData& D, F&& f) {
 template <class KD>
 Cols<KD> make_cols(const DevData& D, KD kd, u16 lo, u16 hi) {
   return Cols<KD>{kd, D.vals, D.run_end, D.run_val, D.nruns, 0, D.n, lo, hi};
+}
+// view of rows [r0, r0 + n) (r0 a multiple of TILE so vector loads stay aligned)
+template <class T>
+KD1<T> kd_offset(KD1<T> k, u64 r0) { k.c += r0; return k; }
+inline KD2 kd_offset(KD2 k, u64 r0) { k.c1 += r0; k.c2 += r0; return k; }
+template <class KD>
+Cols<KD> make_cols_range(const DevData& D, KD kd, u16 lo, u16 hi, u64 r0, u64 n) {
+  return Cols<KD>{kd_offset(kd, r0), D.vals + r0, D.run_end, D.run_val, D.nruns, r0, n, lo, hi};
 }
 
 // ---------------- global open-addressing hash table ----------------
@@ -200,6 +210,8 @@ struct Results {
 
 void table_init(const GTable& T, cudaStream_t st);
 void table_extract(const GTable& T, const Results& R, cudaStream_t st);
+// insert every row of a result set into T (hash on the decoded key) - merges partial results
+void table_merge_results(const GTable& T, const Results& R, u64 n, cudaStream_t st);
 
 // ---------------- validation against the CPU reference ----------------
 struct GroupRow;

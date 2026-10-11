@@ -179,7 +179,7 @@ LaunchInfo launch_agg(const Cols<KD>& C, const typename P::Params& prm, cudaStre
   LaunchInfo L;
   L.block = block;
   L.smem = P::SMEM + (MODE >= FE_VEC_COMPACT ? (block / 32) * sizeof(WarpBuf) : 0);
-  static bool attr_set = false;
+  thread_local bool attr_set = false;  // per device: one host thread per GPU
   if (!attr_set) {
     CK(cudaFuncSetAttribute(kern, cudaFuncAttributeMaxDynamicSharedMemorySize, 64 * 1024));
     attr_set = true;

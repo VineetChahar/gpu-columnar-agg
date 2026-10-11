@@ -2,8 +2,13 @@
 //   verify   [tiny=1]                 correctness of every variant on small inputs (exit 1 on any mismatch)
 //   sweep    rows= cards= skews= sels= variants=main|all|v0_naive,... composite=0|1 tag=...
 //   micro                             bandwidth / atomic / shared-memory microbenchmarks
+//   mgpu     rows= cards= skews= sels= variants= gpus=1,2   row-split multi-GPU + merge of partial results
 //   stream, join, tpch                see stream.cu, join.cu, tpch.cu
 // Results append to $RESULTS_DIR/results.jsonl (one JSON object per measurement).
+#include <condition_variable>
+#include <functional>
+#include <memory>
+#include <mutex>
 #include <thread>
 #include "../src/cpu/cpu.hpp"
 #include "../src/kernels/variants.hpp"
@@ -91,6 +96,7 @@ static int run_verify(const Args& a) {
       DevRef dref; dref.upload(ref);
       for (auto* v : vars) {
         RunCtx c; c.D = &D; c.lo = 0; c.hi = (u16)sel; c.T = &T; c.R = &R; c.st = st; c.sel_est = rle_count_selected(H, 0, sel);
+        c.chunk_rows = (u64)a.num("chunk", 0);
         try {
           v->run(c);
           CK(cudaStreamSynchronize(st));
@@ -208,6 +214,7 @@ static int run_sweep(const Args& a) {
         std::string key = pk(v->name, sel);
         if (done.count(key)) continue;
         RunCtx c; c.D = &D; c.lo = 0; c.hi = (u16)sel; c.T = &T; c.R = &R; c.st = st; c.sel_est = sel_est;
+        c.chunk_rows = (u64)a.num("chunk", 0);
         Json j;
         j.s("exp", tag).s("pkey", key).s("variant", v->name).n("rows", p.rows).n("card", p.card).n("skew", z)
             .n("sel", sel).b("composite", comp).s("key_kind", key_kind_name(H.kind)).n("bytes_in", (double)H.bytes_compressed())
@@ -258,6 +265,231 @@ static int run_sweep(const Args& a) {
   return 0;
 }
 
+// ------------------------------------------------------------------ multi-GPU
+// Rows are split evenly across G GPUs (each holds only its slice + the full dictionary).  Every GPU
+// runs the same variant on its slice from its own host thread; GPU g>0 then ships its partial result
+// (one row per group it saw) to GPU 0 (cudaMemcpyPeer: P2P if available, else staged through the
+// host), and GPU 0 merges all partials into its hash table (re-initialised - the variant's own result
+// is already extracted) and extracts the final result.  Timed on the host, end to end.
+// One persistent host thread per GPU: variants keep their scratch buffers in thread_local state, so the
+// thread that runs a GPU's work must live as long as that GPU's buffers.
+struct GpuWorker {
+  int dev;
+  std::thread th;
+  std::mutex m;
+  std::condition_variable cv;
+  std::function<void()> job;
+  bool busy = false, quit = false;
+  explicit GpuWorker(int d) : dev(d) {
+    th = std::thread([this] {
+      CK(cudaSetDevice(dev));
+      for (;;) {
+        std::function<void()> j;
+        {
+          std::unique_lock<std::mutex> l(m);
+          cv.wait(l, [&] { return busy || quit; });
+          if (!busy) return;
+          j = job;
+        }
+        j();
+        { std::lock_guard<std::mutex> l(m); busy = false; }
+        cv.notify_all();
+      }
+    });
+  }
+  void submit(std::function<void()> j) { { std::lock_guard<std::mutex> l(m); job = std::move(j); busy = true; } cv.notify_all(); }
+  void wait() { std::unique_lock<std::mutex> l(m); cv.wait(l, [&] { return !busy; }); }
+  void run(std::function<void()> j) { submit(std::move(j)); wait(); }
+  ~GpuWorker() { { std::lock_guard<std::mutex> l(m); quit = true; } cv.notify_all(); th.join(); }
+};
+
+static int run_mgpu(const Args& a) {
+  auto rows = a.list("rows", "500M");
+  auto cards = a.list("cards", "65536,1048576,16777216");
+  auto skews = a.list("skews", "0,1.5");
+  auto sels = a.list("sels", "1,100");
+  auto gpus_l = a.list("gpus", "2,1");
+  int warm = (int)a.num("warmup", 2), iters = (int)a.num("iters", 10);
+  std::string tag = a.get("tag", "mgpu");
+  const bool cap_est = a.get("cap", "dict") == "est";
+  auto vars = pick_variants(a.get("variants", "v1_vec,v3_warpagg,v4_sort,v4_sort_chunked"));
+  int ndev = 0; CK(cudaGetDeviceCount(&ndev));
+  int p2p = 0;
+  if (ndev > 1) CK(cudaDeviceCanAccessPeer(&p2p, 0, 1));
+  printf("mgpu: %d devices, peer access 0<-1: %d\n", ndev, p2p);
+  std::vector<std::unique_ptr<GpuWorker>> W;
+  for (int g = 0; g < ndev; ++g) W.emplace_back(new GpuWorker(g));
+  if (p2p) { CK(cudaSetDevice(0)); cudaDeviceEnablePeerAccess(1, 0); cudaGetLastError(); }
+  auto done = done_keys();
+  int fails = 0;
+  for (double n : rows) for (double card : cards) for (double z : skews) {
+    Point p{(u64)n, (u32)card, z, false};
+    HostData H; bool have_data = false;
+    for (double gd : gpus_l) {
+      const int G = (int)gd;
+      if (G > ndev) { printf("skip gpus=%d: only %d devices\n", G, ndev); continue; }
+      auto pk = [&](const std::string& vn, int sel) {
+        char b[256];
+        snprintf(b, sizeof b, "%s|%s|%llu|%u|%.2f|%d|g%d|%s", tag.c_str(), vn.c_str(), (unsigned long long)p.rows, p.card, z, sel,
+                 G, cap_est ? "est" : "dict");
+        return std::string(b);
+      };
+      bool all_done = true;
+      for (double s : sels) for (auto* v : vars) if (!done.count(pk(v->name, (int)s))) all_done = false;
+      if (all_done) continue;
+      if (!have_data) { make_data(H, p, 42); have_data = true; }
+      // per-GPU state
+      struct Dev { DevData D; GTable T; Results R; cudaStream_t st; u64 r0, r1; };
+      std::vector<Dev> dv(G);
+      Results Rx, Rf;  // on GPU 0: staging for one remote partial, final merged result
+      bool setup_ok = true;
+      for (int g = 0; g < G; ++g) {
+        CK(cudaSetDevice(g));
+        Dev& d = dv[g];
+        // split on TILE boundaries so every slice starts aligned
+        u64 per = (p.rows / G + TILE - 1) / TILE * TILE;
+        d.r0 = std::min<u64>(p.rows, per * g); d.r1 = g == G - 1 ? p.rows : std::min<u64>(p.rows, per * (g + 1));
+        d.D.upload_range(H, d.r0, d.r1);
+        CK(cudaStreamCreate(&d.st));
+        try { d.T.alloc(table_capacity(p.card)); d.R.alloc(p.card); }
+        catch (const Skip& s) { printf("skip gpus=%d: %s\n", G, s.what()); setup_ok = false; }
+      }
+      CK(cudaSetDevice(0));
+      if (setup_ok && G > 1) {
+        try { Rx.alloc(p.card); Rf.alloc(p.card); } catch (const Skip& s) { printf("skip gpus=%d: %s\n", G, s.what()); setup_ok = false; }
+      }
+      for (double sd : sels) {
+        if (!setup_ok) break;
+        int sel = (int)sd;
+        auto ref = cpu_reference(H, 0, (u16)sel);
+        CK(cudaSetDevice(0));
+        DevRef dref; dref.upload(ref);
+        u64 sel_all = rle_count_selected(H, 0, (u16)sel);
+        if (cap_est) {
+          u64 want = table_capacity(std::max<u64>(1, std::min<u64>(p.card, sel_all)));
+          for (int g = 0; g < G; ++g) { CK(cudaSetDevice(g)); if (dv[g].T.cap != want) dv[g].T.alloc(want); }
+          CK(cudaSetDevice(0));
+        }
+        for (auto* v : vars) {
+          std::string key = pk(v->name, sel);
+          if (done.count(key)) continue;
+          Json j;
+          j.s("exp", tag).s("pkey", key).s("variant", v->name).n("rows", p.rows).n("card", p.card).n("skew", z).n("sel", sel)
+              .n("gpus", G).n("p2p", p2p).s("cap_policy", cap_est ? "est" : "dict").n("table_cap", (double)dv[0].T.cap)
+              .n("selected_est", (double)sel_all);
+          // planner statistic per slice: exact selected-row count from the RLE runs it covers (not timed)
+          std::vector<u64> slice_sel(G, 0);
+          for (int g = 0; g < G; ++g) {
+            u64 prev = 0;
+            for (size_t i = 0; i < H.run_end.size(); ++i) {
+              u64 b = std::max<u64>(prev, dv[g].r0), e = std::min<u64>(H.run_end[i], dv[g].r1);
+              if (e > b && H.run_val[i] < sel) slice_sel[g] += e - b;
+              prev = H.run_end[i];
+              if (prev >= dv[g].r1) break;
+            }
+          }
+          std::vector<std::map<std::string, double>> infos(G);
+          std::vector<double> t_dev(G);
+          std::vector<std::string> skip(G);
+          double t_xfer = 0, t_merge = 0;
+          u64 n_partial = 0;
+          // one complete query; returns false if a GPU skipped
+          auto once = [&]() -> bool {
+            double t0 = now_ms();
+            for (int g = 0; g < G; ++g)
+              W[g]->submit([&, g] {
+                Dev& d = dv[g];
+                RunCtx c; c.D = &d.D; c.lo = 0; c.hi = (u16)sel; c.T = &d.T; c.R = &d.R; c.st = d.st;
+                c.sel_est = slice_sel[g];
+                try {
+                  v->run(c);
+                  CK(cudaStreamSynchronize(d.st));
+                  infos[g] = c.info;
+                } catch (const Skip& s) { skip[g] = s.what(); }
+                t_dev[g] = now_ms() - t0;
+              });
+            for (int g = 0; g < G; ++g) W[g]->wait();
+            for (auto& s : skip) if (!s.empty()) return false;
+            CK(cudaSetDevice(0));
+            if (G == 1) return true;
+            double t1 = now_ms();
+            table_init(dv[0].T, dv[0].st);
+            u64 n0 = dv[0].R.count();
+            table_merge_results(dv[0].T, dv[0].R, n0, dv[0].st);
+            n_partial = n0;
+            for (int g = 1; g < G; ++g) {
+              CK(cudaSetDevice(g));
+              u64 ng = dv[g].R.count();
+              CK(cudaSetDevice(0));
+              double tx = now_ms();
+              const ResV &src = dv[g].R.r, &dst = Rx.r;
+              CK(cudaMemcpyPeerAsync(dst.key, 0, src.key, g, ng * 8, dv[0].st));
+              CK(cudaMemcpyPeerAsync(dst.cnt, 0, src.cnt, g, ng * 8, dv[0].st));
+              CK(cudaMemcpyPeerAsync(dst.sum, 0, src.sum, g, ng * 8, dv[0].st));
+              CK(cudaMemcpyPeerAsync(dst.dsum, 0, src.dsum, g, ng * 8, dv[0].st));
+              CK(cudaMemcpyPeerAsync(dst.mn, 0, src.mn, g, ng * 4, dv[0].st));
+              CK(cudaMemcpyPeerAsync(dst.mx, 0, src.mx, g, ng * 4, dv[0].st));
+              CK(cudaStreamSynchronize(dv[0].st));
+              t_xfer += now_ms() - tx;
+              table_merge_results(dv[0].T, Rx, ng, dv[0].st);
+              n_partial += ng;
+            }
+            table_extract(dv[0].T, Rf, dv[0].st);
+            CK(cudaStreamSynchronize(dv[0].st));
+            t_merge = now_ms() - t1 - t_xfer;
+            return true;
+          };
+          bool ran = once();
+          if (!ran) {
+            std::string why; for (auto& s : skip) if (!s.empty()) why = s;
+            j.b("correct", false).s("skipped", why);
+            printf("  g=%d %-16s skipped: %s\n", G, v->name.c_str(), why.c_str());
+          } else {
+            CheckResult r = check_results(G == 1 ? dv[0].R : Rf, dref, dv[0].st);
+            j.b("correct", r.ok).n("groups", (double)r.groups).n("mismatches", (double)r.mismatches)
+                .n("max_rel_err_dsum", r.max_rel_dsum).n("partial_groups", (double)n_partial);
+            if (!r.ok) { ++fails; printf("  g=%d %-16s INCORRECT: %s (no timing recorded)\n", G, v->name.c_str(), r.msg.c_str()); }
+            else {
+              for (int i = 0; i < warm; ++i) once();
+              std::vector<double> tot, dmax, xf, mg;
+              for (int i = 0; i < iters; ++i) {
+                t_xfer = 0;
+                double t = now_ms(); once(); tot.push_back(now_ms() - t);
+                dmax.push_back(*std::max_element(t_dev.begin(), t_dev.end()));
+                xf.push_back(t_xfer); mg.push_back(t_merge);
+              }
+              Stat s = stats(tot);
+              j.n("median_ms", s.med).n("p25_ms", s.p25).n("p75_ms", s.p75).n("iqr_ms", s.p75 - s.p25).n("n_iter", s.n)
+                  .n("ms_slowest_gpu", stats(dmax).med).n("ms_transfer", stats(xf).med).n("ms_merge", stats(mg).med)
+                  .n("rows_per_s", p.rows / (s.med / 1e3));
+              printf("  g=%d %-16s %9.2f ms  (gpu %.2f, xfer %.2f, merge %.2f)  groups=%llu partial=%llu\n", G, v->name.c_str(), s.med,
+                     stats(dmax).med, stats(xf).med, stats(mg).med, (unsigned long long)r.groups, (unsigned long long)n_partial);
+            }
+          }
+          std::ostringstream info; info << "{"; bool f = true;
+          for (int g = 0; g < G; ++g)
+            for (auto& kv : infos[g]) { info << (f ? "" : ",") << "\"g" << g << "_" << kv.first << "\":" << kv.second; f = false; }
+          info << "}";
+          j.raw("info", info.str());
+          emit(j);
+          fflush(stdout);
+          for (int g = 0; g < G; ++g) W[g]->run([] { release_v4_scratch(); release_sort_scratch(); });
+        }
+        dref.release();
+      }
+      for (int g = 0; g < G; ++g) {
+        CK(cudaSetDevice(g));
+        dv[g].T.release(); dv[g].R.release(); dv[g].D.release(); CK(cudaStreamDestroy(dv[g].st));
+        W[g]->run([] { release_v4_scratch(); release_sort_scratch(); });
+      }
+      CK(cudaSetDevice(0));
+      Rx.release(); Rf.release();
+    }
+  }
+  printf("mgpu: %d incorrect\n", fails);
+  return fails ? 1 : 0;
+}
+
 int main(int argc, char** argv) {
   if (argc < 2) { fprintf(stderr, "usage: bench verify|sweep|micro|stream|join|tpch [k=v...]\n"); return 1; }
   std::string cmd = argv[1];
@@ -272,6 +504,7 @@ int main(int argc, char** argv) {
   if (cmd == "join") return run_join(a);
   if (cmd == "tpch") return run_tpch(a);
   if (cmd == "dump") return run_dump(a);
+  if (cmd == "mgpu") return run_mgpu(a);
   fprintf(stderr, "unknown command %s\n", cmd.c_str());
   return 1;
 }

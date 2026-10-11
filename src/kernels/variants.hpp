@@ -18,6 +18,7 @@ struct RunCtx {
   u64 sel_est = 0;  // selected rows from RLE statistics (not timed; a planner would have it)
   // tuning knobs
   int block = 256;
+  u64 chunk_rows = 0;  // v4_sort_chunked: rows per chunk buffer (0 = sized from free device memory)
   // filled in by the variant
   std::map<std::string, double> info;
 };
@@ -44,6 +45,7 @@ void run_v3_global(RunCtx&);
 void run_v3_latemat(RunCtx&);
 void run_v4_radix(RunCtx&, bool l2_mode, bool force_1pass, bool nostage = false);
 void run_v4_sort(RunCtx&);
+void run_v4_sort_chunked(RunCtx&);
 void release_v4_scratch();
 void release_sort_scratch();
 

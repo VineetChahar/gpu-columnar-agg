@@ -20,6 +20,7 @@ std::vector<Variant> all_variants() {
       {"v4_radix_1pass", [](RunCtx& c) { run_v4_radix(c, false, true); }, true},
       {"v4_radix_nostage", [](RunCtx& c) { run_v4_radix(c, false, false, true); }, true},
       {"v4_sort", run_v4_sort},
+      {"v4_sort_chunked", run_v4_sort_chunked, true},
   };
 }
 

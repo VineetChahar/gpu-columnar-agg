@@ -1,4 +1,5 @@
 #include <cub/cub.cuh>
+#include <algorithm>
 #include <vector>
 #include "../cpu/cpu.hpp"
 #include "dev.cuh"
@@ -13,7 +14,7 @@ void* dmalloc_or_skip(size_t bytes, const char* what) {
 }
 
 int num_sms() {
-  static int n = 0;
+  thread_local int n = 0;  // per host thread = per GPU
   if (!n) { int d; CK(cudaGetDevice(&d)); CK(cudaDeviceGetAttribute(&n, cudaDevAttrMultiProcessorCount, d)); }
   return n;
 }
@@ -27,25 +28,36 @@ static T* upload_padded(const T* src, size_t n, size_t n_pad) {
   return d;
 }
 
-void DevData::upload(const HostData& H) {
+void DevData::upload(const HostData& H) { upload_range(H, 0, H.n); }
+void DevData::upload_range(const HostData& H, u64 r0, u64 r1) {
   release();
-  kind = H.kind; n = H.n; card = H.card; card1 = H.card1; card2 = H.card2; sh = H.log_card2;
+  kind = H.kind; n = r1 - r0; card = H.card; card1 = H.card1; card2 = H.card2; sh = H.log_card2;
   n_pad = (n + TILE - 1) / TILE * TILE + TILE;
   if (kind == KeyKind::COMP) {
-    codes = upload_padded((const u16*)H.codes.data(), n, n_pad);
-    codes2 = upload_padded((const u16*)H.codes2.data(), n, n_pad);
+    codes = upload_padded((const u16*)H.codes.data() + r0, n, n_pad);
+    codes2 = upload_padded((const u16*)H.codes2.data() + r0, n, n_pad);
     dict1 = upload_padded(H.dict1.data(), H.dict1.size(), H.dict1.size());
     dict2 = upload_padded(H.dict2.data(), H.dict2.size(), H.dict2.size());
   } else {
     int w = code_bytes(kind);
-    codes = upload_padded(H.codes.data(), n * w, n_pad * w);
+    codes = upload_padded(H.codes.data() + r0 * w, n * w, n_pad * w);
     dict = upload_padded(H.dict.data(), H.dict.size(), H.dict.size());
   }
-  vals = upload_padded(H.vals.data(), n, n_pad);
-  nruns = (u32)H.run_end.size();
-  run_end = upload_padded(H.run_end.data(), nruns, nruns + 32);
-  run_val = upload_padded(H.run_val.data(), nruns, nruns + 32);
-  bytes_in = H.bytes_compressed();
+  vals = upload_padded(H.vals.data() + r0, n, n_pad);
+  std::vector<u32> re;
+  std::vector<u16> rv;
+  if (r0 == 0 && r1 == H.n) { re = H.run_end; rv = H.run_val; }
+  else
+    for (size_t i = std::upper_bound(H.run_end.begin(), H.run_end.end(), (u32)r0) - H.run_end.begin();
+         i < H.run_end.size(); ++i) {
+      re.push_back((u32)(std::min<u64>(H.run_end[i], r1) - r0));
+      rv.push_back(H.run_val[i]);
+      if (H.run_end[i] >= r1) break;
+    }
+  nruns = (u32)re.size();
+  run_end = upload_padded(re.data(), nruns, nruns + 32);
+  run_val = upload_padded(rv.data(), nruns, nruns + 32);
+  bytes_in = H.bytes_compressed() * n / std::max<u64>(H.n, 1);
 }
 void DevData::release() {
   for (void* p : {codes, codes2, (void*)dict, (void*)dict1, (void*)dict2, (void*)vals, (void*)run_end, (void*)run_val})
@@ -128,6 +140,19 @@ __global__ void k_extract(GT T, u64 cap, ResV R) {
 void table_extract(const GTable& T, const Results& R, cudaStream_t st) {
   CK(cudaMemsetAsync(R.r.n, 0, 4, st));
   k_extract<<<num_sms() * 8, 256, 0, st>>>(T.t, T.cap, R.r);
+  CK(cudaGetLastError());
+}
+
+__global__ void k_merge_results(GT T, ResV R, u64 n) {
+  for (u64 i = blockIdx.x * (u64)blockDim.x + threadIdx.x; i < n; i += (u64)gridDim.x * blockDim.x) {
+    u64 key = R.key[i];
+    u32 s = gt_slot(T, key, fmix64(key));
+    gt_add(T, s, R.cnt[i], R.sum[i], R.mn[i], R.mx[i], R.dsum[i]);
+  }
+}
+void table_merge_results(const GTable& T, const Results& R, u64 n, cudaStream_t st) {
+  if (!n) return;
+  k_merge_results<<<num_sms() * 8, 256, 0, st>>>(T.t, R.r, n);
   CK(cudaGetLastError());
 }
 

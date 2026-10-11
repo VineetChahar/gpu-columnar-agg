@@ -1,0 +1,111 @@
+$ nvidia-smi; nvcc --version; nproc; free -g
+Sun Oct 11 18:22:24 2026       
++-----------------------------------------------------------------------------------------+
+| NVIDIA-SMI 580.178.04             Driver Version: 580.178.04     CUDA Version: 13.0     |
++-----------------------------------------+------------------------+----------------------+
+| GPU  Name                 Persistence-M | Bus-Id          Disp.A | Volatile Uncorr. ECC |
+| Fan  Temp   Perf          Pwr:Usage/Cap |           Memory-Usage | GPU-Util  Compute M. |
+|                                         |                        |               MIG M. |
+|=========================================+========================+======================|
+|   0  Tesla T4                       Off |   00000000:00:04.0 Off |                    0 |
+| N/A   55C    P8             10W /   70W |       0MiB /  15360MiB |      0%      Default |
+|                                         |                        |                  N/A |
++-----------------------------------------+------------------------+----------------------+
+|   1  Tesla T4                       Off |   00000000:00:05.0 Off |                    0 |
+| N/A   56C    P8             11W /   70W |       0MiB /  15360MiB |      0%      Default |
+|                                         |                        |                  N/A |
++-----------------------------------------+------------------------+----------------------+
+
++-----------------------------------------------------------------------------------------+
+| Processes:                                                                              |
+|  GPU   GI   CI              PID   Type   Process name                        GPU Memory |
+|        ID   ID                                                               Usage      |
+|=========================================================================================|
+|  No running processes found                                                             |
++-----------------------------------------------------------------------------------------+
+nvcc: NVIDIA (R) Cuda compiler driver
+Copyright (c) 2005-2025 NVIDIA Corporation
+Built on Fri_Feb_21_20:23:50_PST_2025
+Cuda compilation tools, release 12.8, V12.8.93
+Build cuda_12.8.r12.8/compiler.35583870_0
+4
+               total        used        free      shared  buff/cache   available
+Mem:              31           1          25           0           4          30
+Swap:              0           0           0
+$ make verify-latemat-san
+cmake -S . -B build -DCMAKE_BUILD_TYPE=Release > /dev/null
+cmake --build build -j4
+gmake[1]: Entering directory '/kaggle/repo/build'
+gmake[2]: Entering directory '/kaggle/repo/build'
+gmake[3]: Entering directory '/kaggle/repo/build'
+gmake[3]: Leaving directory '/kaggle/repo/build'
+gmake[3]: Entering directory '/kaggle/repo/build'
+[  5%] Building CXX object CMakeFiles/cpu.dir/src/datagen.cpp.o
+[ 10%] Building CXX object CMakeFiles/cpu.dir/src/cpu/reference.cpp.o
+[ 15%] Building CXX object CMakeFiles/cpu.dir/src/cpu/engine.cpp.o
+[ 20%] Building CXX object CMakeFiles/cpu.dir/src/cpu/join_cpu.cpp.o
+[ 25%] Linking CXX static library libcpu.a
+gmake[3]: Leaving directory '/kaggle/repo/build'
+[ 25%] Built target cpu
+gmake[3]: Entering directory '/kaggle/repo/build'
+gmake[3]: Leaving directory '/kaggle/repo/build'
+gmake[3]: Entering directory '/kaggle/repo/build'
+[ 35%] Building CUDA object CMakeFiles/bench.dir/bench/join.cu.o
+[ 35%] Building CUDA object CMakeFiles/bench.dir/bench/bench.cu.o
+[ 40%] Building CUDA object CMakeFiles/bench.dir/bench/micro.cu.o
+[ 45%] Building CUDA object CMakeFiles/bench.dir/bench/stream.cu.o
+[ 50%] Building CUDA object CMakeFiles/bench.dir/bench/tpch.cu.o
+[ 55%] Building CUDA object CMakeFiles/bench.dir/src/gpu/dev.cu.o
+[ 60%] Building CUDA object CMakeFiles/bench.dir/src/kernels/v0_naive.cu.o
+[ 65%] Building CUDA object CMakeFiles/bench.dir/src/kernels/v1_vec.cu.o
+[ 70%] Building CUDA object CMakeFiles/bench.dir/src/kernels/v2_smem.cu.o
+[ 75%] Building CUDA object CMakeFiles/bench.dir/src/kernels/v3_warpagg.cu.o
+[ 80%] Building CUDA object CMakeFiles/bench.dir/src/kernels/v4_radix.cu.o
+[ 85%] Building CUDA object CMakeFiles/bench.dir/src/kernels/v4_sort.cu.o
+[ 90%] Building CUDA object CMakeFiles/bench.dir/src/kernels/v6_join.cu.o
+[ 95%] Building CUDA object CMakeFiles/bench.dir/src/kernels/variants.cu.o
+[100%] Linking CXX executable bench
+gmake[3]: Leaving directory '/kaggle/repo/build'
+[100%] Built target bench
+gmake[2]: Leaving directory '/kaggle/repo/build'
+gmake[1]: Leaving directory '/kaggle/repo/build'
+compute-sanitizer --tool memcheck --error-exitcode 1 --leak-check full build/bench verify tiny=1 sels=1,10,100 variants=v3_latemat
+========= COMPUTE-SANITIZER
+device: Tesla T4, 40 SMs, L2 4 MB, smem/SM 64 KB
+  generated rows=20011 card=16 skew=0.0 comp=0 in 1 ms (runs=649, 0.1 MB compressed)
+  generated rows=20011 card=16 skew=0.0 comp=1 in 0 ms (runs=649, 0.2 MB compressed)
+  generated rows=20011 card=16 skew=1.5 comp=0 in 0 ms (runs=649, 0.1 MB compressed)
+  generated rows=20011 card=16 skew=1.5 comp=1 in 0 ms (runs=649, 0.2 MB compressed)
+  generated rows=20011 card=4096 skew=0.0 comp=0 in 0 ms (runs=649, 0.1 MB compressed)
+  generated rows=20011 card=4096 skew=0.0 comp=1 in 0 ms (runs=649, 0.2 MB compressed)
+  generated rows=20011 card=4096 skew=1.5 comp=0 in 0 ms (runs=649, 0.1 MB compressed)
+  generated rows=20011 card=4096 skew=1.5 comp=1 in 1 ms (runs=649, 0.2 MB compressed)
+  generated rows=20011 card=1048576 skew=0.0 comp=0 in 15 ms (runs=649, 0.2 MB compressed)
+  generated rows=20011 card=1048576 skew=0.0 comp=1 in 6 ms (runs=649, 0.2 MB compressed)
+  generated rows=20011 card=1048576 skew=1.5 comp=0 in 59 ms (runs=649, 0.2 MB compressed)
+  generated rows=20011 card=1048576 skew=1.5 comp=1 in 48 ms (runs=649, 0.2 MB compressed)
+  generated rows=100000 card=4096 skew=1.0 comp=0 in 1 ms (runs=3138, 0.6 MB compressed)
+checker self-test: injected COUNT / FP-SUM / missing-group errors all detected
+verify: 76 checks, 0 failures
+========= LEAK SUMMARY: 0 bytes leaked in 0 allocations
+========= ERROR SUMMARY: 0 errors
+compute-sanitizer --tool racecheck --error-exitcode 1 --racecheck-report all build/bench verify tiny=1 sels=1,10,100 variants=v3_latemat
+========= COMPUTE-SANITIZER
+device: Tesla T4, 40 SMs, L2 4 MB, smem/SM 64 KB
+  generated rows=20011 card=16 skew=0.0 comp=0 in 0 ms (runs=649, 0.1 MB compressed)
+  generated rows=20011 card=16 skew=0.0 comp=1 in 0 ms (runs=649, 0.2 MB compressed)
+  generated rows=20011 card=16 skew=1.5 comp=0 in 0 ms (runs=649, 0.1 MB compressed)
+  generated rows=20011 card=16 skew=1.5 comp=1 in 1 ms (runs=649, 0.2 MB compressed)
+  generated rows=20011 card=4096 skew=0.0 comp=0 in 0 ms (runs=649, 0.1 MB compressed)
+  generated rows=20011 card=4096 skew=0.0 comp=1 in 0 ms (runs=649, 0.2 MB compressed)
+  generated rows=20011 card=4096 skew=1.5 comp=0 in 1 ms (runs=649, 0.1 MB compressed)
+  generated rows=20011 card=4096 skew=1.5 comp=1 in 1 ms (runs=649, 0.2 MB compressed)
+  generated rows=20011 card=1048576 skew=0.0 comp=0 in 15 ms (runs=649, 0.2 MB compressed)
+  generated rows=20011 card=1048576 skew=0.0 comp=1 in 7 ms (runs=649, 0.2 MB compressed)
+  generated rows=20011 card=1048576 skew=1.5 comp=0 in 65 ms (runs=649, 0.2 MB compressed)
+  generated rows=20011 card=1048576 skew=1.5 comp=1 in 50 ms (runs=649, 0.2 MB compressed)
+  generated rows=100000 card=4096 skew=1.0 comp=0 in 1 ms (runs=3138, 0.6 MB compressed)
+checker self-test: injected COUNT / FP-SUM / missing-group errors all detected
+verify: 76 checks, 0 failures
+========= RACECHECK SUMMARY: 0 hazards displayed (0 errors, 0 warnings)
+EXIT_CODE=0

@@ -375,7 +375,9 @@ the bytes (8.4 GB) and streams them at ~39% of the roof, which is why it wins.
   algorithm (dense dictionary-code arrays, no hashing), so a shared hashing bug cannot hide.
   `make verify` additionally runs 5,000+ edge-case checks (1, 4,099 and 1,000,003 rows, selectivity
   0%, all key widths, composite keys, joins) and an injected-error self-test of the checker, then
-  `compute-sanitizer` memcheck (0 errors, 0 leaks) and racecheck (0 hazards).
+  `compute-sanitizer` memcheck (0 errors, 0 leaks) and racecheck (0 hazards). `v3_latemat` was added
+  later and has its own pass (`make verify-latemat-san`, selectivity 1/10/100% so the skipped-load path
+  runs): 76 checks, memcheck 0 errors, racecheck 0 hazards.
 - **MIN/MAX** are integer and order-independent, so they are deterministic.
 - **The floating-point SUM (`SUM(v*0.01)` in double) is not deterministic** on the GPU. Atomic and
   warp-shuffle reduction order varies from run to run, and sort-based aggregation reduces in an order

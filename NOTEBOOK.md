@@ -174,3 +174,7 @@ inherit each other's 4–12 GB of partition/sort buffers.
 - latemat was not covered by the main memcheck/racecheck run (added later): new target
   `verify-latemat-san` (tiny verify with sels=1,10,100 so the skipped-load path executes); verify got a
   `sels=` override. Queued as gca-san after a CPU compile check.
+- gca-san (runs/20261011T175323Z): v3_latemat tiny verify sels=1,10,100: 76 checks 0 failures;
+  memcheck 0 errors; racecheck 0 hazards. CPU compile check of the sels= change passed first.
+- gca-part2a harness hung (no output for 75 min while other pushes succeeded; likely a stalled API call);
+  killed and relaunched. Old log kept at /tmp/p2a.old.txt.

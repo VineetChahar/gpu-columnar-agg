@@ -1,0 +1,120 @@
+[{"stream_name":"stderr","time":0.835255568,"data":"/kaggle/src/script.py:9: DeprecationWarning: Python 3.14 will, by default, filter extracted tar archives and reject files or modify their metadata. Use the filter argument to control this behavior.\n"}
+,{"stream_name":"stderr","time":0.835299,"data":"  tarfile.open(fileobj=io.BytesIO(base64.b64decode(PAYLOAD)), mode=\"r:gz\").extractall(repo)\n"}
+,{"stream_name":"stdout","time":0.869058493,"data":"$ nvidia-smi; nvcc --version; nproc; free -g\n"}
+,{"stream_name":"stdout","time":0.906055412,"data":"Sun Oct 11 18:22:24 2026       \n"}
+,{"stream_name":"stdout","time":0.90607724,"data":"+-----------------------------------------------------------------------------------------+\n"}
+,{"stream_name":"stdout","time":0.906082522,"data":"| NVIDIA-SMI 580.178.04             Driver Version: 580.178.04     CUDA Version: 13.0     |\n"}
+,{"stream_name":"stdout","time":0.906086816,"data":"+-----------------------------------------+------------------------+----------------------+\n"}
+,{"stream_name":"stdout","time":0.9060908,"data":"| GPU  Name                 Persistence-M | Bus-Id          Disp.A | Volatile Uncorr. ECC |\n"}
+,{"stream_name":"stdout","time":0.906094544,"data":"| Fan  Temp   Perf          Pwr:Usage/Cap |           Memory-Usage | GPU-Util  Compute M. |\n"}
+,{"stream_name":"stdout","time":0.906098209,"data":"|                                         |                        |               MIG M. |\n"}
+,{"stream_name":"stdout","time":0.90610189,"data":"|=========================================+========================+======================|\n"}
+,{"stream_name":"stdout","time":0.939122712,"data":"|   0  Tesla T4                       Off |   00000000:00:04.0 Off |                    0 |\n"}
+,{"stream_name":"stdout","time":0.939144246,"data":"| N/A   55C    P8             10W /   70W |       0MiB /  15360MiB |      0%      Default |\n"}
+,{"stream_name":"stdout","time":0.939149356,"data":"|                                         |                        |                  N/A |\n"}
+,{"stream_name":"stdout","time":0.93915321,"data":"+-----------------------------------------+------------------------+----------------------+\n"}
+,{"stream_name":"stdout","time":0.939157,"data":"|   1  Tesla T4                       Off |   00000000:00:05.0 Off |                    0 |\n"}
+,{"stream_name":"stdout","time":0.939160679,"data":"| N/A   56C    P8             11W /   70W |       0MiB /  15360MiB |      0%      Default |\n"}
+,{"stream_name":"stdout","time":0.939164454,"data":"|                                         |                        |                  N/A |\n"}
+,{"stream_name":"stdout","time":0.939168188,"data":"+-----------------------------------------+------------------------+----------------------+\n"}
+,{"stream_name":"stdout","time":0.939768382,"data":"\n"}
+,{"stream_name":"stdout","time":0.939780618,"data":"+-----------------------------------------------------------------------------------------+\n"}
+,{"stream_name":"stdout","time":0.93978508,"data":"| Processes:                                                                              |\n"}
+,{"stream_name":"stdout","time":0.93978941,"data":"|  GPU   GI   CI              PID   Type   Process name                        GPU Memory |\n"}
+,{"stream_name":"stdout","time":0.939793818,"data":"|        ID   ID                                                               Usage      |\n"}
+,{"stream_name":"stdout","time":0.939797853,"data":"|=========================================================================================|\n"}
+,{"stream_name":"stdout","time":0.941331712,"data":"|  No running processes found                                                             |\n"}
+,{"stream_name":"stdout","time":0.941356419,"data":"+-----------------------------------------------------------------------------------------+\n"}
+,{"stream_name":"stdout","time":1.302240246,"data":"nvcc: NVIDIA (R) Cuda compiler driver\n"}
+,{"stream_name":"stdout","time":1.302268006,"data":"Copyright (c) 2005-2025 NVIDIA Corporation\n"}
+,{"stream_name":"stdout","time":1.302273899,"data":"Built on Fri_Feb_21_20:23:50_PST_2025\n"}
+,{"stream_name":"stdout","time":1.302278734,"data":"Cuda compilation tools, release 12.8, V12.8.93\n"}
+,{"stream_name":"stdout","time":1.302282937,"data":"Build cuda_12.8.r12.8/compiler.35583870_0\n"}
+,{"stream_name":"stdout","time":1.3058716430000001,"data":"4\n"}
+,{"stream_name":"stdout","time":1.355867309,"data":"               total        used        free      shared  buff/cache   available\n"}
+,{"stream_name":"stdout","time":1.355905942,"data":"Mem:              31           1          25           0           4          30\n"}
+,{"stream_name":"stdout","time":1.355911313,"data":"Swap:              0           0           0\n"}
+,{"stream_name":"stdout","time":1.35649644,"data":"$ make verify-latemat-san\n"}
+,{"stream_name":"stdout","time":1.368797203,"data":"cmake -S . -B build -DCMAKE_BUILD_TYPE=Release \u003e /dev/null\n"}
+,{"stream_name":"stdout","time":7.267912229,"data":"cmake --build build -j4\n"}
+,{"stream_name":"stdout","time":7.449641335,"data":"gmake[1]: Entering directory '/kaggle/repo/build'\n"}
+,{"stream_name":"stdout","time":7.460553892,"data":"gmake[2]: Entering directory '/kaggle/repo/build'\n"}
+,{"stream_name":"stdout","time":7.462196674,"data":"gmake[3]: Entering directory '/kaggle/repo/build'\n"}
+,{"stream_name":"stdout","time":7.466929884,"data":"gmake[3]: Leaving directory '/kaggle/repo/build'\n"}
+,{"stream_name":"stdout","time":7.468662756,"data":"gmake[3]: Entering directory '/kaggle/repo/build'\n"}
+,{"stream_name":"stdout","time":7.474855567,"data":"[  5%] Building CXX object CMakeFiles/cpu.dir/src/datagen.cpp.o\n"}
+,{"stream_name":"stdout","time":7.474875905,"data":"[ 10%] Building CXX object CMakeFiles/cpu.dir/src/cpu/reference.cpp.o\n"}
+,{"stream_name":"stdout","time":7.475430512,"data":"[ 15%] Building CXX object CMakeFiles/cpu.dir/src/cpu/engine.cpp.o\n"}
+,{"stream_name":"stdout","time":7.475446928,"data":"[ 20%] Building CXX object CMakeFiles/cpu.dir/src/cpu/join_cpu.cpp.o\n"}
+,{"stream_name":"stdout","time":11.23435299,"data":"[ 25%] Linking CXX static library libcpu.a\n"}
+,{"stream_name":"stdout","time":11.258060109,"data":"gmake[3]: Leaving directory '/kaggle/repo/build'\n"}
+,{"stream_name":"stdout","time":11.262751617,"data":"[ 25%] Built target cpu\n"}
+,{"stream_name":"stdout","time":11.265423785,"data":"gmake[3]: Entering directory '/kaggle/repo/build'\n"}
+,{"stream_name":"stdout","time":11.270561114,"data":"gmake[3]: Leaving directory '/kaggle/repo/build'\n"}
+,{"stream_name":"stdout","time":11.273721180999999,"data":"gmake[3]: Entering directory '/kaggle/repo/build'\n"}
+,{"stream_name":"stdout","time":11.280996544,"data":"[ 35%] Building CUDA object CMakeFiles/bench.dir/bench/join.cu.o\n"}
+,{"stream_name":"stdout","time":11.281014936,"data":"[ 35%] Building CUDA object CMakeFiles/bench.dir/bench/bench.cu.o\n"}
+,{"stream_name":"stdout","time":11.283759493,"data":"[ 40%] Building CUDA object CMakeFiles/bench.dir/bench/micro.cu.o\n"}
+,{"stream_name":"stdout","time":11.284018222,"data":"[ 45%] Building CUDA object CMakeFiles/bench.dir/bench/stream.cu.o\n"}
+,{"stream_name":"stdout","time":19.127021748,"data":"[ 50%] Building CUDA object CMakeFiles/bench.dir/bench/tpch.cu.o\n"}
+,{"stream_name":"stdout","time":21.105314574,"data":"[ 55%] Building CUDA object CMakeFiles/bench.dir/src/gpu/dev.cu.o\n"}
+,{"stream_name":"stdout","time":21.676501737,"data":"[ 60%] Building CUDA object CMakeFiles/bench.dir/src/kernels/v0_naive.cu.o\n"}
+,{"stream_name":"stdout","time":25.609181868,"data":"[ 65%] Building CUDA object CMakeFiles/bench.dir/src/kernels/v1_vec.cu.o\n"}
+,{"stream_name":"stdout","time":27.50748077,"data":"[ 70%] Building CUDA object CMakeFiles/bench.dir/src/kernels/v2_smem.cu.o\n"}
+,{"stream_name":"stdout","time":28.989596704,"data":"[ 75%] Building CUDA object CMakeFiles/bench.dir/src/kernels/v3_warpagg.cu.o\n"}
+,{"stream_name":"stdout","time":32.958788246,"data":"[ 80%] Building CUDA object CMakeFiles/bench.dir/src/kernels/v4_radix.cu.o\n"}
+,{"stream_name":"stdout","time":39.569954175,"data":"[ 85%] Building CUDA object CMakeFiles/bench.dir/src/kernels/v4_sort.cu.o\n"}
+,{"stream_name":"stdout","time":43.572408758,"data":"[ 90%] Building CUDA object CMakeFiles/bench.dir/src/kernels/v6_join.cu.o\n"}
+,{"stream_name":"stdout","time":47.121184642,"data":"[ 95%] Building CUDA object CMakeFiles/bench.dir/src/kernels/variants.cu.o\n"}
+,{"stream_name":"stdout","time":66.015013215,"data":"[100%] Linking CXX executable bench\n"}
+,{"stream_name":"stdout","time":66.178254361,"data":"gmake[3]: Leaving directory '/kaggle/repo/build'\n"}
+,{"stream_name":"stdout","time":66.183429086,"data":"[100%] Built target bench\n"}
+,{"stream_name":"stdout","time":66.183956309,"data":"gmake[2]: Leaving directory '/kaggle/repo/build'\n"}
+,{"stream_name":"stdout","time":66.187780342,"data":"gmake[1]: Leaving directory '/kaggle/repo/build'\n"}
+,{"stream_name":"stdout","time":66.188973764,"data":"compute-sanitizer --tool memcheck --error-exitcode 1 --leak-check full build/bench verify tiny=1 sels=1,10,100 variants=v3_latemat\n"}
+,{"stream_name":"stdout","time":66.260153119,"data":"========= COMPUTE-SANITIZER\n"}
+,{"stream_name":"stdout","time":67.024104088,"data":"device: Tesla T4, 40 SMs, L2 4 MB, smem/SM 64 KB\n"}
+,{"stream_name":"stdout","time":67.02416025,"data":"  generated rows=20011 card=16 skew=0.0 comp=0 in 1 ms (runs=649, 0.1 MB compressed)\n"}
+,{"stream_name":"stdout","time":67.081018055,"data":"  generated rows=20011 card=16 skew=0.0 comp=1 in 0 ms (runs=649, 0.2 MB compressed)\n"}
+,{"stream_name":"stdout","time":67.116147507,"data":"  generated rows=20011 card=16 skew=1.5 comp=0 in 0 ms (runs=649, 0.1 MB compressed)\n"}
+,{"stream_name":"stdout","time":67.146796178,"data":"  generated rows=20011 card=16 skew=1.5 comp=1 in 0 ms (runs=649, 0.2 MB compressed)\n"}
+,{"stream_name":"stdout","time":67.17950906,"data":"  generated rows=20011 card=4096 skew=0.0 comp=0 in 0 ms (runs=649, 0.1 MB compressed)\n"}
+,{"stream_name":"stdout","time":67.24603108,"data":"  generated rows=20011 card=4096 skew=0.0 comp=1 in 0 ms (runs=649, 0.2 MB compressed)\n"}
+,{"stream_name":"stdout","time":67.301181061,"data":"  generated rows=20011 card=4096 skew=1.5 comp=0 in 0 ms (runs=649, 0.1 MB compressed)\n"}
+,{"stream_name":"stdout","time":67.332530824,"data":"  generated rows=20011 card=4096 skew=1.5 comp=1 in 1 ms (runs=649, 0.2 MB compressed)\n"}
+,{"stream_name":"stdout","time":67.380346966,"data":"  generated rows=20011 card=1048576 skew=0.0 comp=0 in 15 ms (runs=649, 0.2 MB compressed)\n"}
+,{"stream_name":"stdout","time":67.598114212,"data":"  generated rows=20011 card=1048576 skew=0.0 comp=1 in 6 ms (runs=649, 0.2 MB compressed)\n"}
+,{"stream_name":"stdout","time":67.865463913,"data":"  generated rows=20011 card=1048576 skew=1.5 comp=0 in 59 ms (runs=649, 0.2 MB compressed)\n"}
+,{"stream_name":"stdout","time":68.095023493,"data":"  generated rows=20011 card=1048576 skew=1.5 comp=1 in 48 ms (runs=649, 0.2 MB compressed)\n"}
+,{"stream_name":"stdout","time":68.277987823,"data":"  generated rows=100000 card=4096 skew=1.0 comp=0 in 1 ms (runs=3138, 0.6 MB compressed)\n"}
+,{"stream_name":"stdout","time":68.335099705,"data":"checker self-test: injected COUNT / FP-SUM / missing-group errors all detected\n"}
+,{"stream_name":"stdout","time":68.335146653,"data":"verify: 76 checks, 0 failures\n"}
+,{"stream_name":"stdout","time":68.533576429,"data":"========= LEAK SUMMARY: 0 bytes leaked in 0 allocations\n"}
+,{"stream_name":"stdout","time":68.53360589,"data":"========= ERROR SUMMARY: 0 errors\n"}
+,{"stream_name":"stdout","time":68.547265309,"data":"compute-sanitizer --tool racecheck --error-exitcode 1 --racecheck-report all build/bench verify tiny=1 sels=1,10,100 variants=v3_latemat\n"}
+,{"stream_name":"stdout","time":68.554065559,"data":"========= COMPUTE-SANITIZER\n"}
+,{"stream_name":"stdout","time":69.006601834,"data":"device: Tesla T4, 40 SMs, L2 4 MB, smem/SM 64 KB\n"}
+,{"stream_name":"stdout","time":69.006645947,"data":"  generated rows=20011 card=16 skew=0.0 comp=0 in 0 ms (runs=649, 0.1 MB compressed)\n"}
+,{"stream_name":"stdout","time":70.659263755,"data":"  generated rows=20011 card=16 skew=0.0 comp=1 in 0 ms (runs=649, 0.2 MB compressed)\n"}
+,{"stream_name":"stdout","time":72.357019419,"data":"  generated rows=20011 card=16 skew=1.5 comp=0 in 0 ms (runs=649, 0.1 MB compressed)\n"}
+,{"stream_name":"stdout","time":74.024325452,"data":"  generated rows=20011 card=16 skew=1.5 comp=1 in 1 ms (runs=649, 0.2 MB compressed)\n"}
+,{"stream_name":"stdout","time":75.70352923,"data":"  generated rows=20011 card=4096 skew=0.0 comp=0 in 0 ms (runs=649, 0.1 MB compressed)\n"}
+,{"stream_name":"stdout","time":77.870062414,"data":"  generated rows=20011 card=4096 skew=0.0 comp=1 in 0 ms (runs=649, 0.2 MB compressed)\n"}
+,{"stream_name":"stdout","time":79.877862689,"data":"  generated rows=20011 card=4096 skew=1.5 comp=0 in 1 ms (runs=649, 0.1 MB compressed)\n"}
+,{"stream_name":"stdout","time":81.528745885,"data":"  generated rows=20011 card=4096 skew=1.5 comp=1 in 1 ms (runs=649, 0.2 MB compressed)\n"}
+,{"stream_name":"stdout","time":83.302118212,"data":"  generated rows=20011 card=1048576 skew=0.0 comp=0 in 15 ms (runs=649, 0.2 MB compressed)\n"}
+,{"stream_name":"stdout","time":86.098405805,"data":"  generated rows=20011 card=1048576 skew=0.0 comp=1 in 7 ms (runs=649, 0.2 MB compressed)\n"}
+,{"stream_name":"stdout","time":88.991699785,"data":"  generated rows=20011 card=1048576 skew=1.5 comp=0 in 65 ms (runs=649, 0.2 MB compressed)\n"}
+,{"stream_name":"stdout","time":90.919864964,"data":"  generated rows=20011 card=1048576 skew=1.5 comp=1 in 50 ms (runs=649, 0.2 MB compressed)\n"}
+,{"stream_name":"stdout","time":92.794722808,"data":"  generated rows=100000 card=4096 skew=1.0 comp=0 in 1 ms (runs=3138, 0.6 MB compressed)\n"}
+,{"stream_name":"stdout","time":96.669763404,"data":"checker self-test: injected COUNT / FP-SUM / missing-group errors all detected\n"}
+,{"stream_name":"stdout","time":96.669792819,"data":"verify: 76 checks, 0 failures\n"}
+,{"stream_name":"stdout","time":96.891108659,"data":"========= RACECHECK SUMMARY: 0 hazards displayed (0 errors, 0 warnings)\n"}
+,{"stream_name":"stdout","time":96.896112449,"data":"EXIT_CODE=0\n"}
+,{"stream_name":"stderr","time":99.567142525,"data":"/usr/local/lib/python3.13/dist-packages/mistune.py:435: SyntaxWarning: invalid escape sequence '\\|'\n"}
+,{"stream_name":"stderr","time":99.567167491,"data":"  cells[i][c] = re.sub('\\\\\\\\\\|', '|', cell)\n"}
+,{"stream_name":"stderr","time":99.999699321,"data":"/usr/local/lib/python3.13/dist-packages/nbconvert/filters/filter_links.py:36: SyntaxWarning: invalid escape sequence '\\_'\n"}
+,{"stream_name":"stderr","time":99.999743621,"data":"  text = re.sub(r'_', '\\_', text) # Escape underscores in display text\n"}
+,{"stream_name":"stderr","time":101.906347395,"data":"[NbConvertApp] Converting notebook __script__.ipynb to html\n"}
+,{"stream_name":"stderr","time":103.104268202,"data":"[NbConvertApp] Writing 370933 bytes to __results__.html\n"}
+]

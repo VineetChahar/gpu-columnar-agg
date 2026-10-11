@@ -61,10 +61,11 @@ bench-part2b: build
 
 bench-part1: bench-part1a bench-part1b
 bench-part2: bench-part2a bench-part2b
-bench-part3:
-	@echo "(folded into bench-part1b)"
+# hash-table capacity from estimated groups instead of dictionary size (same for every variant)
+bench-part3: build
+	$(BENCH) sweep rows=10M,100M cards=65536,1048576,16777216 skews=0,1.5 sels=1,10,50,100 variants=main cap=est tag=capest
 
-bench: bench-part1 bench-part2
+bench: bench-part1 bench-part2 bench-part3
 
 # nsys is not on the Kaggle image but installs from NVIDIA's apt repo; trace one V5 pipeline
 nsys: build

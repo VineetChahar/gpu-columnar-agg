@@ -156,6 +156,9 @@ static int run_sweep(const Args& a) {
   double cpu_budget_ms = a.num("cpu_budget_s", 20) * 1000;
   bool do_cpu = a.num("cpu", 1) != 0;
   std::string tag = a.get("tag", "sweep");
+  // capacity policy: "dict" = 2 x dictionary size (default, fixed per dataset);
+  // "est" = 2 x min(dictionary size, selected rows from RLE statistics) - still load <= 0.5, same for all variants
+  const bool cap_est = a.get("cap", "dict") == "est";
   auto vars = pick_variants(a.get("variants", "main"));
   int threads = (int)std::thread::hardware_concurrency();
   double bw = quick_read_bw();
@@ -194,7 +197,12 @@ static int run_sweep(const Args& a) {
         cpu = stats(ms);
       }
       u64 sel_est = rle_count_selected(H, 0, (u16)sel);
-      printf(" sel=%d%% groups=%zu ref=%.0fms cpu_engine=%.1fms\n", sel, ref.size(), ref_ms, cpu.med); fflush(stdout);
+      if (cap_est) {
+        u64 want = table_capacity(std::max<u64>(1, std::min<u64>(p.card, sel_est)));
+        if (want != T.cap) T.alloc(want);
+      }
+      printf(" sel=%d%% groups=%zu ref=%.0fms cpu_engine=%.1fms cap=%llu\n", sel, ref.size(), ref_ms, cpu.med,
+             (unsigned long long)T.cap); fflush(stdout);
       for (auto* v : vars) {
         std::string key = pk(v->name, sel);
         if (done.count(key)) continue;
@@ -204,7 +212,7 @@ static int run_sweep(const Args& a) {
             .n("sel", sel).b("composite", comp).s("key_kind", key_kind_name(H.kind)).n("bytes_in", (double)H.bytes_compressed())
             .n("achievable_read_gbs", bw).n("ref_ms", ref_ms).n("cpu_ms", cpu.med).n("cpu_p25_ms", cpu.p25)
             .n("cpu_p75_ms", cpu.p75).n("cpu_iters", cpu.n).n("cpu_threads", threads).n("selected_est", (double)sel_est)
-            .n("table_cap", (double)T.cap);
+            .n("table_cap", (double)T.cap).s("cap_policy", cap_est ? "est" : "dict");
         try {
           v->run(c);  // correctness gate first: one run, diff against the reference
           CK(cudaStreamSynchronize(st));

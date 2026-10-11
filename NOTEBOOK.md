@@ -100,3 +100,58 @@ expected. Nothing in this repo relies on counters. `nsys` is not installed, but 
 atomics of an update touch six different lines; with a DRAM-resident table that is six random
 misses per row. The SoA layout stays as the `v0_naive_soa` ablation. Note the irony, which is the
 point of V2: the *same* AoS-64B layout that is right for the global table is wrong in shared memory.
+
+**AoS global table — measured** (run 20261011T112912Z, 10M rows; `v0_naive` AoS vs `v0_naive_soa`):
+| point | AoS | SoA |
+|---|---|---|
+| uniform, 64K groups, sel 100% | 8.8 ms | 28.5 ms |
+| uniform, 1M, sel 100% | 24.4 | 74.9 |
+| uniform, 16M, sel 100% | 58.4 | 100.0 |
+| uniform, 16M, sel 10% | 31.1 | 18.7 |
+| uniform, 16 groups, sel 100% | 8.6 | 3.5 |
+| Zipf 1.5, 16 groups, sel 100% | 22.1 | 9.4 |
+A trade-off, not a free win. (1) DRAM-resident table: AoS wins 2–3× (one line per update instead of six).
+(2) A 16M-group AoS table is 2 GB vs 1.3 GB, so clear+extract dominate when few rows survive the
+filter (16M, sel 10%). (3) Hot keys: AoS puts all five atomics of a hot slot on one L2 line, so the
+L2 atomic unit serialises them; SoA spreads them over five lines → SoA is 2.4× faster under contention.
+V3's warp aggregation removes most of that contention, so AoS stays the default and the SoA numbers
+are kept as an ablation.
+
+**nsys works** once installed at run time: the 3-stream pinned pipeline shows the H2D copies back to
+back on the copy engine with the aggregation kernels underneath (93–98% of kernel time hidden under
+copies, card 16 — the pipeline is copy-bound, which is exactly the regime V5 is about).
+`bench stream nsys_only=1` traces exactly one configuration so the timeline is unambiguous.
+
+**V4 partition pass: naive scatter → write-combined staging** (run 20261011T114910Z):
+phase timers showed pass 1 at 20.8 ms for 10M rows / 256 partitions — ~10× its byte count.
+Each lane wrote its row straight to its partition cursor, so every row was its own partial 32-byte
+sector; with nblk×P ≈ 40K open write streams the partially written lines overflow the 4 MB L2 (and
+with ECC on, partial-sector writes cost a DRAM read-modify-write). Fix: blocks stage a round of rows in
+shared memory, counting-sort them by partition, then write each partition's run contiguously
+(`src/gpu/partition.cuh`).
+| 100M rows, uniform, sel 100% | pass 1 naive | pass 1 staged | pass 2 naive | pass 2 staged |
+|---|---|---|---|---|
+| 64K groups (8 bits, 1 pass) | 217.8 ms | 96.7 ms | – | – |
+| 1M groups (12 bits, 2 passes) | 151.0 | 90.3 | 67.8 | 33.7 |
+| 16M groups (16 bits, 2 passes) | 333.4 | 196.5 | 197.5 | 80.4 |
+1.5–2.4× better, still several× above the write volume: with 256 partitions a 1024-row round gives runs
+of ~4 rows (32 B). Next step taken: 512-thread blocks → 2048-row rounds (8-row runs) at the same
+occupancy. `v4_radix_nostage` keeps the naive scatter as an ablation.
+Even so, **`v4_sort` (cub onesweep radix sort on dictionary codes, 2–3 digit passes) is 2–5× faster than
+any hash/partition variant above ~64K groups.** It sorts 4-byte codes (not 8-byte keys), touches no
+hash table, and cub's partitioning is exactly the staged, write-combined kind.
+
+**V6 partitioned join redesigned.** The first version partitioned *both* sides into shared-memory
+build tables (≤ 2K keys each, up to 2^13 partitions); it lost to the plain join everywhere. Now only the
+probe side is partitioned (staged, Bloom applied while partitioning), on the same top hash bits the
+build table uses for its home slot, so partition p only touches a contiguous ≤ 1 MB slice of the table
+and partitions are processed in order (L2-resident probes). Result at D = 1M, sel 100%: 25.2 ms
+(part) vs 26.8 ms (np); D = 16M: 109 vs 90 ms — partitioning pays the random dictionary gather
+(fact code → key) twice (histogram + scatter pass), which is as expensive as the probe it localises.
+The dictionary-translated join (probe the D dictionary entries once, then a 1-byte gather per row) wins
+at every D < F.
+
+**Full benchmark launched** as two parallel Kaggle sessions (`gca-part1a`: verify + micro + 10M/100M
+sweeps; `gca-part1b`: nsys, ablations, composite keys, V5, V6, TPC-H, cuDF); 500M rows follow in two
+more sessions. Scratch buffers are now freed after every variant so 500M-row V4/sort runs do not
+inherit each other's 4–12 GB of partition/sort buffers.

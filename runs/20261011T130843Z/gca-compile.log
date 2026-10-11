@@ -1,0 +1,20 @@
+[{"stream_name":"stderr","time":1.225531422,"data":"/kaggle/src/script.py:9: DeprecationWarning: Python 3.14 will, by default, filter extracted tar archives and reject files or modify their metadata. Use the filter argument to control this behavior.\n"}
+,{"stream_name":"stderr","time":1.2256887459999999,"data":"  tarfile.open(fileobj=io.BytesIO(base64.b64decode(PAYLOAD)), mode=\"r:gz\").extractall(repo)\n"}
+,{"stream_name":"stdout","time":1.268652884,"data":"$ nvidia-smi; nvcc --version; nproc; free -g\n"}
+,{"stream_name":"stdout","time":1.279780832,"data":"/bin/sh: 1: nvidia-smi: not found\n"}
+,{"stream_name":"stdout","time":1.279952943,"data":"/bin/sh: 1: nvcc: not found\n"}
+,{"stream_name":"stdout","time":1.28419978,"data":"4\n"}
+,{"stream_name":"stdout","time":1.345053768,"data":"               total        used        free      shared  buff/cache   available\n"}
+,{"stream_name":"stdout","time":1.345097053,"data":"Mem:              31           0          26           0           4          30\n"}
+,{"stream_name":"stdout","time":1.345102637,"data":"Swap:              0           0           0\n"}
+,{"stream_name":"stdout","time":1.347189073,"data":"$ bash scripts/compile_check.sh\n"}
+,{"stream_name":"stdout","time":23.993760411,"data":"Build cuda_12.8.r12.8/compiler.35583870_0\n"}
+,{"stream_name":"stdout","time":156.122943108,"data":"compile_check rc=0\n"}
+,{"stream_name":"stdout","time":156.136932299,"data":"EXIT_CODE=0\n"}
+,{"stream_name":"stderr","time":159.35238201,"data":"/usr/local/lib/python3.13/dist-packages/mistune.py:435: SyntaxWarning: invalid escape sequence '\\|'\n"}
+,{"stream_name":"stderr","time":159.352438993,"data":"  cells[i][c] = re.sub('\\\\\\\\\\|', '|', cell)\n"}
+,{"stream_name":"stderr","time":159.921397734,"data":"/usr/local/lib/python3.13/dist-packages/nbconvert/filters/filter_links.py:36: SyntaxWarning: invalid escape sequence '\\_'\n"}
+,{"stream_name":"stderr","time":159.921441161,"data":"  text = re.sub(r'_', '\\_', text) # Escape underscores in display text\n"}
+,{"stream_name":"stderr","time":162.461073529,"data":"[NbConvertApp] Converting notebook __script__.ipynb to html\n"}
+,{"stream_name":"stderr","time":164.066163401,"data":"[NbConvertApp] Writing 368975 bytes to __results__.html\n"}
+]

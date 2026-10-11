@@ -1,0 +1,82 @@
+[{"stream_name":"stderr","time":0.787329512,"data":"/kaggle/src/script.py:9: DeprecationWarning: Python 3.14 will, by default, filter extracted tar archives and reject files or modify their metadata. Use the filter argument to control this behavior.\n"}
+,{"stream_name":"stderr","time":0.787379062,"data":"  tarfile.open(fileobj=io.BytesIO(base64.b64decode(PAYLOAD)), mode=\"r:gz\").extractall(repo)\n"}
+,{"stream_name":"stdout","time":0.821001756,"data":"$ nvidia-smi; nvcc --version; nproc; free -g\n"}
+,{"stream_name":"stdout","time":0.857833446,"data":"Sun Oct 11 10:51:48 2026       \n"}
+,{"stream_name":"stdout","time":0.857853777,"data":"+-----------------------------------------------------------------------------------------+\n"}
+,{"stream_name":"stdout","time":0.857858914,"data":"| NVIDIA-SMI 580.178.04             Driver Version: 580.178.04     CUDA Version: 13.0     |\n"}
+,{"stream_name":"stdout","time":0.85786311,"data":"+-----------------------------------------+------------------------+----------------------+\n"}
+,{"stream_name":"stdout","time":0.857867378,"data":"| GPU  Name                 Persistence-M | Bus-Id          Disp.A | Volatile Uncorr. ECC |\n"}
+,{"stream_name":"stdout","time":0.857871077,"data":"| Fan  Temp   Perf          Pwr:Usage/Cap |           Memory-Usage | GPU-Util  Compute M. |\n"}
+,{"stream_name":"stdout","time":0.857874768,"data":"|                                         |                        |               MIG M. |\n"}
+,{"stream_name":"stdout","time":0.857878476,"data":"|=========================================+========================+======================|\n"}
+,{"stream_name":"stdout","time":0.890099408,"data":"|   0  Tesla T4                       Off |   00000000:00:04.0 Off |                    0 |\n"}
+,{"stream_name":"stdout","time":0.89011484,"data":"| N/A   41C    P8             11W /   70W |       0MiB /  15360MiB |      0%      Default |\n"}
+,{"stream_name":"stdout","time":0.890119324,"data":"|                                         |                        |                  N/A |\n"}
+,{"stream_name":"stdout","time":0.890123592,"data":"+-----------------------------------------+------------------------+----------------------+\n"}
+,{"stream_name":"stdout","time":0.890128152,"data":"|   1  Tesla T4                       Off |   00000000:00:05.0 Off |                    0 |\n"}
+,{"stream_name":"stdout","time":0.890132264,"data":"| N/A   52C    P8             10W /   70W |       0MiB /  15360MiB |      0%      Default |\n"}
+,{"stream_name":"stdout","time":0.890136159,"data":"|                                         |                        |                  N/A |\n"}
+,{"stream_name":"stdout","time":0.89014031,"data":"+-----------------------------------------+------------------------+----------------------+\n"}
+,{"stream_name":"stdout","time":0.890854633,"data":"\n"}
+,{"stream_name":"stdout","time":0.890862385,"data":"+-----------------------------------------------------------------------------------------+\n"}
+,{"stream_name":"stdout","time":0.890866364,"data":"| Processes:                                                                              |\n"}
+,{"stream_name":"stdout","time":0.890870177,"data":"|  GPU   GI   CI              PID   Type   Process name                        GPU Memory |\n"}
+,{"stream_name":"stdout","time":0.890873706,"data":"|        ID   ID                                                               Usage      |\n"}
+,{"stream_name":"stdout","time":0.890877175,"data":"|=========================================================================================|\n"}
+,{"stream_name":"stdout","time":0.892405211,"data":"|  No running processes found                                                             |\n"}
+,{"stream_name":"stdout","time":0.892427716,"data":"+-----------------------------------------------------------------------------------------+\n"}
+,{"stream_name":"stdout","time":1.252154677,"data":"nvcc: NVIDIA (R) Cuda compiler driver\n"}
+,{"stream_name":"stdout","time":1.252181049,"data":"Copyright (c) 2005-2025 NVIDIA Corporation\n"}
+,{"stream_name":"stdout","time":1.252185862,"data":"Built on Fri_Feb_21_20:23:50_PST_2025\n"}
+,{"stream_name":"stdout","time":1.2521896479999999,"data":"Cuda compilation tools, release 12.8, V12.8.93\n"}
+,{"stream_name":"stdout","time":1.2522130790000001,"data":"Build cuda_12.8.r12.8/compiler.35583870_0\n"}
+,{"stream_name":"stdout","time":1.258789013,"data":"4\n"}
+,{"stream_name":"stdout","time":1.328137888,"data":"               total        used        free      shared  buff/cache   available\n"}
+,{"stream_name":"stdout","time":1.328164012,"data":"Mem:              31           1          25           0           4          30\n"}
+,{"stream_name":"stdout","time":1.3281695199999999,"data":"Swap:              0           0           0\n"}
+,{"stream_name":"stdout","time":1.334063804,"data":"$ make verify \u0026\u0026 make probe-profilers; build/bench micro \u0026\u0026 build/bench sweep rows=10M skews=0,1.5 sels=10,100 variants=all iters=10 warmup=2 tag=dev cpu_budget_s=5 \u0026\u0026 build/bench stream rows=100M iters=10 tag=dev_stream \u0026\u0026 build/bench join D=65536,1048576 F=20M iters=10 tag=dev_join\n"}
+,{"stream_name":"stdout","time":1.351065417,"data":"cmake -S . -B build -DCMAKE_BUILD_TYPE=Release \u003e /dev/null\n"}
+,{"stream_name":"stdout","time":6.949680504,"data":"cmake --build build -j4\n"}
+,{"stream_name":"stdout","time":7.119740954,"data":"gmake[1]: Entering directory '/kaggle/repo/build'\n"}
+,{"stream_name":"stdout","time":7.129326284,"data":"gmake[2]: Entering directory '/kaggle/repo/build'\n"}
+,{"stream_name":"stdout","time":7.131206782,"data":"gmake[3]: Entering directory '/kaggle/repo/build'\n"}
+,{"stream_name":"stdout","time":7.135601088,"data":"gmake[3]: Leaving directory '/kaggle/repo/build'\n"}
+,{"stream_name":"stdout","time":7.137403743,"data":"gmake[3]: Entering directory '/kaggle/repo/build'\n"}
+,{"stream_name":"stdout","time":7.143988427,"data":"[  5%] Building CXX object CMakeFiles/cpu.dir/src/datagen.cpp.o\n"}
+,{"stream_name":"stdout","time":7.144006473,"data":"[ 10%] Building CXX object CMakeFiles/cpu.dir/src/cpu/reference.cpp.o\n"}
+,{"stream_name":"stdout","time":7.144178838,"data":"[ 15%] Building CXX object CMakeFiles/cpu.dir/src/cpu/engine.cpp.o\n"}
+,{"stream_name":"stdout","time":7.144194252,"data":"[ 20%] Building CXX object CMakeFiles/cpu.dir/src/cpu/join_cpu.cpp.o\n"}
+,{"stream_name":"stdout","time":10.518524734,"data":"[ 25%] Linking CXX static library libcpu.a\n"}
+,{"stream_name":"stdout","time":10.539744205,"data":"gmake[3]: Leaving directory '/kaggle/repo/build'\n"}
+,{"stream_name":"stdout","time":10.543530697,"data":"[ 25%] Built target cpu\n"}
+,{"stream_name":"stdout","time":10.545794121,"data":"gmake[3]: Entering directory '/kaggle/repo/build'\n"}
+,{"stream_name":"stdout","time":10.550441354,"data":"gmake[3]: Leaving directory '/kaggle/repo/build'\n"}
+,{"stream_name":"stdout","time":10.552358439,"data":"gmake[3]: Entering directory '/kaggle/repo/build'\n"}
+,{"stream_name":"stdout","time":10.557249591,"data":"[ 30%] Building CUDA object CMakeFiles/bench.dir/bench/bench.cu.o\n"}
+,{"stream_name":"stdout","time":10.55768974,"data":"[ 40%] Building CUDA object CMakeFiles/bench.dir/bench/micro.cu.o\n"}
+,{"stream_name":"stdout","time":10.557700926,"data":"[ 40%] Building CUDA object CMakeFiles/bench.dir/bench/stream.cu.o\n"}
+,{"stream_name":"stdout","time":10.55864658,"data":"[ 45%] Building CUDA object CMakeFiles/bench.dir/bench/join.cu.o\n"}
+,{"stream_name":"stdout","time":15.257620971,"data":"/kaggle/repo/bench/stream.cu(21): error #177-D: function \"\u003cunnamed\u003e::KD0::code\" was declared but never referenced\n"}
+,{"stream_name":"stdout","time":15.257679081,"data":"                              u32 code(u64) const { return 0; }\n"}
+,{"stream_name":"stdout","time":15.257685786,"data":"                                  ^\n"}
+,{"stream_name":"stdout","time":15.257689526,"data":"\n"}
+,{"stream_name":"stdout","time":15.260129482,"data":"Remark: The warnings can be suppressed with \"-diag-suppress \u003cwarning-number\u003e\"\n"}
+,{"stream_name":"stdout","time":15.260153253,"data":"\n"}
+,{"stream_name":"stdout","time":15.278271149,"data":"1 error detected in the compilation of \"/kaggle/repo/bench/stream.cu\".\n"}
+,{"stream_name":"stdout","time":15.308073986,"data":"gmake[3]: *** [CMakeFiles/bench.dir/build.make:110: CMakeFiles/bench.dir/bench/stream.cu.o] Error 1\n"}
+,{"stream_name":"stdout","time":15.30809661,"data":"gmake[3]: *** Waiting for unfinished jobs....\n"}
+,{"stream_name":"stdout","time":18.943427247,"data":"gmake[3]: Leaving directory '/kaggle/repo/build'\n"}
+,{"stream_name":"stdout","time":18.943587538,"data":"gmake[2]: *** [CMakeFiles/Makefile2:122: CMakeFiles/bench.dir/all] Error 2\n"}
+,{"stream_name":"stdout","time":18.943600903,"data":"gmake[2]: Leaving directory '/kaggle/repo/build'\n"}
+,{"stream_name":"stdout","time":18.943867668,"data":"gmake[1]: *** [Makefile:91: all] Error 2\n"}
+,{"stream_name":"stdout","time":18.943877171,"data":"gmake[1]: Leaving directory '/kaggle/repo/build'\n"}
+,{"stream_name":"stdout","time":18.945197364,"data":"make: *** [Makefile:10: build] Error 2\n"}
+,{"stream_name":"stdout","time":18.94550856,"data":"/bin/sh: 1: build/bench: not found\n"}
+,{"stream_name":"stdout","time":18.948292746,"data":"EXIT_CODE=127\n"}
+,{"stream_name":"stderr","time":21.337218217,"data":"/usr/local/lib/python3.13/dist-packages/mistune.py:435: SyntaxWarning: invalid escape sequence '\\|'\n"}
+,{"stream_name":"stderr","time":21.337242075,"data":"  cells[i][c] = re.sub('\\\\\\\\\\|', '|', cell)\n"}
+,{"stream_name":"stderr","time":21.732356808,"data":"/usr/local/lib/python3.13/dist-packages/nbconvert/filters/filter_links.py:36: SyntaxWarning: invalid escape sequence '\\_'\n"}
+,{"stream_name":"stderr","time":21.732378174,"data":"  text = re.sub(r'_', '\\_', text) # Escape underscores in display text\n"}
+,{"stream_name":"stderr","time":23.657001779,"data":"[NbConvertApp] Converting notebook __script__.ipynb to html\n"}
+,{"stream_name":"stderr","time":24.801211798,"data":"[NbConvertApp] Writing 353369 bytes to __results__.html\n"}
+]

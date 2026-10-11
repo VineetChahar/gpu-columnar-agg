@@ -1,0 +1,39 @@
+$ nvidia-smi; nvcc --version; nproc; free -g
+/bin/sh: 1: nvidia-smi: not found
+/bin/sh: 1: nvcc: not found
+4
+               total        used        free      shared  buff/cache   available
+Mem:              31           0          26           0           4          30
+Swap:              0           0           0
+$ bash scripts/compile_check.sh
+scripts/compile_check.sh: line 13: nvcc: command not found
+=== src/gpu/dev.cu
+scripts/compile_check.sh: line 17: nvcc: command not found
+=== src/kernels/v0_naive.cu
+scripts/compile_check.sh: line 17: nvcc: command not found
+=== src/kernels/v1_vec.cu
+scripts/compile_check.sh: line 17: nvcc: command not found
+=== src/kernels/v2_smem.cu
+scripts/compile_check.sh: line 17: nvcc: command not found
+=== src/kernels/v3_warpagg.cu
+scripts/compile_check.sh: line 17: nvcc: command not found
+=== src/kernels/v4_radix.cu
+scripts/compile_check.sh: line 17: nvcc: command not found
+=== src/kernels/v4_sort.cu
+scripts/compile_check.sh: line 17: nvcc: command not found
+=== src/kernels/v6_join.cu
+scripts/compile_check.sh: line 17: nvcc: command not found
+=== src/kernels/variants.cu
+scripts/compile_check.sh: line 17: nvcc: command not found
+=== bench/bench.cu
+scripts/compile_check.sh: line 17: nvcc: command not found
+=== bench/join.cu
+scripts/compile_check.sh: line 17: nvcc: command not found
+=== bench/micro.cu
+scripts/compile_check.sh: line 17: nvcc: command not found
+=== bench/stream.cu
+scripts/compile_check.sh: line 17: nvcc: command not found
+=== bench/tpch.cu
+scripts/compile_check.sh: line 17: nvcc: command not found
+compile_check rc=1
+EXIT_CODE=1

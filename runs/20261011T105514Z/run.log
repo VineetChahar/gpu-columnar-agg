@@ -1,0 +1,24 @@
+$ nvidia-smi; nvcc --version; nproc; free -g
+/bin/sh: 1: nvidia-smi: not found
+/bin/sh: 1: nvcc: not found
+4
+               total        used        free      shared  buff/cache   available
+Mem:              31           0          26           0           4          30
+Swap:              0           0           0
+$ pip install nvidia-cuda-nvcc-cu12==12.8.* nvidia-cuda-runtime-cu12==12.8.* nvidia-cuda-cccl-cu12==12.8.* nvidia-nvml-dev-cu12==12.8.* 2>&1 | tail -5; python3 -c 'import nvidia;print(nvidia.__path__)'; find / -name nvcc -type f 2>/dev/null | head; find / -name cub.cuh 2>/dev/null | head -3; find / -name nvml.h 2>/dev/null | head -3; find / -name cuda_runtime.h 2>/dev/null|head -3
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 2.9/2.9 MB 62.5 MB/s eta 0:00:00
+Downloading nvidia_nvml_dev_cu12-12.8.90-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (114 kB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 114.7/114.7 kB 3.6 MB/s eta 0:00:00
+Installing collected packages: nvidia-nvml-dev-cu12, nvidia-cuda-runtime-cu12, nvidia-cuda-nvcc-cu12, nvidia-cuda-cccl-cu12
+Successfully installed nvidia-cuda-cccl-cu12-12.8.90 nvidia-cuda-nvcc-cu12-12.8.93 nvidia-cuda-runtime-cu12-12.8.90 nvidia-nvml-dev-cu12-12.8.90
+['/usr/local/lib/python3.13/dist-packages/nvidia']
+/usr/local/lib/python3.13/dist-packages/nvidia/cuda_cccl/include/cub/cub.cuh
+/usr/local/lib/python3.13/dist-packages/tensorflow/include/third_party/gpus/cuda/include/cub/cub.cuh
+/usr/local/lib/python3.13/dist-packages/tensorflow/include/external/cuda_cccl/include/cub/cub.cuh
+/usr/include/hwloc/nvml.h
+/usr/local/lib/python3.13/dist-packages/nvidia/nvml_dev/include/nvml.h
+/usr/local/lib/python3.13/dist-packages/tensorflow/include/third_party/gpus/cuda/nvml/include/nvml.h
+/usr/local/lib/python3.13/dist-packages/nvidia/cuda_runtime/include/cuda_runtime.h
+/usr/local/lib/python3.13/dist-packages/tensorflow/include/third_party/gpus/cuda/include/cuda_runtime.h
+/usr/local/lib/python3.13/dist-packages/tensorflow/include/external/cuda_cudart/include/cuda_runtime.h
+EXIT_CODE=0

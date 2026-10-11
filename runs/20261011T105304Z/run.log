@@ -1,0 +1,19 @@
+$ nvidia-smi; nvcc --version; nproc; free -g
+/bin/sh: 1: nvidia-smi: not found
+/bin/sh: 1: nvcc: not found
+4
+               total        used        free      shared  buff/cache   available
+Mem:              31           0          26           0           4          30
+Swap:              0           0           0
+$ cmake -S . -B build -DCMAKE_BUILD_TYPE=Release >/dev/null && cmake --build build -j4 -- -k 2>&1 | grep -E 'error|warning|Error' | head -60
+CMake Error at /usr/local/lib/python3.13/dist-packages/cmake/data/share/cmake-3.31/Modules/Internal/CMakeCUDAFindToolkit.cmake:104 (message):
+  Failed to find nvcc.
+
+  Compiler requires the CUDA toolkit.  Please set the CUDAToolkit_ROOT
+  variable.
+Call Stack (most recent call first):
+  /usr/local/lib/python3.13/dist-packages/cmake/data/share/cmake-3.31/Modules/CMakeDetermineCUDACompiler.cmake:85 (cmake_cuda_find_toolkit)
+  CMakeLists.txt:2 (project)
+
+
+EXIT_CODE=1

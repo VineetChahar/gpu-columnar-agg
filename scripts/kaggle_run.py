@@ -29,6 +29,7 @@ def run(c):
         sys.stdout.write(line); log.write(line)
     p.wait(); log.flush(); return p.returncode
 run("nvidia-smi; nvcc --version; nproc; free -g")
+env["PATH"] = "/usr/local/cuda/bin:" + env["PATH"]
 rc = run(CMD)
 import json
 jl = os.path.join(W, "results.jsonl")
@@ -59,6 +60,8 @@ def main():
     ap.add_argument("--timeout", type=int, default=32400)
     ap.add_argument("--slug", default="gpu-columnar-agg")
     ap.add_argument("--poll", type=int, default=30)
+    ap.add_argument("--max-wait", type=int, default=6 * 3600)
+    ap.add_argument("--cpu", action="store_true", help="no accelerator (compile checks; does not use GPU quota)")
     a = ap.parse_args()
 
     user = re.search(r"username: (\S+)", sh(["config", "view"]).stdout).group(1)
@@ -72,11 +75,21 @@ def main():
         (td / "main.py").write_text(DRIVER.replace("__PAYLOAD__", pack()).replace("__CMD__", repr(a.cmd)))
         (td / "kernel-metadata.json").write_text(json.dumps({
             "id": ref, "title": a.slug, "code_file": "main.py", "language": "python",
-            "kernel_type": "script", "is_private": True, "enable_gpu": True,
+            "kernel_type": "script", "is_private": True, "enable_gpu": not a.cpu,
             "enable_internet": True, "dataset_sources": [], "competition_sources": [], "kernel_sources": []}))
-        r = sh(["kernels", "push", "-p", str(td), "-t", str(a.timeout), "--accelerator", a.accel])
+        # The account allows 2 concurrent batch GPU sessions (shared with other projects): wait for a slot.
+        waited = 0
+        while True:
+            args = ["kernels", "push", "-p", str(td), "-t", str(a.timeout)] + ([] if a.cpu else ["--accelerator", a.accel])
+            r = sh(args)
+            txt = r.stdout + r.stderr
+            if "session count" in txt and waited < a.max_wait:
+                print(f"[queue] GPU sessions busy, retrying in 120 s (waited {waited} s)", flush=True)
+                time.sleep(120); waited += 120
+                continue
+            break
         print(r.stdout, r.stderr)
-        if r.returncode != 0 or "error" in (r.stdout + r.stderr).lower():
+        if r.returncode != 0 or "error" in txt.lower():
             sys.exit("push failed")
     (out / "meta.json").write_text(json.dumps({"ref": ref, "cmd": a.cmd, "accel": a.accel, "utc": stamp}))
 

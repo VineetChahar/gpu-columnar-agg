@@ -1,0 +1,22 @@
+$ nvidia-smi; nvcc --version; nproc; free -g
+/bin/sh: 1: nvidia-smi: not found
+/bin/sh: 1: nvcc: not found
+4
+               total        used        free      shared  buff/cache   available
+Mem:              31           0          26           0           4          30
+Swap:              0           0           0
+$ cat /etc/os-release | head -3; ls /usr/local/lib/python3.13/dist-packages/nvidia/cuda_nvcc/ /usr/local/lib/python3.13/dist-packages/nvidia/cuda_nvcc/*; (cd /tmp && wget -q https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2204/x86_64/cuda-keyring_1.1-1_all.deb && dpkg -i cuda-keyring_1.1-1_all.deb && apt-get update -qq && time apt-get install -y -qq cuda-nvcc-12-8 cuda-cudart-dev-12-8 cuda-cccl-12-8 cuda-nvml-dev-12-8 2>&1 | tail -3); ls /usr/local/cuda*/bin | head
+PRETTY_NAME="Ubuntu 24.04.5 LTS"
+NAME="Ubuntu"
+VERSION_ID="24.04"
+ls: cannot access '/usr/local/lib/python3.13/dist-packages/nvidia/cuda_nvcc/': No such file or directory
+ls: cannot access '/usr/local/lib/python3.13/dist-packages/nvidia/cuda_nvcc/*': No such file or directory
+Selecting previously unselected package cuda-keyring.
+(Reading database ... 125659 files and directories currently installed.)
+Preparing to unpack cuda-keyring_1.1-1_all.deb ...
+Unpacking cuda-keyring (1.1-1) ...
+Setting up cuda-keyring (1.1-1) ...
+W: Skipping acquire of configured file 'main/source/Sources' as repository 'https://r2u.stat.illinois.edu/ubuntu noble InRelease' does not seem to provide it (sources.list entry misspelt?)
+/bin/sh: 1: time: not found
+ls: cannot access '/usr/local/cuda*/bin': No such file or directory
+EXIT_CODE=0

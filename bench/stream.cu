@@ -18,7 +18,6 @@ namespace {
 
 // key decoder for a global (no GROUP BY) aggregate: no key column is read at all
 struct KD0 {
-  __device__ __forceinline__ u32 code(u64) const { return 0; }
   __device__ __forceinline__ void code4(u64, u32 o[4]) const { o[0] = o[1] = o[2] = o[3] = 0; }
   __device__ __forceinline__ u64 decode(u32) const { return 0x5eedull; }
 };

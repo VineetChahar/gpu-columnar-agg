@@ -1,0 +1,33 @@
+[{"stream_name":"stderr","time":0.928725317,"data":"/kaggle/src/script.py:9: DeprecationWarning: Python 3.14 will, by default, filter extracted tar archives and reject files or modify their metadata. Use the filter argument to control this behavior.\n"}
+,{"stream_name":"stderr","time":0.928779949,"data":"  tarfile.open(fileobj=io.BytesIO(base64.b64decode(PAYLOAD)), mode=\"r:gz\").extractall(repo)\n"}
+,{"stream_name":"stdout","time":0.976504189,"data":"$ nvidia-smi; nvcc --version; nproc; free -g\n"}
+,{"stream_name":"stdout","time":0.985619465,"data":"/bin/sh: 1: nvidia-smi: not found\n"}
+,{"stream_name":"stdout","time":0.985676007,"data":"/bin/sh: 1: nvcc: not found\n"}
+,{"stream_name":"stdout","time":0.990052788,"data":"4\n"}
+,{"stream_name":"stdout","time":1.030239908,"data":"               total        used        free      shared  buff/cache   available\n"}
+,{"stream_name":"stdout","time":1.030746259,"data":"Mem:              31           0          26           0           4          30\n"}
+,{"stream_name":"stdout","time":1.030767547,"data":"Swap:              0           0           0\n"}
+,{"stream_name":"stdout","time":1.03283204,"data":"$ pip install nvidia-cuda-nvcc-cu12==12.8.* nvidia-cuda-runtime-cu12==12.8.* nvidia-cuda-cccl-cu12==12.8.* nvidia-nvml-dev-cu12==12.8.* 2\u003e\u00261 | tail -5; python3 -c 'import nvidia;print(nvidia.__path__)'; find / -name nvcc -type f 2\u003e/dev/null | head; find / -name cub.cuh 2\u003e/dev/null | head -3; find / -name nvml.h 2\u003e/dev/null | head -3; find / -name cuda_runtime.h 2\u003e/dev/null|head -3\n"}
+,{"stream_name":"stdout","time":10.291792884,"data":"   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 2.9/2.9 MB 62.5 MB/s eta 0:00:00\n"}
+,{"stream_name":"stdout","time":10.291835042,"data":"Downloading nvidia_nvml_dev_cu12-12.8.90-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (114 kB)\n"}
+,{"stream_name":"stdout","time":10.29184096,"data":"   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 114.7/114.7 kB 3.6 MB/s eta 0:00:00\n"}
+,{"stream_name":"stdout","time":10.291845504,"data":"Installing collected packages: nvidia-nvml-dev-cu12, nvidia-cuda-runtime-cu12, nvidia-cuda-nvcc-cu12, nvidia-cuda-cccl-cu12\n"}
+,{"stream_name":"stdout","time":10.291849653,"data":"Successfully installed nvidia-cuda-cccl-cu12-12.8.90 nvidia-cuda-nvcc-cu12-12.8.93 nvidia-cuda-runtime-cu12-12.8.90 nvidia-nvml-dev-cu12-12.8.90\n"}
+,{"stream_name":"stdout","time":10.360134864,"data":"['/usr/local/lib/python3.13/dist-packages/nvidia']\n"}
+,{"stream_name":"stdout","time":62.047298528,"data":"/usr/local/lib/python3.13/dist-packages/nvidia/cuda_cccl/include/cub/cub.cuh\n"}
+,{"stream_name":"stdout","time":62.047347599,"data":"/usr/local/lib/python3.13/dist-packages/tensorflow/include/third_party/gpus/cuda/include/cub/cub.cuh\n"}
+,{"stream_name":"stdout","time":62.047356481,"data":"/usr/local/lib/python3.13/dist-packages/tensorflow/include/external/cuda_cccl/include/cub/cub.cuh\n"}
+,{"stream_name":"stdout","time":63.911734928,"data":"/usr/include/hwloc/nvml.h\n"}
+,{"stream_name":"stdout","time":63.911763242,"data":"/usr/local/lib/python3.13/dist-packages/nvidia/nvml_dev/include/nvml.h\n"}
+,{"stream_name":"stdout","time":63.911767465,"data":"/usr/local/lib/python3.13/dist-packages/tensorflow/include/third_party/gpus/cuda/nvml/include/nvml.h\n"}
+,{"stream_name":"stdout","time":65.803396894,"data":"/usr/local/lib/python3.13/dist-packages/nvidia/cuda_runtime/include/cuda_runtime.h\n"}
+,{"stream_name":"stdout","time":65.803432874,"data":"/usr/local/lib/python3.13/dist-packages/tensorflow/include/third_party/gpus/cuda/include/cuda_runtime.h\n"}
+,{"stream_name":"stdout","time":65.803453501,"data":"/usr/local/lib/python3.13/dist-packages/tensorflow/include/external/cuda_cudart/include/cuda_runtime.h\n"}
+,{"stream_name":"stdout","time":65.807291666,"data":"EXIT_CODE=0\n"}
+,{"stream_name":"stderr","time":68.402506537,"data":"/usr/local/lib/python3.13/dist-packages/mistune.py:435: SyntaxWarning: invalid escape sequence '\\|'\n"}
+,{"stream_name":"stderr","time":68.402558367,"data":"  cells[i][c] = re.sub('\\\\\\\\\\|', '|', cell)\n"}
+,{"stream_name":"stderr","time":68.769978792,"data":"/usr/local/lib/python3.13/dist-packages/nbconvert/filters/filter_links.py:36: SyntaxWarning: invalid escape sequence '\\_'\n"}
+,{"stream_name":"stderr","time":68.770006909,"data":"  text = re.sub(r'_', '\\_', text) # Escape underscores in display text\n"}
+,{"stream_name":"stderr","time":69.840998937,"data":"[NbConvertApp] Converting notebook __script__.ipynb to html\n"}
+,{"stream_name":"stderr","time":71.161628141,"data":"[NbConvertApp] Writing 363346 bytes to __results__.html\n"}
+]

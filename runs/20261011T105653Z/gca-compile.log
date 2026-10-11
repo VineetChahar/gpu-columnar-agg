@@ -1,0 +1,31 @@
+[{"stream_name":"stderr","time":0.713926102,"data":"/kaggle/src/script.py:9: DeprecationWarning: Python 3.14 will, by default, filter extracted tar archives and reject files or modify their metadata. Use the filter argument to control this behavior.\n"}
+,{"stream_name":"stderr","time":0.713974626,"data":"  tarfile.open(fileobj=io.BytesIO(base64.b64decode(PAYLOAD)), mode=\"r:gz\").extractall(repo)\n"}
+,{"stream_name":"stdout","time":0.742886486,"data":"$ nvidia-smi; nvcc --version; nproc; free -g\n"}
+,{"stream_name":"stdout","time":0.747683473,"data":"/bin/sh: 1: nvidia-smi: not found\n"}
+,{"stream_name":"stdout","time":0.747762013,"data":"/bin/sh: 1: nvcc: not found\n"}
+,{"stream_name":"stdout","time":0.750252664,"data":"4\n"}
+,{"stream_name":"stdout","time":0.771953274,"data":"               total        used        free      shared  buff/cache   available\n"}
+,{"stream_name":"stdout","time":0.771986299,"data":"Mem:              31           0          26           0           4          30\n"}
+,{"stream_name":"stdout","time":0.771992645,"data":"Swap:              0           0           0\n"}
+,{"stream_name":"stdout","time":0.773305365,"data":"$ cat /etc/os-release | head -3; ls /usr/local/lib/python3.13/dist-packages/nvidia/cuda_nvcc/ /usr/local/lib/python3.13/dist-packages/nvidia/cuda_nvcc/*; (cd /tmp \u0026\u0026 wget -q https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2204/x86_64/cuda-keyring_1.1-1_all.deb \u0026\u0026 dpkg -i cuda-keyring_1.1-1_all.deb \u0026\u0026 apt-get update -qq \u0026\u0026 time apt-get install -y -qq cuda-nvcc-12-8 cuda-cudart-dev-12-8 cuda-cccl-12-8 cuda-nvml-dev-12-8 2\u003e\u00261 | tail -3); ls /usr/local/cuda*/bin | head\n"}
+,{"stream_name":"stdout","time":0.77820394,"data":"PRETTY_NAME=\"Ubuntu 24.04.5 LTS\"\n"}
+,{"stream_name":"stdout","time":0.778231324,"data":"NAME=\"Ubuntu\"\n"}
+,{"stream_name":"stdout","time":0.778235709,"data":"VERSION_ID=\"24.04\"\n"}
+,{"stream_name":"stdout","time":0.787935466,"data":"ls: cannot access '/usr/local/lib/python3.13/dist-packages/nvidia/cuda_nvcc/': No such file or directory\n"}
+,{"stream_name":"stdout","time":0.787968161,"data":"ls: cannot access '/usr/local/lib/python3.13/dist-packages/nvidia/cuda_nvcc/*': No such file or directory\n"}
+,{"stream_name":"stdout","time":1.8614529530000001,"data":"Selecting previously unselected package cuda-keyring.\n"}
+,{"stream_name":"stdout","time":2.555642785,"data":"(Reading database ... 125659 files and directories currently installed.)\n"}
+,{"stream_name":"stdout","time":2.563474594,"data":"Preparing to unpack cuda-keyring_1.1-1_all.deb ...\n"}
+,{"stream_name":"stdout","time":2.573533666,"data":"Unpacking cuda-keyring (1.1-1) ...\n"}
+,{"stream_name":"stdout","time":2.67860365,"data":"Setting up cuda-keyring (1.1-1) ...\n"}
+,{"stream_name":"stdout","time":9.475629896,"data":"W: Skipping acquire of configured file 'main/source/Sources' as repository 'https://r2u.stat.illinois.edu/ubuntu noble InRelease' does not seem to provide it (sources.list entry misspelt?)\n"}
+,{"stream_name":"stdout","time":9.479992326,"data":"/bin/sh: 1: time: not found\n"}
+,{"stream_name":"stdout","time":9.482012727,"data":"ls: cannot access '/usr/local/cuda*/bin': No such file or directory\n"}
+,{"stream_name":"stdout","time":9.4903516,"data":"EXIT_CODE=0\n"}
+,{"stream_name":"stderr","time":12.31516201,"data":"/usr/local/lib/python3.13/dist-packages/mistune.py:435: SyntaxWarning: invalid escape sequence '\\|'\n"}
+,{"stream_name":"stderr","time":12.315196585,"data":"  cells[i][c] = re.sub('\\\\\\\\\\|', '|', cell)\n"}
+,{"stream_name":"stderr","time":12.692782047,"data":"/usr/local/lib/python3.13/dist-packages/nbconvert/filters/filter_links.py:36: SyntaxWarning: invalid escape sequence '\\_'\n"}
+,{"stream_name":"stderr","time":12.692825113,"data":"  text = re.sub(r'_', '\\_', text) # Escape underscores in display text\n"}
+,{"stream_name":"stderr","time":14.294744614,"data":"[NbConvertApp] Converting notebook __script__.ipynb to html\n"}
+,{"stream_name":"stderr","time":15.508686488,"data":"[NbConvertApp] Writing 363467 bytes to __results__.html\n"}
+]

@@ -1,0 +1,1 @@
+{"ref": "vineetkumar0210/gca-compile", "cmd": "ls -d /usr/local/cuda*; which nvcc; cmake -S . -B build -DCMAKE_BUILD_TYPE=Release >/dev/null && cmake --build build -j4 -- -k 2>&1 | grep -E 'error|warning|Error' | head -60", "accel": "NvidiaTeslaT4Highmem", "utc": "20261011T105338Z"}

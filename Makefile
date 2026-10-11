@@ -34,3 +34,25 @@ tpch-data:
 
 tpch: build tpch-data
 	$(BENCH) tpch dir=/kaggle/tmp/tpch
+
+# ---- full benchmark, split into sessions that fit a Kaggle run (each appends to results.jsonl) ----
+CARDS = 16,256,4096,65536,1048576,16777216
+ABL = v1_vec,v1_nocompact,v3_warpagg,v3_global,v4_radix_smem,v4_radix_1pass,v2_smem_soa256,v3_warpagg256,v3_warpagg512
+
+bench-part1: build
+	$(BENCH) micro
+	$(BENCH) sweep rows=10M,100M cards=$(CARDS) skews=0,0.5,1,1.5 sels=1,10,50,100 variants=main tag=sweep
+	$(BENCH) sweep rows=100M cards=$(CARDS) skews=0,1.5 sels=10,100 variants=$(ABL) tag=ablation cpu=0
+	$(BENCH) sweep rows=100M cards=$(CARDS) skews=0,1 sels=100 variants=main composite=1 tag=sweep
+
+bench-part2: build
+	$(BENCH) sweep rows=500M cards=$(CARDS) skews=0,0.5,1,1.5 sels=1,10,50,100 variants=main tag=sweep cpu_budget_s=15
+
+bench-part3: build
+	$(BENCH) stream rows=500M tag=stream
+	$(BENCH) join D=65536,1048576,16777216 F=100M tag=join
+	python3 scripts/tpch_prep.py /kaggle/tmp/tpch --sf 10
+	$(BENCH) tpch dir=/kaggle/tmp/tpch
+	python3 scripts/cudf_sweep.py --rows 10M,100M
+
+bench: bench-part1 bench-part2 bench-part3

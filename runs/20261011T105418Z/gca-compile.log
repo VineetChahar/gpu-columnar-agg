@@ -1,0 +1,48 @@
+[{"stream_name":"stderr","time":0.843899136,"data":"/kaggle/src/script.py:9: DeprecationWarning: Python 3.14 will, by default, filter extracted tar archives and reject files or modify their metadata. Use the filter argument to control this behavior.\n"}
+,{"stream_name":"stderr","time":0.844232143,"data":"  tarfile.open(fileobj=io.BytesIO(base64.b64decode(PAYLOAD)), mode=\"r:gz\").extractall(repo)\n"}
+,{"stream_name":"stdout","time":0.874100152,"data":"$ nvidia-smi; nvcc --version; nproc; free -g\n"}
+,{"stream_name":"stdout","time":0.881951407,"data":"/bin/sh: 1: nvidia-smi: not found\n"}
+,{"stream_name":"stdout","time":0.881998492,"data":"/bin/sh: 1: nvcc: not found\n"}
+,{"stream_name":"stdout","time":0.88536712,"data":"4\n"}
+,{"stream_name":"stdout","time":0.917792376,"data":"               total        used        free      shared  buff/cache   available\n"}
+,{"stream_name":"stdout","time":0.917825319,"data":"Mem:              31           0          26           0           4          30\n"}
+,{"stream_name":"stdout","time":0.917837864,"data":"Swap:              0           0           0\n"}
+,{"stream_name":"stdout","time":0.919560092,"data":"$ bash scripts/compile_check.sh\n"}
+,{"stream_name":"stdout","time":10.104794857,"data":"scripts/compile_check.sh: line 13: nvcc: command not found\n"}
+,{"stream_name":"stdout","time":10.112881065,"data":"=== src/gpu/dev.cu\n"}
+,{"stream_name":"stdout","time":10.118847481,"data":"scripts/compile_check.sh: line 17: nvcc: command not found\n"}
+,{"stream_name":"stdout","time":10.123066969,"data":"=== src/kernels/v0_naive.cu\n"}
+,{"stream_name":"stdout","time":10.125148199,"data":"scripts/compile_check.sh: line 17: nvcc: command not found\n"}
+,{"stream_name":"stdout","time":10.129407392,"data":"=== src/kernels/v1_vec.cu\n"}
+,{"stream_name":"stdout","time":10.131545148,"data":"scripts/compile_check.sh: line 17: nvcc: command not found\n"}
+,{"stream_name":"stdout","time":10.135002548,"data":"=== src/kernels/v2_smem.cu\n"}
+,{"stream_name":"stdout","time":10.137182348,"data":"scripts/compile_check.sh: line 17: nvcc: command not found\n"}
+,{"stream_name":"stdout","time":10.141167416,"data":"=== src/kernels/v3_warpagg.cu\n"}
+,{"stream_name":"stdout","time":10.142994304,"data":"scripts/compile_check.sh: line 17: nvcc: command not found\n"}
+,{"stream_name":"stdout","time":10.146994839,"data":"=== src/kernels/v4_radix.cu\n"}
+,{"stream_name":"stdout","time":10.149040535,"data":"scripts/compile_check.sh: line 17: nvcc: command not found\n"}
+,{"stream_name":"stdout","time":10.153510528,"data":"=== src/kernels/v4_sort.cu\n"}
+,{"stream_name":"stdout","time":10.15582107,"data":"scripts/compile_check.sh: line 17: nvcc: command not found\n"}
+,{"stream_name":"stdout","time":10.160240929,"data":"=== src/kernels/v6_join.cu\n"}
+,{"stream_name":"stdout","time":10.162272874,"data":"scripts/compile_check.sh: line 17: nvcc: command not found\n"}
+,{"stream_name":"stdout","time":10.166374592,"data":"=== src/kernels/variants.cu\n"}
+,{"stream_name":"stdout","time":10.168100481,"data":"scripts/compile_check.sh: line 17: nvcc: command not found\n"}
+,{"stream_name":"stdout","time":10.171473328,"data":"=== bench/bench.cu\n"}
+,{"stream_name":"stdout","time":10.173777312,"data":"scripts/compile_check.sh: line 17: nvcc: command not found\n"}
+,{"stream_name":"stdout","time":10.177596631,"data":"=== bench/join.cu\n"}
+,{"stream_name":"stdout","time":10.179915043,"data":"scripts/compile_check.sh: line 17: nvcc: command not found\n"}
+,{"stream_name":"stdout","time":10.183553558,"data":"=== bench/micro.cu\n"}
+,{"stream_name":"stdout","time":10.18560935,"data":"scripts/compile_check.sh: line 17: nvcc: command not found\n"}
+,{"stream_name":"stdout","time":10.189429891,"data":"=== bench/stream.cu\n"}
+,{"stream_name":"stdout","time":10.191484164,"data":"scripts/compile_check.sh: line 17: nvcc: command not found\n"}
+,{"stream_name":"stdout","time":10.195083704,"data":"=== bench/tpch.cu\n"}
+,{"stream_name":"stdout","time":10.19757267,"data":"scripts/compile_check.sh: line 17: nvcc: command not found\n"}
+,{"stream_name":"stdout","time":18.201238832,"data":"compile_check rc=1\n"}
+,{"stream_name":"stdout","time":18.205011721,"data":"EXIT_CODE=1\n"}
+,{"stream_name":"stderr","time":21.000861631,"data":"/usr/local/lib/python3.13/dist-packages/mistune.py:435: SyntaxWarning: invalid escape sequence '\\|'\n"}
+,{"stream_name":"stderr","time":21.000899503,"data":"  cells[i][c] = re.sub('\\\\\\\\\\|', '|', cell)\n"}
+,{"stream_name":"stderr","time":21.475797379,"data":"/usr/local/lib/python3.13/dist-packages/nbconvert/filters/filter_links.py:36: SyntaxWarning: invalid escape sequence '\\_'\n"}
+,{"stream_name":"stderr","time":21.47583284,"data":"  text = re.sub(r'_', '\\_', text) # Escape underscores in display text\n"}
+,{"stream_name":"stderr","time":22.679311119,"data":"[NbConvertApp] Converting notebook __script__.ipynb to html\n"}
+,{"stream_name":"stderr","time":24.052440893,"data":"[NbConvertApp] Writing 362975 bytes to __results__.html\n"}
+]

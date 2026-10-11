@@ -1,0 +1,29 @@
+[{"stream_name":"stderr","time":0.77824616,"data":"/kaggle/src/script.py:9: DeprecationWarning: Python 3.14 will, by default, filter extracted tar archives and reject files or modify their metadata. Use the filter argument to control this behavior.\n"}
+,{"stream_name":"stderr","time":0.778298383,"data":"  tarfile.open(fileobj=io.BytesIO(base64.b64decode(PAYLOAD)), mode=\"r:gz\").extractall(repo)\n"}
+,{"stream_name":"stdout","time":0.812377616,"data":"$ nvidia-smi; nvcc --version; nproc; free -g\n"}
+,{"stream_name":"stdout","time":0.818879827,"data":"/bin/sh: 1: nvidia-smi: not found\n"}
+,{"stream_name":"stdout","time":0.819062948,"data":"/bin/sh: 1: nvcc: not found\n"}
+,{"stream_name":"stdout","time":0.821570153,"data":"4\n"}
+,{"stream_name":"stdout","time":0.850006671,"data":"               total        used        free      shared  buff/cache   available\n"}
+,{"stream_name":"stdout","time":0.850048597,"data":"Mem:              31           0          26           0           4          30\n"}
+,{"stream_name":"stdout","time":0.850054854,"data":"Swap:              0           0           0\n"}
+,{"stream_name":"stdout","time":0.852620984,"data":"$ ls -d /usr/local/cuda*; which nvcc; cmake -S . -B build -DCMAKE_BUILD_TYPE=Release \u003e/dev/null \u0026\u0026 cmake --build build -j4 -- -k 2\u003e\u00261 | grep -E 'error|warning|Error' | head -60\n"}
+,{"stream_name":"stdout","time":0.86343032,"data":"ls: cannot access '/usr/local/cuda*': No such file or directory\n"}
+,{"stream_name":"stdout","time":1.793692252,"data":"CMake Error at /usr/local/lib/python3.13/dist-packages/cmake/data/share/cmake-3.31/Modules/Internal/CMakeCUDAFindToolkit.cmake:104 (message):\n"}
+,{"stream_name":"stdout","time":1.793728386,"data":"  Failed to find nvcc.\n"}
+,{"stream_name":"stdout","time":1.793734818,"data":"\n"}
+,{"stream_name":"stdout","time":1.793739687,"data":"  Compiler requires the CUDA toolkit.  Please set the CUDAToolkit_ROOT\n"}
+,{"stream_name":"stdout","time":1.7937448630000001,"data":"  variable.\n"}
+,{"stream_name":"stdout","time":1.793749671,"data":"Call Stack (most recent call first):\n"}
+,{"stream_name":"stdout","time":1.793754407,"data":"  /usr/local/lib/python3.13/dist-packages/cmake/data/share/cmake-3.31/Modules/CMakeDetermineCUDACompiler.cmake:85 (cmake_cuda_find_toolkit)\n"}
+,{"stream_name":"stdout","time":1.793759418,"data":"  CMakeLists.txt:2 (project)\n"}
+,{"stream_name":"stdout","time":1.793764011,"data":"\n"}
+,{"stream_name":"stdout","time":1.793768383,"data":"\n"}
+,{"stream_name":"stdout","time":1.811379982,"data":"EXIT_CODE=1\n"}
+,{"stream_name":"stderr","time":4.96744415,"data":"/usr/local/lib/python3.13/dist-packages/mistune.py:435: SyntaxWarning: invalid escape sequence '\\|'\n"}
+,{"stream_name":"stderr","time":4.967481947,"data":"  cells[i][c] = re.sub('\\\\\\\\\\|', '|', cell)\n"}
+,{"stream_name":"stderr","time":5.382088237,"data":"/usr/local/lib/python3.13/dist-packages/nbconvert/filters/filter_links.py:36: SyntaxWarning: invalid escape sequence '\\_'\n"}
+,{"stream_name":"stderr","time":5.382125225,"data":"  text = re.sub(r'_', '\\_', text) # Escape underscores in display text\n"}
+,{"stream_name":"stderr","time":7.2287243740000005,"data":"[NbConvertApp] Converting notebook __script__.ipynb to html\n"}
+,{"stream_name":"stderr","time":8.550429406,"data":"[NbConvertApp] Writing 362282 bytes to __results__.html\n"}
+]

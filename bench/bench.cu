@@ -68,6 +68,7 @@ static int run_verify(const Args& a) {
   std::vector<u32> cards = tiny ? std::vector<u32>{16, 4096, 1u << 20} : std::vector<u32>{16, 256, 4096, 65536, 1u << 20, 1u << 24};
   std::vector<double> skews = tiny ? std::vector<double>{0, 1.5} : std::vector<double>{0, 1.0, 1.5};
   std::vector<int> sels = tiny ? std::vector<int>{50, 100} : std::vector<int>{0, 1, 50, 100};
+  if (a.get("sels", "") != "") { sels.clear(); for (double x : a.list("sels", "")) sels.push_back((int)x); }
   auto vars = pick_variants(a.get("variants", "all"));
   cudaStream_t st; CK(cudaStreamCreate(&st));
   int fails = 0, checks = 0;

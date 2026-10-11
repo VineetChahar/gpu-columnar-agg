@@ -163,3 +163,14 @@ inherit each other's 4–12 GB of partition/sort buffers.
 - Consequence: at 16M uniform / 100%, best drops from v4_sort 1.3 G rows/s (100M) to v3_warpagg 0.4 G/s.
   GPU/CPU 119x -> 35x. Where the plan is unchanged (64K, skew/V3), scaling is 4.3-4.8x for 5x rows.
 - Not built: chunked sort plan + partial-aggregate merge (would remove the OOM cliff). Written up in RESULTS Scale.
+
+## 2026-10-11 — gca-part3 landed (runs/20261011T142015Z)
+- verify v3_latemat + v3_warpagg: 916 checks, 0 failures; checker self-test OK; join verify 120/0.
+- latemat (100M, same session as its v3 baseline): 1.36-1.66x at sel 1% up to 1M groups, ~1.15x at 10%,
+  0.97-1.03x at >=50%. vs CPU at 1%: 2.4-3.5x at 16-4K groups (was 1.3-2.2x). Beats v4_sort at 64K/1%.
+- cap=est: only changes capacity at 16M/1% (100M) -> hash variants 3.9-5.8x faster (~28 ms = clearing +
+  scanning the 2 GB table); v4_sort still best there. Same-capacity points: median 1.06x, p95 1.22x
+  between sessions = cross-session noise floor (clock/power drift). Recorded in RESULTS.
+- latemat was not covered by the main memcheck/racecheck run (added later): new target
+  `verify-latemat-san` (tiny verify with sels=1,10,100 so the skipped-load path executes); verify got a
+  `sels=` override. Queued as gca-san after a CPU compile check.

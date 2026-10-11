@@ -104,7 +104,7 @@ hash variant spends ~30 ms clearing and scanning a 2 GB table (capacity = 2 × d
 fixed for all variants as the brief requires) for ~100K surviving rows. The CPU engine (sized by what it
 inserts) takes 8 ms there (10M rows). Sort-based aggregation does not care (0.6 ms). Sizing the table from
 the planner's selected-row estimate is measured as a separate experiment:
-[Capacity policy](#capacity-policy-cap-est).
+[Capacity policy](#capacity-policy-capest).
 
 ## The ladder, rung by rung
 
@@ -289,6 +289,63 @@ the working set of the best algorithm no longer fits in device memory.** The fix
 applied to group-by: process the input in chunks that each fit the sort plan, then merge the per-chunk
 partial aggregates. That was not built. 352 of the 432 points at 500M/high cardinality are timed and
 all are correct; the other 80 are the OOM skips above.
+
+## Late materialisation (v3_latemat)
+
+`v3_latemat` is V3 with one change in the front end (`FE_VEC_COMPACT_LATE`). The warp decodes the
+RLE predicate for its 128 rows first. A lane then issues its 16-byte code and value loads only if at
+least one of its 4 rows survives. Runs average 32 rows, so at 1% selectivity whole 128-row strips
+fail, and their sectors are never fetched. It is a separate, verified run (916 checks + checker
+self-test, 0 failures); 100M rows, uniform and Zipf 1.5, all 96 points correct.
+
+| v3_warpagg → v3_latemat, 100M rows | sel 1% | 10% | 50% | 100% |
+|---|---|---|---|---|
+| 16 groups, uniform | 4.16 → **2.51 ms** (1.66×) | 5.11 → 4.22 (1.21×) | 0.99× | 0.98× |
+| 4K groups, uniform | 4.88 → **3.13** (1.56×) | 10.49 → 9.20 (1.14×) | 1.01× | 1.02× |
+| 64K groups, uniform | 5.78 → **3.93** (1.47×) | 1.17× | 1.03× | 1.00× |
+| 1M groups, uniform | 8.17 → 6.00 (1.36×) | 1.07× | 1.01× | 1.01× |
+| 16M groups, uniform | 36.3 → 34.0 (1.07×) | 1.03× | 1.01× | 1.00× |
+
+It wins 1.36–1.66× at 1% selectivity up to 1M groups, about 1.15× at 10%, and nothing at ≥ 50%. At
+≥ 50% almost every 128-row strip has a survivor, so the loads happen anyway, and the extra branch
+costs ≤ 3%. This closes gap (a): against the CPU engine at 1%, the GPU goes from 1.3–2.2× to
+**2.4–3.5× at 16–4K groups**. It also beats `v4_sort` at 64K / 1% (3.9 vs 4.9 ms). At 16M groups the
+2 GB dictionary-sized table dominates, so late loading cannot help. That is gap (c), next section.
+**In a planner: use late materialisation when the estimated selectivity is below ~25%; it is free
+otherwise.**
+
+## Capacity policy (cap=est)
+
+The main sweep sizes every hash table at 2 × dictionary size (`cap=dict`), so all variants see the
+same table. `cap=est` instead sizes it at 2 × min(dictionary, estimated selected rows). The estimate
+comes from the RLE predicate column (`rle_count_selected`, exact and cheap). This was re-run for all
+nine main variants at 10M and 100M rows, 64K–16M groups, uniform and Zipf 1.5 (432 points, all
+correct).
+
+Capacity only changes where the dictionary is much larger than the selected rows. At 100M rows that
+is 16M groups at 1% selectivity (32M → 2M slots; load factor 0.029 → 0.467 uniform):
+
+| 16M groups, sel 1%, 100M rows | uniform cap=dict → est | Zipf 1.5 cap=dict → est |
+|---|---|---|
+| v0_naive | 36.8 → 9.5 ms (3.9×) | 33.9 → 7.2 (4.7×) |
+| v1_vec | 35.7 → **7.9** (4.6×) | 33.3 → **5.8** (5.8×) |
+| v3_warpagg | 36.2 → 8.5 (4.3×) | 33.7 → 6.1 (5.5×) |
+| v4_sort (no table) | 5.7 → 5.4 | 4.9 → 4.7 |
+
+The ~28 ms saved is the fixed cost of clearing and then scanning a 2 GB table (32M × 64 B AoS slots,
+at least 4 GB of DRAM traffic before any row is processed). The probes themselves were never the cost. Even so, `v4_sort` still wins this
+cell at 100M rows: correct sizing makes hash aggregation competitive, but not faster. At 10M rows the
+effect is larger (v3_warpagg 29.9 → 0.8 ms at Zipf 1.5, 40×), because the fixed table cost dominates
+a smaller scan.
+
+Everywhere the capacity did not change (342 of the 432 points), the cap=est session ran a median 6%
+faster (p95 1.22×). That is session-to-session clock and power-cap drift (the T4 was power-capped in
+96% of points), and it is the noise floor for comparing different Kaggle sessions. All cross-session
+ratios here should be read against it; same-session comparisons such as the latemat table are not
+affected. Not measured: cap=est at 500M rows. That is where it would matter most, because there
+`v4_sort` runs out of memory at ≥ 1M groups and the hash variants are the only option ([Scale](#scale-10m--100m--500m-rows)).
+**In a planner: size from the selectivity estimate. Correctness does not depend on it (open addressing
+with an exact count bound), and it can only shrink the table.**
 
 ## Roofline
 

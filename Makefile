@@ -67,6 +67,11 @@ bench-part3: build
 	$(BENCH) sweep rows=10M,100M cards=65536,1048576,16777216 skews=0,1.5 sels=1,10,50,100 variants=main cap=est tag=capest
 	$(BENCH) sweep rows=100M cards=$(CARDS) skews=0,1.5 sels=1,10,50,100 variants=v3_warpagg,v3_latemat tag=latemat cpu=0
 
+# sanitizers for the late-materialisation front end (added after the main verify run); sel 1% exercises the skipped loads
+verify-latemat-san: build
+	$(SAN) --tool memcheck --error-exitcode 1 --leak-check full $(BENCH) verify tiny=1 sels=1,10,100 variants=v3_latemat
+	$(SAN) --tool racecheck --error-exitcode 1 --racecheck-report all $(BENCH) verify tiny=1 sels=1,10,100 variants=v3_latemat
+
 bench: bench-part1 bench-part2 bench-part3
 
 # nsys is not on the Kaggle image but installs from NVIDIA's apt repo; trace one V5 pipeline
